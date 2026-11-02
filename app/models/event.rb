@@ -12,7 +12,7 @@ class Event < ApplicationRecord
   validates :name, presence: true
   validate :end_at_after_start_at
 
-  default_scope { where.missing(:cancellation) }
+  scope :not_cancelled, -> { where.missing(:cancellation) }
 
   def organizer?(user)
     organizer_id == user&.id

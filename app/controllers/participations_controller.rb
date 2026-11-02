@@ -1,6 +1,6 @@
 class ParticipationsController < ApplicationController
   def create
-    event = Event.find(params[:event_id])
+    event = Event.not_cancelled.find(params[:event_id])
 
     if event.receive(current_user)
       flash[:success] = "イベント参加登録しました"
@@ -11,7 +11,7 @@ class ParticipationsController < ApplicationController
   end
 
   def destroy
-    event = Event.find(params[:event_id])
+    event = Event.not_cancelled.find(params[:event_id])
     participation = current_user&.participations&.find_by(id: params[:id], event:)
 
     if participation&.destroy
