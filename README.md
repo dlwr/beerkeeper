@@ -78,16 +78,22 @@ http://localhost:3000/ を開いてイベント一覧が表示されたらOKで�
 
 ### 空のボリュームへ復元する
 
+`data` という名前のボリュームが2つあると、どちらが付くか決まらない。古いボリュームはスナップショットを取ってから先に消す。
+
 ```console
+$ fly secrets list -a beerkeeper-dlwr   # BUCKET_NAME などが揃っていることを確かめる
 $ fly machine list -a beerkeeper-dlwr
 $ fly machine destroy <machine_id> --force -a beerkeeper-dlwr
+$ fly volumes list -a beerkeeper-dlwr
+$ fly volumes snapshots create <古い volume_id> -a beerkeeper-dlwr
+$ fly volumes destroy <古い volume_id> -a beerkeeper-dlwr
 $ fly volumes create data --region nrt --size 1 -a beerkeeper-dlwr
 $ fly deploy -a beerkeeper-dlwr
 $ fly logs -a beerkeeper-dlwr   # "restore completed" を確認する
 $ fly ssh console -a beerkeeper-dlwr -C "bin/rails runner 'p Event.count, User.count'"
 ```
 
-壊れたボリュームは、復元を確かめてから `fly volumes destroy` で消します。
+secrets が無いまま空のボリュームで起動すると、空の DB が作られ、あとから secrets を足しても復元されない。
 
 ### 中身だけ確かめる
 
