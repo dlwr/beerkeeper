@@ -39,3 +39,4 @@ description: beerkeeper を自走で1回まわす手順。定期実行や「自�
 - クラウドのセッションでは `gh` の GraphQL が 403 になることがある。そのときは PR の作成・マージ・CI の確認を `gh api`（REST: `repos/dlwr/beerkeeper/pulls`、`.../pulls/<n>/merge` に `-X PUT -f merge_method=squash`、`.../commits/<sha>/check-runs`）で行う
 - `gh` はフォーク元を既定にしがちなので、必ず `-R dlwr/beerkeeper` を付ける
 - system spec に Chrome が要る。環境に無ければ system spec はローカルで流せなかったと書き、CI の結果で判断する
+- コミットメッセージに `Claude-Session:` の行を、PR 本文に `Generated with` やセッション URL を付けない
