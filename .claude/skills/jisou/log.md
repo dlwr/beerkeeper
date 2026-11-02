@@ -20,7 +20,6 @@
 
 ## 残っている候補
 
-- 本番の `config.action_mailer.default_url_options` の host が `example.com` のままで、メール内のリンクが開けない（本番ドメインは #21 待ち）
 - 通常ログイン（`SessionsController`）に `reset_session` が無い（セッション固定の対策）
 - 終了済みイベントでも参加をキャンセルできる。許すかどうか未定
 - 補欠: 編集で `max_size` を増やしても補欠は繰り上がらない（次のキャンセルまで空き枠と補欠が並ぶ）
