@@ -69,7 +69,7 @@ Rails.application.configure do
   # }
 
   # Send emails using mailtrap
-  if (mailtrap_api_key = ENV['MAILTRAP_API_KEY'].presence)
+  if (mailtrap_api_key = ENV["MAILTRAP_API_KEY"].presence)
     config.action_mailer.delivery_method = :mailtrap
     config.action_mailer.mailtrap_settings = {
       api_key: mailtrap_api_key

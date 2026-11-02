@@ -8,10 +8,10 @@ class SessionsController < ApplicationController
 
     if user
       session[:user_id] = user.id
-      flash[:notice] = 'ログインに成功しました'
+      flash[:notice] = "\u30ED\u30B0\u30A4\u30F3\u306B\u6210\u529F\u3057\u307E\u3057\u305F"
       redirect_to events_path
     else
-      flash.now[:alert] = 'ログインに失敗しました'
+      flash.now[:alert] = "\u30ED\u30B0\u30A4\u30F3\u306B\u5931\u6557\u3057\u307E\u3057\u305F"
       render :new, status: :unauthorized
     end
   end

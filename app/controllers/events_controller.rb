@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
-  before_action :set_event, only: %i(show edit update destroy)
-  before_action :authorize_organizer, only: %i(edit update destroy)
+  before_action :set_event, only: %i[show edit update destroy]
+  before_action :authorize_organizer, only: %i[edit update destroy]
 
   # GET /events
   def index
@@ -26,9 +26,9 @@ class EventsController < ApplicationController
     @event.organizer_id = current_user.id
 
     if @event.save
-      redirect_to @event, notice: 'Event was successfully created.'
+      redirect_to @event, notice: "Event was successfully created."
     else
-      flash.now[:alert] = @event.errors.full_messages.join('、')
+      flash.now[:alert] = @event.errors.full_messages.join("\u3001")
       render :new, status: :unprocessable_entity
     end
   end
@@ -36,9 +36,9 @@ class EventsController < ApplicationController
   # PATCH/PUT /events/1
   def update
     if @event.update(event_params)
-      redirect_to @event, notice: 'Event was successfully updated.'
+      redirect_to @event, notice: "Event was successfully updated."
     else
-      flash.now[:alert] = @event.errors.full_messages.join('、')
+      flash.now[:alert] = @event.errors.full_messages.join("\u3001")
       render :edit, status: :unprocessable_entity
     end
   end
@@ -46,9 +46,9 @@ class EventsController < ApplicationController
   # DELETE /events/1
   def destroy
     if @event.destroy
-      redirect_to events_url, notice: 'Event was successfully destroyed.'
+      redirect_to events_url, notice: "Event was successfully destroyed."
     else
-      redirect_to @event, alert: 'Event could not be destroyed.'
+      redirect_to @event, alert: "Event could not be destroyed."
     end
   end
 
@@ -59,7 +59,7 @@ class EventsController < ApplicationController
     end
 
     def authorize_organizer
-      return redirect_to root_url, notice: 'オーガナイザーではないため編集できません。' unless @event.organizer?(current_user)
+      redirect_to root_url, notice: "\u30AA\u30FC\u30AC\u30CA\u30A4\u30B6\u30FC\u3067\u306F\u306A\u3044\u305F\u3081\u7DE8\u96C6\u3067\u304D\u307E\u305B\u3093\u3002" unless @event.organizer?(current_user)
     end
 
     # Only allow a trusted parameter "white list" through.

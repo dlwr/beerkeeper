@@ -88,13 +88,13 @@ Test utilities:
 
 1. **CSS Compilation**: The project uses DartSass Rails. CSS is automatically compiled during tests and can be manually built with `bin/rails dartsass:build`.
 
-2. **Database**: Uses SQLite for development/test, Turso for production. Database configuration is standard Rails with `config/database.yml`.
+2. **Database**: SQLite everywhere. Production is `storage/production.sqlite3` on a Fly.io volume, migrated by `db:prepare` in `bin/docker-entrypoint` when the machine boots.
 
 3. **Environment Setup**: The `bin/setup` script handles all initial setup including dependencies, database creation, and migrations.
 
 4. **Docker Support**: Full Docker development environment is available. All commands can be run either locally or in Docker containers.
 
-5. **CI/CD**: Dependabot is configured for automated dependency updates. Check recent PRs for dependency update patterns.
+5. **CI/CD**: RunSpecs (rspec + rubocop) runs on PRs and on main. Fly Deploy runs only after RunSpecs succeeds on main, and only when the `FLY_APP` repository variable is set. Dependabot is configured for automated dependency updates.
 
 
 ## Key Directories
@@ -106,3 +106,13 @@ Test utilities:
 - `spec/`: All test files organized by type
 - `config/`: Rails configuration including routes, database, and environments
 - `db/`: Database migrations and schema
+## Fork and release state
+
+This is `dlwr/beerkeeper`, a fork of `mitakarb/beerkeeper` developed independently. Do not open PRs, issues or comments on upstream, and do not reference upstream issues with links (write them in backticks) so nothing shows up in upstream timelines.
+
+**Release state: pre-release** (no real users yet). Only the owner edits this line.
+
+- Pre-release: migrations, authorization changes and deploys may be merged without asking, once CI is green and `beerkeeper-invariants-reviewer` has no blocking findings.
+- Post-release: production deploys, migrations, and secret changes need the owner's approval. Stop at the PR for any change that drops or rewrites data.
+
+The release criteria (north star) live in the `release` milestone. The autonomous loop is described in `.claude/skills/jisou/SKILL.md`.

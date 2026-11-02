@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby file: '.ruby-version'
+ruby file: ".ruby-version"
 
 gem "rails", "~> 8.1.4"
 
@@ -38,3 +38,5 @@ group :test do
   gem "rspec-rails"
   gem "selenium-webdriver"
 end
+
+gem "rubocop-rails-omakase", "~> 1.1", group: :development, require: false
