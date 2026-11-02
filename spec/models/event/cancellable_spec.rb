@@ -43,6 +43,13 @@ RSpec.describe Event::Cancellable, type: :model do
           .to have_enqueued_mail(EventMailer, :cancellation_email).exactly(2).times
       end
 
+      it 'sends a cancellation email to waitlisted users too' do
+        FactoryBot.create(:participation, event:, user: FactoryBot.create(:user), waitlisted: true)
+
+        expect { event.cancel('台風') }
+          .to have_enqueued_mail(EventMailer, :cancellation_email).exactly(3).times
+      end
+
       it 'does not send emails again when cancelled twice' do
         event.cancel
         expect { event.cancel }.not_to have_enqueued_mail(EventMailer, :cancellation_email)

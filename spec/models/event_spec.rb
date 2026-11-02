@@ -104,7 +104,7 @@ RSpec.describe Event, type: :model do
         end
       end
 
-      it { expect(event.receive(user)).to be_falsey }
+      it { expect(event.receive(user)).to be_waitlisted }
     end
   end
 

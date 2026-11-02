@@ -6,7 +6,7 @@ class Event::Cancellation < ApplicationRecord
   private
 
   def notify_participants
-    event.participants.each do |user|
+    event.participations.includes(:user).map(&:user).each do |user|
       EventMailer.with(user:, event:).cancellation_email.deliver_later
     end
   end

@@ -11,6 +11,20 @@ class EventMailer < ApplicationMailer
     mail to: @user.email, subject: "【#{@event.name}】参加登録を受け付けました"
   end
 
+  def waitlist_email
+    @user = params[:user]
+    @event = params[:event]
+
+    mail to: @user.email, subject: "【#{@event.name}】補欠として受け付けました"
+  end
+
+  def promotion_email
+    @user = params[:user]
+    @event = params[:event]
+
+    mail to: @user.email, subject: "【#{@event.name}】繰り上げで参加が確定しました"
+  end
+
   def cancellation_email
     @user = params[:user]
     @event = params[:event]

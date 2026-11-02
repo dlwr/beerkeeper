@@ -5,7 +5,10 @@ class Event < ApplicationRecord
 
   belongs_to :organizer, class_name: "User"
   has_many :participations, dependent: :restrict_with_error
-  has_many :participants, through: :participations, source: :user
+  has_many :confirmed_participations, -> { confirmed }, class_name: "Participation"
+  has_many :participants, through: :confirmed_participations, source: :user
+  has_many :waitlisted_participations, -> { waitlisted.order(:id) }, class_name: "Participation"
+  has_many :waitlisters, through: :waitlisted_participations, source: :user
 
   validates :start_at, presence: true
   validates :end_at, presence: true
@@ -19,27 +22,37 @@ class Event < ApplicationRecord
   end
 
   def full?
-    max_size && participations.count >= max_size
+    max_size.present? && participations.confirmed.count >= max_size
   end
 
   def receive(user)
-    return if full?
-
     transaction do
-      participation = participations.create!(user:)
+      participation = participations.create!(user:, waitlisted: full?)
 
-      raise ActiveRecord::Rollback if overbook? || Event::Cancellation.exists?(event_id: id)
+      raise ActiveRecord::Rollback if Event::Cancellation.exists?(event_id: id)
 
+      participation.update!(waitlisted: true) if overbook?
       participation
     end
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
     nil
   end
 
+  def waitlist_position(user)
+    index = waitlisted_participations.pluck(:user_id).index(user&.id)
+    index && index + 1
+  end
+
+  def promote_waitlisters
+    while !full? && (participation = waitlisted_participations.first)
+      participation.update!(waitlisted: false)
+    end
+  end
+
   private
 
   def overbook?
-    max_size && participations.count > max_size
+    max_size && participations.confirmed.count > max_size
   end
 
   def end_at_after_start_at
