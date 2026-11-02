@@ -108,6 +108,19 @@ RSpec.describe Event, type: :model do
     end
   end
 
+  describe "#receive twice by the same user" do
+    it "2回目は参加を作らず、メールも送らない" do
+      event = FactoryBot.create(:event)
+      user = FactoryBot.create(:user)
+      event.receive(user)
+
+      aggregate_failures do
+        expect { expect(event.receive(user)).to be_falsey }.not_to have_enqueued_mail(EventMailer, :participation_email)
+        expect(Participation.where(event:, user:).count).to eq 1
+      end
+    end
+  end
+
   describe "#receive on a cancelled event" do
     it "中止済みなら参加を作らない" do
       event = FactoryBot.create(:event)

@@ -32,6 +32,8 @@ class Event < ApplicationRecord
 
       participation
     end
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
+    nil
   end
 
   private

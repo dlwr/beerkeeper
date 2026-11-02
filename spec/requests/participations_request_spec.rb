@@ -9,6 +9,29 @@ RSpec.describe "Participations", type: :request do
     post sessions_path, params: { email: user.email, password: 'password' }
   end
 
+  describe 'POST /events/:event_id/participations' do
+    let!(:roomy_event) { create(:event, max_size: 10) }
+
+    it '同じイベントに2回参加しても参加は1件のまま' do
+      log_in(user)
+      post event_participations_path(roomy_event)
+
+      expect do
+        post event_participations_path(roomy_event)
+      end.not_to change(Participation, :count)
+      expect(flash[:alert]).to be_present
+    end
+
+    it '二重参加では参加メールを送らない' do
+      log_in(user)
+      post event_participations_path(roomy_event)
+
+      expect do
+        post event_participations_path(roomy_event)
+      end.not_to have_enqueued_mail(EventMailer, :participation_email)
+    end
+  end
+
   describe 'DELETE /events/:event_id/participations/:id' do
     let!(:participation) { create(:participation, event:, user:) }
 

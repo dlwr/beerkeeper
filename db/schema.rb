@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_11_121503) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_02_080000) do
   create_table "event_cancellations", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "event_id", null: false
@@ -38,6 +38,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_11_121503) do
     t.integer "event_id", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
+    t.index ["event_id", "user_id"], name: "index_participations_on_event_id_and_user_id", unique: true
     t.index ["event_id"], name: "index_participations_on_event_id"
     t.index ["user_id"], name: "index_participations_on_user_id"
   end
