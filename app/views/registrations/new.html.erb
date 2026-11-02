@@ -1,22 +1,23 @@
 <%= form_with model: @user, url: "/signup", method: :post, local: true do |form| %>
-    <%= form.label :name, class: "form-label" %>
+  <div class="mb-3">
+    <%= form.label :name, "名前", class: "form-label" %>
     <%= form.text_field :name, class: "form-control", id: "user_name" %>
   </div>
 
   <div class="mb-3">
-    <%= form.label :email, "Email address", class: "form-label" %>
-    <%= form.email_field :email, class: "form-control", id: "user_email", aria: { describedby: "emailHelp" } %>
+    <%= form.label :email, "メールアドレス", class: "form-label" %>
+    <%= form.email_field :email, class: "form-control", id: "user_email" %>
   </div>
 
   <div class="mb-3">
-    <%= form.label :password, class: "form-label" %>
+    <%= form.label :password, "パスワード", class: "form-label" %>
     <%= form.password_field :password, class: "form-control", id: "user_password" %>
   </div>
 
   <div class="mb-3">
-    <%= form.label :password_confirmation, "Confirm Password", class: "form-label" %>
+    <%= form.label :password_confirmation, "パスワード（確認）", class: "form-label" %>
     <%= form.password_field :password_confirmation, class: "form-control", id: "user_password_confirmation" %>
   </div>
 
-  <%= form.submit "Signup", class: "btn btn-primary" %>
+  <%= form.submit "登録する", class: "btn btn-primary" %>
 <% end %>
