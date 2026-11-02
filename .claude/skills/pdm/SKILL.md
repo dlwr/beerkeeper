@@ -5,7 +5,7 @@ description: beerkeeper の PdM 業務を行うときに使う。曖昧な issue
 
 # beerkeeper AI PdM
 
-beerkeeper は mitaka.rb（Ruby コミュニティ）のイベント運営アプリ。このリポジトリは `dlwr/beerkeeper`（フォーク）で、`gh` には必ず `-R dlwr/beerkeeper` を付ける。北極星は `release` マイルストーン（mitaka.rb の定例会を beerkeeper だけで回せる状態）。本番は main の CI が通ると Fly にデプロイされる（app 名はリポジトリ変数 `FLY_APP`）。
+beerkeeper は mitaka.rb（Ruby コミュニティ）のイベント運営アプリ。このリポジトリは `dlwr/beerkeeper`（フォーク）で、`gh` には必ず `-R dlwr/beerkeeper` を付ける。北極星は `release` マイルストーン（mitaka.rb の定例会を beerkeeper だけで回せる状態）。本番は main の CI が通ると Fly にデプロイされる（app は `fly.toml` の `beerkeeper-dlwr`。シークレットは Fly 側にだけ置く）。
 
 ## 価値基準（全モード共通）
 

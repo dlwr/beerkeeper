@@ -94,7 +94,7 @@ Test utilities:
 
 4. **Docker Support**: Full Docker development environment is available. All commands can be run either locally or in Docker containers.
 
-5. **CI/CD**: RunSpecs (rspec + rubocop) runs on PRs and on main. Fly Deploy runs only after RunSpecs succeeds on main, and only when the `FLY_APP` repository variable is set. Dependabot is configured for automated dependency updates.
+5. **CI/CD**: RunSpecs (rspec + rubocop) runs on PRs and on main. Fly Deploy runs only after RunSpecs succeeds on main. Dependabot is configured for automated dependency updates.
 
 
 ## Key Directories
