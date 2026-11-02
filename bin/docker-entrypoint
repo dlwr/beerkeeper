@@ -8,7 +8,15 @@ fi
 
 # If running the rails server then create or migrate existing database
 if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
+    if [ -n "${BUCKET_NAME}" ]; then
+        litestream restore -config /rails/config/litestream.yml -if-db-not-exists -if-replica-exists /rails/storage/production.sqlite3
+    fi
+
     ./bin/rails db:prepare
+
+    if [ -n "${BUCKET_NAME}" ]; then
+        exec litestream replicate -config /rails/config/litestream.yml -exec "${*}"
+    fi
 fi
 
 exec "${@}"
