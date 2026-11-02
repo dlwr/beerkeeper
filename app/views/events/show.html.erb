@@ -28,6 +28,10 @@
     <li class="list-group-item">
       <%= button_to '参加する', event_participations_path(@event) %>
     </li>
+  <% elsif (participation = current_user&.participations&.find_by(event: @event)) %>
+    <li class="list-group-item">
+      <%= button_to '参加をキャンセルする', event_participation_path(@event, participation), method: :delete, form: { data: { turbo_confirm: "参加をキャンセルしてよろしいですか?" } } %>
+    </li>
   <% end %>
 </ul>
 
