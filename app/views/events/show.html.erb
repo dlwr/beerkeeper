@@ -1,5 +1,14 @@
 <h1><%= @event.name %></h1>
 
+<% if @event.cancelled? %>
+  <div class="alert alert-danger">
+    <p class="mb-0">このイベントは中止されました</p>
+    <% if @event.cancellation.reason.present? %>
+      <p class="mb-0">中止理由: <%= @event.cancellation.reason %></p>
+    <% end %>
+  </div>
+<% end %>
+
 <ul class="list-group">
   <li class="list-group-item">
     開始日時: <%= l(@event.start_at) %>
@@ -24,7 +33,8 @@
     <%= simple_format @event.description %>
   </li>
 
-  <% if current_user && current_user.participatable?(@event) %>
+  <% if @event.cancelled? %>
+  <% elsif current_user && current_user.participatable?(@event) %>
     <li class="list-group-item">
       <%= button_to '参加する', event_participations_path(@event) %>
     </li>
@@ -46,8 +56,12 @@
   参加者なし
 <% end %>
 
-<% if @event.organizer?(current_user) %>
+<% if @event.organizer?(current_user) && !@event.cancelled? %>
   <div><%= link_to '編集', edit_event_path(@event) %></div>
-  <div><%= link_to 'イベント中止', event_cancellations_url(@event), data: { turbo_method: :post, turbo_confirm: "本当に中止にしてよろしいですか?" } %></div>
+  <%= form_with url: event_cancellations_path(@event), scope: :cancellation, data: { turbo_confirm: "本当に中止にしてよろしいですか?" } do |f| %>
+    <%= f.label :reason, "中止理由" %>
+    <%= f.text_field :reason %>
+    <%= f.submit "イベント中止" %>
+  <% end %>
 <% end %>
 <div><%= link_to 'トップへ戻る', root_path %></div>

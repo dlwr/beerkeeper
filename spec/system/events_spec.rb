@@ -19,4 +19,19 @@ RSpec.describe "events", type: :system, js: true do
     expect(page).to have_text(user1.name)
     expect(page).to have_text(user2.name)
   end
+
+  it "lets the organizer cancel an event with a reason" do
+    organizer = create(:user)
+    event = create(:event, organizer:)
+    allow_any_instance_of(ApplicationController).to receive(:current_user) { organizer }
+
+    visit "/events/#{event.id}"
+    fill_in "中止理由", with: "台風のため"
+    accept_confirm { click_on "イベント中止" }
+    expect(page).to have_text("イベントを中止しました")
+
+    visit "/events/#{event.id}"
+    expect(page).to have_text("このイベントは中止されました")
+    expect(page).to have_text("台風のため")
+  end
 end
