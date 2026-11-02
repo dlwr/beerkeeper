@@ -1,10 +1,11 @@
 class EventsController < ApplicationController
-  before_action :set_event, only: %i[show edit update destroy]
+  before_action :set_event, only: %i[show]
+  before_action :set_editable_event, only: %i[edit update destroy]
   before_action :authorize_organizer, only: %i[edit update destroy]
 
   # GET /events
   def index
-    @events = Event.all
+    @events = Event.not_cancelled
   end
 
   # GET /events/1
@@ -56,6 +57,10 @@ class EventsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_event
       @event = Event.find(params[:id])
+    end
+
+    def set_editable_event
+      @event = Event.not_cancelled.find(params[:id])
     end
 
     def authorize_organizer

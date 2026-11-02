@@ -16,4 +16,25 @@ RSpec.describe EventMailer, type: :mailer do
       expect(mail.text_part.body.decoded).to match('ご参加登録いただき')
     end
   end
+
+  describe 'cancellation_email' do
+    let(:mail) { EventMailer.with(user:, event:).cancellation_email }
+    let(:user) { FactoryBot.create(:user) }
+    let(:event) { FactoryBot.create(:event) }
+
+    before { event.cancel('会場が使えなくなったため') }
+
+    it 'renders the headers' do
+      expect(mail.subject).to eq("【#{event.name}】イベントは中止になりました")
+      expect(mail.to).to eq([ user.email ])
+    end
+
+    it 'renders the reason in the body' do
+      aggregate_failures do
+        expect(mail.text_part.body.decoded).to match('中止')
+        expect(mail.text_part.body.decoded).to match('会場が使えなくなったため')
+        expect(mail.html_part.body.decoded).to match('会場が使えなくなったため')
+      end
+    end
+  end
 end
