@@ -57,24 +57,17 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  config.action_mailer.default_url_options = { host: "beerkeeper.yuta25.com", protocol: "https" }
 
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
-
-  # Send emails using mailtrap
-  if (mailtrap_api_key = ENV["MAILTRAP_API_KEY"].presence)
-    config.action_mailer.delivery_method = :mailtrap
-    config.action_mailer.mailtrap_settings = {
-      api_key: mailtrap_api_key
-    }
-  end
+  # Cloudflare Email Service の SMTP は 465 の implicit TLS のみ
+  config.action_mailer.smtp_settings = {
+    address: "smtp.mx.cloudflare.net",
+    port: 465,
+    tls: true,
+    authentication: :plain,
+    user_name: "api_token",
+    password: ENV["CLOUDFLARE_EMAIL_TOKEN"]
+  }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
