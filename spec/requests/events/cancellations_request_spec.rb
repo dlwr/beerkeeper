@@ -20,6 +20,23 @@ RSpec.describe "Event::Cancellation", type: :request do
 
       expect(event.reload.cancellation.reason).to eq '台風のため'
     end
+
+    it '主催者以外のログインユーザーは中止できない' do
+      other = create(:user)
+      post sessions_path, params: { email: other.email, password: 'password' }
+
+      expect do
+        post event_cancellations_path(event.id)
+      end.not_to change(Event::Cancellation, :count)
+    end
+
+    it '未ログインでは中止できない' do
+      delete session_path(user)
+
+      expect do
+        post event_cancellations_path(event.id)
+      end.not_to change(Event::Cancellation, :count)
+    end
   end
 
   describe '中止後の表示' do
