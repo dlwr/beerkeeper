@@ -11,8 +11,7 @@
 
 ## 踏んだ罠
 
-- `.ruby-version` の Ruby が入っていないことがある。`rbenv install` で入れて `/opt/rbenv/versions/<版>/bin` を PATH の先頭に置く
-- system spec は `/opt/node22/bin` の古い chromedriver を拾うと Chrome と版が合わず落ちる。PATH から外すと Selenium Manager が合う版を取ってくる
+- クラウドの初期イメージには `.ruby-version` の Ruby が無く、`/opt/node22/bin` に Chrome と版の合わない chromedriver がある。環境の setup で `bin/cloud-setup` が片付ける。`ruby -v` が違えば `bash bin/cloud-setup` を流して `. /etc/profile.d/ruby.sh` する
 - `spec/system/sessions_spec.rb` の「email が違うとき」はローカルでときどき落ちる（flaky）
 - rspec を流すと `app/assets/builds` が消えることがある。開発サーバーで画面を見る前に `bin/rails dartsass:build` する
 - PR 本文に `Closes` を2つ並べると片方しか閉じないことがある。マージ後に issue の状態を確かめる
