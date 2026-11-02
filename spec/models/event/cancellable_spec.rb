@@ -30,5 +30,23 @@ RSpec.describe Event::Cancellable, type: :model do
       before { event.cancel }
       it { expect(event.cancel).to be_nil }
     end
+
+    context 'when the event has participants' do
+      let(:participants) { FactoryBot.create_list(:user, 2) }
+
+      before do
+        participants.each { |user| FactoryBot.create(:participation, event:, user:) }
+      end
+
+      it 'sends a cancellation email to each participant' do
+        expect { event.cancel('台風') }
+          .to have_enqueued_mail(EventMailer, :cancellation_email).exactly(2).times
+      end
+
+      it 'does not send emails again when cancelled twice' do
+        event.cancel
+        expect { event.cancel }.not_to have_enqueued_mail(EventMailer, :cancellation_email)
+      end
+    end
   end
 end

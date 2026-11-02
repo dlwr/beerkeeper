@@ -10,4 +10,12 @@ class EventMailer < ApplicationMailer
 
     mail to: @user.email, subject: "【#{@event.name}】参加登録を受け付けました"
   end
+
+  def cancellation_email
+    @user = params[:user]
+    @event = params[:event]
+    @reason = @event.cancellation&.reason
+
+    mail to: @user.email, subject: "【#{@event.name}】イベントは中止になりました"
+  end
 end

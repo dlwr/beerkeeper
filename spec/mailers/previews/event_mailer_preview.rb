@@ -6,4 +6,10 @@ class EventMailerPreview < ActionMailer::Preview
     event = Event.take || FactoryBot.create(:event)
     EventMailer.with(user:, event:).participation_email
   end
+
+  def cancellation_email
+    user = User.take || FactoryBot.create(:user)
+    event = Event.take || FactoryBot.create(:event)
+    EventMailer.with(user:, event:).cancellation_email
+  end
 end
