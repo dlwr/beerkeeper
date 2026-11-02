@@ -20,6 +20,7 @@
 
 ## 残っている候補
 
+- 本番ログに image_processing gem が無いという警告が出る。variant を使っていなければ `config.active_storage.variant_processor = :disabled` で消える
 - 通常ログイン（`SessionsController`）に `reset_session` が無い（セッション固定の対策）
 - 終了済みイベントでも参加をキャンセルできる。許すかどうか未定
 - 補欠: 編集で `max_size` を増やしても補欠は繰り上がらない（次のキャンセルまで空き枠と補欠が並ぶ）
