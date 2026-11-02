@@ -3,7 +3,7 @@ class Event < ApplicationRecord
 
   include Cancellable
 
-  belongs_to :organizer, class_name: 'User'
+  belongs_to :organizer, class_name: "User"
   has_many :participations, dependent: :restrict_with_error
   has_many :participants, through: :participations, source: :user
 
@@ -44,7 +44,7 @@ class Event < ApplicationRecord
     return if start_at.blank? || end_at.blank?
 
     if end_at <= start_at
-      errors.add(:end_at, 'は開始日時より後にしてください')
+      errors.add(:end_at, "\u306F\u958B\u59CB\u65E5\u6642\u3088\u308A\u5F8C\u306B\u3057\u3066\u304F\u3060\u3055\u3044")
     end
   end
 end

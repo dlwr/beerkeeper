@@ -9,7 +9,7 @@ class RegistrationsController < ApplicationController
     @user = User.new(user_params)
 
     if @user.save
-      flash[:notice] = 'ユーザー登録しました'
+      flash[:notice] = "\u30E6\u30FC\u30B6\u30FC\u767B\u9332\u3057\u307E\u3057\u305F"
       redirect_to login_path
     else
       flash.now[:alert] = @user.errors.full_messages.join(", ")

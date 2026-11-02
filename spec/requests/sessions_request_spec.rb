@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe "Sessions", type: :request do
-
   describe 'GET /login' do
     it 'ログインフォームを表示する' do
       get login_path
