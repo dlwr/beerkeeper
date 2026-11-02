@@ -7,6 +7,18 @@ class EventMailerPreview < ActionMailer::Preview
     EventMailer.with(user:, event:).participation_email
   end
 
+  def waitlist_email
+    user = User.take || FactoryBot.create(:user)
+    event = Event.take || FactoryBot.create(:event)
+    EventMailer.with(user:, event:).waitlist_email
+  end
+
+  def promotion_email
+    user = User.take || FactoryBot.create(:user)
+    event = Event.take || FactoryBot.create(:event)
+    EventMailer.with(user:, event:).promotion_email
+  end
+
   def cancellation_email
     user = User.take || FactoryBot.create(:user)
     event = Event.take || FactoryBot.create(:event)

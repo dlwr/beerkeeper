@@ -2,7 +2,10 @@ class ParticipationsController < ApplicationController
   def create
     event = Event.not_cancelled.find(params[:event_id])
 
-    if event.receive(current_user)
+    participation = event.receive(current_user)
+    if participation&.waitlisted?
+      flash[:success] = "定員に達しているため補欠として登録しました（補欠の#{event.waitlist_position(current_user)}番目）"
+    elsif participation
       flash[:success] = "イベント参加登録しました"
     else
       flash[:alert] = "イベントに参加できませんでした"

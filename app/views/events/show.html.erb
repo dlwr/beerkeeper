@@ -40,6 +40,9 @@
     </li>
   <% elsif (participation = current_user&.participations&.find_by(event: @event)) %>
     <li class="list-group-item">
+      <% if participation.waitlisted? %>
+        <p>あなたは補欠の<%= @event.waitlist_position(current_user) %>番目です</p>
+      <% end %>
       <%= button_to '参加をキャンセルする', event_participation_path(@event, participation), method: :delete, form: { data: { turbo_confirm: "参加をキャンセルしてよろしいですか?" } } %>
     </li>
   <% end %>
@@ -54,6 +57,15 @@
   </ul>
 <% else %>
   参加者なし
+<% end %>
+
+<% if @event.waitlisters.present? %>
+  補欠リスト
+  <ol class="list-group list-group-numbered">
+    <% @event.waitlisters.each do |waitlister| %>
+      <li class="list-group-item"><%= waitlister.name %></li>
+    <% end %>
+  </ol>
 <% end %>
 
 <% if @event.organizer?(current_user) && !@event.cancelled? %>

@@ -37,4 +37,34 @@ RSpec.describe EventMailer, type: :mailer do
       end
     end
   end
+
+  describe 'waitlist_email' do
+    let(:mail) { EventMailer.with(user:, event:).waitlist_email }
+    let(:user) { FactoryBot.create(:user) }
+    let(:event) { FactoryBot.create(:event) }
+
+    it 'renders the headers and body' do
+      aggregate_failures do
+        expect(mail.subject).to eq("【#{event.name}】補欠として受け付けました")
+        expect(mail.to).to eq([ user.email ])
+        expect(mail.text_part.body.decoded).to match('補欠')
+        expect(mail.html_part.body.decoded).to match('補欠')
+      end
+    end
+  end
+
+  describe 'promotion_email' do
+    let(:mail) { EventMailer.with(user:, event:).promotion_email }
+    let(:user) { FactoryBot.create(:user) }
+    let(:event) { FactoryBot.create(:event) }
+
+    it 'renders the headers and body' do
+      aggregate_failures do
+        expect(mail.subject).to eq("【#{event.name}】繰り上げで参加が確定しました")
+        expect(mail.to).to eq([ user.email ])
+        expect(mail.text_part.body.decoded).to match('繰り上げ')
+        expect(mail.html_part.body.decoded).to match('繰り上げ')
+      end
+    end
+  end
 end

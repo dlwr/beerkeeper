@@ -32,6 +32,42 @@ RSpec.describe "Participations", type: :request do
     end
   end
 
+  describe '補欠' do
+    before { create(:participation, event:, user: other_user) }
+
+    it '定員に達したイベントへの申し込みは補欠として受け付ける' do
+      log_in(user)
+
+      expect do
+        post event_participations_path(event)
+      end.to change(Participation, :count).by(1)
+      expect(flash[:success]).to include('補欠')
+    end
+
+    it 'イベント詳細で参加者と補欠を分け、自分が補欠の何番目か表示する' do
+      log_in(user)
+      post event_participations_path(event)
+
+      get event_path(event)
+
+      aggregate_failures do
+        expect(response.body).to include('参加人数: 1人')
+        expect(response.body).to include('補欠リスト')
+        expect(response.body).to include('補欠の1番目')
+      end
+    end
+
+    it '参加者がキャンセルすると補欠が参加になる' do
+      log_in(user)
+      post event_participations_path(event)
+
+      log_in(other_user)
+      delete event_participation_path(event, other_user.participations.find_by(event:))
+
+      expect(event.participants).to eq [ user ]
+    end
+  end
+
   describe 'DELETE /events/:event_id/participations/:id' do
     let!(:participation) { create(:participation, event:, user:) }
 
