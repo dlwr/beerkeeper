@@ -108,6 +108,19 @@ RSpec.describe Event, type: :model do
     end
   end
 
+  describe "#receive on a cancelled event" do
+    it "中止済みなら参加を作らない" do
+      event = FactoryBot.create(:event)
+      user = FactoryBot.create(:user)
+      Event.find(event.id).cancel
+
+      aggregate_failures do
+        expect(event.receive(user)).to be_falsey
+        expect(Participation.where(event_id: event.id)).not_to exist
+      end
+    end
+  end
+
   describe ".not_cancelled" do
     let!(:event) { FactoryBot.create(:event) }
     let!(:cancelled_event) do

@@ -28,7 +28,7 @@ class Event < ApplicationRecord
     transaction do
       participation = participations.create!(user:)
 
-      raise ActiveRecord::Rollback if overbook?
+      raise ActiveRecord::Rollback if overbook? || Event::Cancellation.exists?(event_id: id)
 
       participation
     end
