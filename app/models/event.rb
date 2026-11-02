@@ -44,6 +44,8 @@ class Event < ApplicationRecord
   end
 
   def promote_waitlisters
+    return if Event::Cancellation.exists?(event_id: id)
+
     while !full? && (participation = waitlisted_participations.first)
       participation.update!(waitlisted: false)
     end

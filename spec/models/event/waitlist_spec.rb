@@ -73,6 +73,18 @@ RSpec.describe Event, type: :model do
     end
   end
 
+  describe '中止済みイベントでのキャンセル' do
+    it '補欠を繰り上げない' do
+      event.receive(first_user)
+      event.receive(second_user)
+      Event.find(event.id).cancel
+
+      expect { first_user.participations.find_by(event:).destroy }
+        .not_to have_enqueued_mail(EventMailer, :promotion_email)
+      expect(event.waitlisters).to eq [ second_user ]
+    end
+  end
+
   describe '補欠のキャンセル' do
     before do
       event.receive(first_user)
