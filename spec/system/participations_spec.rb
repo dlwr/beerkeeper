@@ -15,6 +15,14 @@ RSpec.describe 'Participations', type: :system, js: true do
       it 'lets the user participate the event' do
         click_on '参加する'
       end
+
+      it 'lets the user cancel the participation' do
+        click_on '参加する'
+        accept_confirm { click_on '参加をキャンセルする' }
+
+        expect(page).to have_button('参加する')
+        expect(page).to have_content('参加人数: 0人')
+      end
     end
 
     context 'when the user is not logging in' do
