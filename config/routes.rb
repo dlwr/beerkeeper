@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   post "signup", to: "registrations#create"
 
   resources :sessions, only: %i[create destroy]
+  resources :password_resets, only: %i[new create edit update], param: :token
   resources :events do
     resources :participations, only: %i[create destroy]
     scope module: :events do

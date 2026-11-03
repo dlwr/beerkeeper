@@ -1,0 +1,11 @@
+<h1>パスワードの再設定</h1>
+
+<p>登録したメールアドレスを入力してください。再設定用のリンクを送ります。</p>
+
+<%= form_with url: password_resets_path do |form| %>
+  <div class="field">
+    <%= form.label :email %>
+    <%= form.email_field :email, required: true %>
+  </div>
+  <%= form.submit '送信' %>
+<% end %>
