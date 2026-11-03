@@ -1,0 +1,18 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">開催日時</th>
+      <th scope="col">イベント名</th>
+      <th scope="col">説明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% events.each do |event| %>
+      <tr>
+        <td><%= l(event.start_at) %></td>
+        <td><%= link_to event.name, event %></td>
+        <td><%= event.description %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

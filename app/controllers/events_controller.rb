@@ -5,7 +5,8 @@ class EventsController < ApplicationController
 
   # GET /events
   def index
-    @events = Event.not_cancelled
+    @upcoming_events = Event.not_cancelled.upcoming
+    @past_events = Event.not_cancelled.past
   end
 
   # GET /events/1
