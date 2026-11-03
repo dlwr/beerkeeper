@@ -1,0 +1,8 @@
+本番で例外が起きました。同じ例外は1時間に1通だけ送ります。
+
+例外: <%= @error.class %>
+メッセージ: <%= @error.message %>
+発生元: <%= @source %>
+時刻: <%= l(Time.current) %>
+
+<%= Array(@error.backtrace).first(20).join("\n") %>
