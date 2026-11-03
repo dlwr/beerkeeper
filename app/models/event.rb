@@ -16,6 +16,8 @@ class Event < ApplicationRecord
   validate :end_at_after_start_at
 
   scope :not_cancelled, -> { where.missing(:cancellation) }
+  scope :upcoming, -> { where(end_at: Time.current..).order(:start_at, :id) }
+  scope :past, -> { where(end_at: ...Time.current).order(start_at: :desc, id: :desc) }
 
   def organizer?(user)
     organizer_id == user&.id
