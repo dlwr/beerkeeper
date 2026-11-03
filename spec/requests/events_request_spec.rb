@@ -7,6 +7,24 @@ RSpec.describe "Events", type: :request do
     post sessions_path, params: { email: user.email, password: 'password' }
   end
 
+  describe 'GET /events' do
+    let!(:upcoming_event) { create(:event, name: '次の定例会', start_at: Time.zone.local(2099, 1, 15, 19, 30), end_at: Time.zone.local(2099, 1, 15, 21, 0)) }
+    let!(:past_event) { create(:event, name: '前の定例会', start_at: Time.zone.local(2020, 1, 15, 19, 30), end_at: Time.zone.local(2020, 1, 15, 21, 0)) }
+
+    it '開催日時を表示し、開催予定と過去のイベントを分けて表示する' do
+      get events_path
+
+      expect(response).to have_http_status(:ok)
+      body = response.body
+      expect(body).to include(I18n.l(upcoming_event.start_at))
+      expect(body).to include(I18n.l(past_event.start_at))
+      expect(body).to include('開催予定')
+      expect(body).to include('過去のイベント')
+      expect(body.index('次の定例会')).to be < body.index('過去のイベント')
+      expect(body.index('過去のイベント')).to be < body.index('前の定例会')
+    end
+  end
+
   describe 'GET /events/:id' do
     let!(:event) { create(:event, organizer: user) }
     let!(:other_user) { create(:user) }

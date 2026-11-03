@@ -1,24 +1,21 @@
 <h1>イベント一覧</h1>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">イベント名</th>
-      <th scope="col">説明</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @events.each do |event| %>
-      <tr>
-        <th scope="row"><%= event.id %></th>
-        <td><%= link_to event.name, event %></td>
-        <td><%= event.description %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<h2 class="h4 mt-4">開催予定</h2>
+<% if @upcoming_events.any? %>
+  <%= render "table", events: @upcoming_events %>
+<% else %>
+  <p class="text-muted">開催予定のイベントはありません。</p>
+<% end %>
 
 <% if current_user %>
   <%= link_to '新規作成', new_event_path, class: "btn btn-primary" %>
+<% end %>
+
+<h2 class="h4 mt-5">過去のイベント</h2>
+<% if @past_events.any? %>
+  <div class="text-muted">
+    <%= render "table", events: @past_events %>
+  </div>
+<% else %>
+  <p class="text-muted">過去のイベントはありません。</p>
 <% end %>
