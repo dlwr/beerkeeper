@@ -1,0 +1,11 @@
+<h1>新しいパスワードの設定</h1>
+
+<%= form_with url: password_reset_path(params[:token]), method: :patch do |form| %>
+  <div class="field">
+    <%= form.label :password %>
+    <%= form.password_field :password, required: true %>
+    <%= form.label :password_confirmation %>
+    <%= form.password_field :password_confirmation, required: true %>
+  </div>
+  <%= form.submit '設定する' %>
+<% end %>
