@@ -25,6 +25,14 @@ class EventMailer < ApplicationMailer
     mail to: @user.email, subject: "【#{@event.name}】繰り上げで参加が確定しました"
   end
 
+  def schedule_change_email
+    @user = params[:user]
+    @event = params[:event]
+    @changes = params[:changes]
+
+    mail to: @user.email, subject: "【#{@event.name}】開催日時・場所が変更されました"
+  end
+
   def cancellation_email
     @user = params[:user]
     @event = params[:event]

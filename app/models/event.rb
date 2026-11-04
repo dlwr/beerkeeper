@@ -1,4 +1,6 @@
 class Event < ApplicationRecord
+  SCHEDULE_ATTRIBUTES = %w[start_at end_at location].freeze
+
   attr_accessor :start_at_date, :start_at_time, :end_at_date, :end_at_time
 
   include Cancellable
@@ -16,6 +18,7 @@ class Event < ApplicationRecord
   validate :end_at_after_start_at
 
   after_update :promote_waitlisters, if: :saved_change_to_max_size?
+  after_update_commit :notify_schedule_change
 
   scope :not_cancelled, -> { where.missing(:cancellation) }
   scope :upcoming, -> { where(end_at: Time.current..).order(:start_at, :id) }
@@ -56,6 +59,15 @@ class Event < ApplicationRecord
   end
 
   private
+
+  def notify_schedule_change
+    schedule_changes = saved_changes.slice(*SCHEDULE_ATTRIBUTES)
+    return if schedule_changes.empty? || Event::Cancellation.exists?(event_id: id)
+
+    participations.includes(:user).map(&:user).each do |user|
+      EventMailer.with(user:, event: self, changes: schedule_changes).schedule_change_email.deliver_later
+    end
+  end
 
   def overbook?
     max_size && participations.confirmed.count > max_size
