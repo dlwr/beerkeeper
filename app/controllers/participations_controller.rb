@@ -1,4 +1,6 @@
 class ParticipationsController < ApplicationController
+  before_action :require_login
+
   def create
     event = Event.not_cancelled.find(params[:event_id])
 
