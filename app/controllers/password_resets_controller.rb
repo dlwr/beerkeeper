@@ -26,7 +26,7 @@ class PasswordResetsController < ApplicationController
     end
 
     flash.now[:alert] = @user.errors.full_messages.join("、")
-    render :edit, status: :unprocessable_entity
+    render :edit, status: :unprocessable_content
   end
 
   private

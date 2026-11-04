@@ -79,7 +79,7 @@ RSpec.describe "Events", type: :request do
         }
       }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).to include('イベント名')
       expect(response.body).to include('value="2026-03-14"')
       expect(response.body).to include('value="18:30"')

@@ -27,7 +27,7 @@ RSpec.describe "Registrations", type: :request do
     it '入力に誤りがあるとサインアップ画面のままエラーを表示する' do
       post signup_path, params: { user: params[:user].merge(email: '') }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).to include('Email を入力してください')
     end
   end
