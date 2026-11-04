@@ -15,7 +15,7 @@ class RegistrationsController < ApplicationController
       redirect_to events_path
     else
       flash.now[:alert] = @user.errors.full_messages.join(", ")
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 

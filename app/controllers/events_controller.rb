@@ -32,7 +32,7 @@ class EventsController < ApplicationController
       redirect_to @event, notice: "Event was successfully created."
     else
       flash.now[:alert] = @event.errors.full_messages.join("\u3001")
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -42,7 +42,7 @@ class EventsController < ApplicationController
       redirect_to @event, notice: "Event was successfully updated."
     else
       flash.now[:alert] = @event.errors.full_messages.join("\u3001")
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

@@ -82,14 +82,14 @@ RSpec.describe "PasswordResets", type: :request do
     it '空のパスワードは受け付けない' do
       patch password_reset_path(token), params: { password: '', password_confirmation: '' }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(user.reload.authenticate('oldpassword')).to be_truthy
     end
 
     it '確認用と一致しないパスワードは受け付けない' do
       patch password_reset_path(token), params: { password: 'newpassword', password_confirmation: 'different' }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(user.reload.authenticate('oldpassword')).to be_truthy
     end
   end
