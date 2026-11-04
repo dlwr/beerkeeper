@@ -38,6 +38,30 @@ RSpec.describe EventMailer, type: :mailer do
     end
   end
 
+  describe 'schedule_change_email' do
+    let(:user) { FactoryBot.create(:user) }
+    let(:event) { FactoryBot.create(:event, location: '吉祥寺') }
+    let(:old_start) { Time.zone.local(2099, 1, 15, 19, 0) }
+    let(:new_start) { Time.zone.local(2099, 1, 22, 19, 0) }
+    let(:mail) { EventMailer.with(user:, event:, changes: { 'start_at' => [ old_start, new_start ], 'location' => [ '三鷹', '吉祥寺' ] }).schedule_change_email }
+
+    it 'renders the headers' do
+      expect(mail.subject).to eq("【#{event.name}】開催日時・場所が変更されました")
+      expect(mail.to).to eq([ user.email ])
+    end
+
+    it '変わった項目の変更前と変更後、詳細の URL を本文に入れる' do
+      [ mail.text_part.body.decoded, mail.html_part.body.decoded ].each do |body|
+        aggregate_failures do
+          expect(body).to include('開始日時', I18n.l(old_start), I18n.l(new_start))
+          expect(body).to include('開催場所', '三鷹', '吉祥寺')
+          expect(body).not_to include('終了日時')
+          expect(body).to include("/events/#{event.id}")
+        end
+      end
+    end
+  end
+
   describe 'waitlist_email' do
     let(:mail) { EventMailer.with(user:, event:).waitlist_email }
     let(:user) { FactoryBot.create(:user) }
