@@ -1,4 +1,6 @@
 class Events::CancellationsController < ApplicationController
+  before_action :require_login
+
   def create
     @event = Event.not_cancelled.find(params[:event_id])
     return redirect_to(root_path, alert: "主催者ではないため中止できません") unless @event.organizer?(current_user)

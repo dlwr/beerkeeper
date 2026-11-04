@@ -1,4 +1,5 @@
 class EventsController < ApplicationController
+  before_action :require_login, except: %i[index show]
   before_action :set_event, only: %i[show]
   before_action :set_editable_event, only: %i[edit update destroy]
   before_action :authorize_organizer, only: %i[edit update destroy]

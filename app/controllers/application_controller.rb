@@ -9,4 +9,10 @@ class ApplicationController < ActionController::Base
   def current_user
     @current_user
   end
+
+  private
+
+  def require_login
+    redirect_to login_path, alert: "ログインしてください" unless current_user
+  end
 end
