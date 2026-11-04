@@ -45,6 +45,10 @@ class Event < ApplicationRecord
     nil
   end
 
+  def participant_notice_visible_to?(user)
+    participant_notice.present? && !cancelled? && (organizer?(user) || participants.include?(user))
+  end
+
   def waitlist_position(user)
     index = waitlisted_participations.pluck(:user_id).index(user&.id)
     index && index + 1

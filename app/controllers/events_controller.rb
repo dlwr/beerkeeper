@@ -82,7 +82,8 @@ class EventsController < ApplicationController
         :name,
         :max_size,
         :budget,
-        :description
+        :description,
+        :participant_notice
       )
 
       if permitted[:start_at_date].present? && permitted[:start_at_time].present?

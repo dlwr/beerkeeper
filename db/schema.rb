@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_02_080001) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_04_022956) do
   create_table "event_cancellations", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "event_id", null: false
@@ -28,6 +28,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_080001) do
     t.integer "max_size"
     t.string "name", null: false
     t.integer "organizer_id", null: false
+    t.text "participant_notice"
     t.datetime "start_at", precision: nil
     t.datetime "updated_at", null: false
     t.index ["organizer_id"], name: "index_events_on_organizer_id"
