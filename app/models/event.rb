@@ -15,6 +15,8 @@ class Event < ApplicationRecord
   validates :name, presence: true
   validate :end_at_after_start_at
 
+  after_update :promote_waitlisters, if: :saved_change_to_max_size?
+
   scope :not_cancelled, -> { where.missing(:cancellation) }
   scope :upcoming, -> { where(end_at: Time.current..).order(:start_at, :id) }
   scope :past, -> { where(end_at: ...Time.current).order(start_at: :desc, id: :desc) }
@@ -48,7 +50,7 @@ class Event < ApplicationRecord
   def promote_waitlisters
     return if Event::Cancellation.exists?(event_id: id)
 
-    while !full? && (participation = waitlisted_participations.first)
+    while !full? && (participation = participations.waitlisted.order(:id).first)
       participation.update!(waitlisted: false)
     end
   end
