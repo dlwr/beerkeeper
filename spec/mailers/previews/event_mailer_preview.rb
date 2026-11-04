@@ -19,6 +19,13 @@ class EventMailerPreview < ActionMailer::Preview
     EventMailer.with(user:, event:).promotion_email
   end
 
+  def schedule_change_email
+    user = User.take || FactoryBot.create(:user)
+    event = Event.take || FactoryBot.create(:event)
+    changes = { "start_at" => [ event.start_at - 1.week, event.start_at ], "location" => [ "三鷹", event.location ] }
+    EventMailer.with(user:, event:, changes:).schedule_change_email
+  end
+
   def cancellation_email
     user = User.take || FactoryBot.create(:user)
     event = Event.take || FactoryBot.create(:event)
