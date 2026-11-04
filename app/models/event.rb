@@ -24,7 +24,7 @@ class Event < ApplicationRecord
   scope :upcoming, -> { where(end_at: Time.current..).order(:start_at, :id) }
   scope :past, -> { where(end_at: ...Time.current).order(start_at: :desc, id: :desc) }
 
-  def organizer?(user)
+  def organized_by?(user)
     organizer_id == user&.id
   end
 
@@ -46,7 +46,7 @@ class Event < ApplicationRecord
   end
 
   def participant_notice_visible_to?(user)
-    participant_notice.present? && !cancelled? && (organizer?(user) || participants.include?(user))
+    participant_notice.present? && !cancelled? && (organized_by?(user) || participants.include?(user))
   end
 
   def waitlist_position(user)

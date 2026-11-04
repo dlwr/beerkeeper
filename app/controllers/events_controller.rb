@@ -66,7 +66,7 @@ class EventsController < ApplicationController
     end
 
     def authorize_organizer
-      redirect_to root_url, notice: "\u30AA\u30FC\u30AC\u30CA\u30A4\u30B6\u30FC\u3067\u306F\u306A\u3044\u305F\u3081\u7DE8\u96C6\u3067\u304D\u307E\u305B\u3093\u3002" unless @event.organizer?(current_user)
+      redirect_to root_url, notice: "\u30AA\u30FC\u30AC\u30CA\u30A4\u30B6\u30FC\u3067\u306F\u306A\u3044\u305F\u3081\u7DE8\u96C6\u3067\u304D\u307E\u305B\u3093\u3002" unless @event.organized_by?(current_user)
     end
 
     # Only allow a trusted parameter "white list" through.

@@ -3,7 +3,7 @@ class Events::CancellationsController < ApplicationController
 
   def create
     @event = Event.not_cancelled.find(params[:event_id])
-    return redirect_to(root_path, alert: "主催者ではないため中止できません") unless @event.organizer?(current_user)
+    return redirect_to(root_path, alert: "主催者ではないため中止できません") unless @event.organized_by?(current_user)
 
     @event.cancel(params.dig(:cancellation, :reason))
 
