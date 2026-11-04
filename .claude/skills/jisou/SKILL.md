@@ -1,11 +1,11 @@
 ---
 name: jisou
-description: beerkeeper を自走で1回まわす手順。定期実行や「自走で」「なんかやろう」と言われたときに読む。release マイルストーンの issue を priority 順に実装・マージし、終わったら log.md を更新する
+description: beerkeeper を自走で1回まわす手順。定期実行や「自走で」「なんかやろう」と言われたときに読む。release マイルストーンの issue を priority 順に実装・マージし、無くなれば自分で起票して実装し、終わったら log.md を更新する
 ---
 
 # 自走で1回まわす
 
-北極星は `release` マイルストーン（mitaka.rb の定例会を beerkeeper だけで回せる状態）。マイルストーンの issue が全部閉じるまでは、それ以外に手を広げない。
+北極星は `release` マイルストーン（mitaka.rb の定例会を beerkeeper だけで回せる状態）。マイルストーンの issue が全部閉じるまでは、それ以外に手を広げない。閉じたあとは、リリース後に要るもの・画面やデザインの改善・運用の改善も自分で見つけて起票し、実装まで進める。
 
 リリース前か後かは CLAUDE.md の「Release state」の行で決まる。自分では書き換えない。
 
@@ -14,11 +14,12 @@ description: beerkeeper を自走で1回まわす手順。定期実行や「自�
 1. `git switch main && git pull` で main を最新にする。前回から残っている自分の open な PR があれば、新しく始める前に片付ける（CI が緑ならマージ、赤なら直す）
 2. [log.md](log.md) を読む
 3. main の RunSpecs が赤なら、それを最優先で直す。`ruby head test` は Ruby の開発版の問題なので対象にしない
-4. 実装する issue を最大3本選ぶ
+4. 実装する issue を選ぶ。本数の上限は無い
    - `release` マイルストーンの open な issue を `priority: high` → `medium` → `low` の順、同じ priority なら番号の小さい順に見る
    - `owner` ラベルの issue と、本文の「依存」にある issue がまだ open のものは飛ばす
    - 受け入れ条件が書かれていない issue は、実装する前に pdm スキルのモード1で仕様化する
-   - マイルストーンに実装できる issue が無ければ、pdm スキルのモード3で `release` に足りないものを探し、起票して報告する（その回は実装しない）
+   - マイルストーンに実装できる issue が無ければ、マイルストーン外の open な issue（自分が前に起票したものを含む）を同じ順で見る
+   - それも無ければ、pdm スキルのモード3で足りないもの（リリース後に要るもの、デザインの直し、運用の改善を含む）を探して起票し、そのまま実装する
 5. 1 issue 1 PR で実装する
    - ブランチを切り、テストから書く（t_wada の TDD）。コミットは意味単位で分け、`git add -A` は使わずパスを指定する。force push しない
    - PR 本文は「何をしたか」を短い日本語で書き、`Closes #<n>` を付ける
