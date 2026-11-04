@@ -56,4 +56,30 @@ RSpec.describe "Sessions", type: :request do
       expect(response.body).not_to include('ログアウト')
     end
   end
+
+  describe 'セッションの作り直し' do
+    let!(:user) { create(:user, password: 'password', password_confirmation: 'password') }
+
+    it 'ログインするとセッション ID が変わる' do
+      get new_event_path
+      before_id = session.id.to_s
+      expect(before_id).to be_present
+
+      post sessions_path, params: { email: user.email, password: 'password' }
+
+      expect(session.id.to_s).not_to eq before_id
+    end
+
+    it 'ログアウトするとセッション ID が変わり、ログイン状態が消える' do
+      post sessions_path, params: { email: user.email, password: 'password' }
+      before_id = session.id.to_s
+
+      delete session_path(user)
+
+      aggregate_failures do
+        expect(session.id.to_s).not_to eq before_id
+        expect(session[:user_id]).to be_nil
+      end
+    end
+  end
 end
