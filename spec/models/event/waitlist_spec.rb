@@ -124,4 +124,72 @@ RSpec.describe Event, type: :model do
       expect(unlimited.receive(first_user)).not_to be_waitlisted
     end
   end
+
+  describe '定員の変更' do
+    before do
+      event.receive(first_user)
+      event.receive(second_user)
+      event.receive(third_user)
+    end
+
+    it '定員を増やすと空いた分だけ補欠を先着順に繰り上げる' do
+      event.update!(max_size: 2)
+
+      aggregate_failures do
+        expect(event.participants).to eq [ first_user, second_user ]
+        expect(event.waitlisters).to eq [ third_user ]
+      end
+    end
+
+    it '繰り上がったユーザーにだけメールを送る' do
+      expect { event.update!(max_size: 2) }
+        .to have_enqueued_mail(EventMailer, :promotion_email).with(params: { user: second_user, event: }, args: []).exactly(:once)
+        .and have_enqueued_mail(EventMailer, :promotion_email).exactly(:once)
+    end
+
+    it '定員を空にすると補欠が全員参加になる' do
+      event.update!(max_size: nil)
+
+      aggregate_failures do
+        expect(event.participants).to eq [ first_user, second_user, third_user ]
+        expect(event.waitlisters).to be_empty
+      end
+    end
+
+    it '定員を減らしても参加者を補欠に戻さない' do
+      event.update!(max_size: 3)
+      event.update!(max_size: 1)
+
+      aggregate_failures do
+        expect(event.participants).to eq [ first_user, second_user, third_user ]
+        expect(event.waitlisters).to be_empty
+      end
+    end
+
+    it '定員以外の変更では繰り上げない' do
+      expect { event.update!(name: '別の名前') }.not_to have_enqueued_mail(EventMailer, :promotion_email)
+      expect(event.waitlisters).to eq [ second_user, third_user ]
+    end
+
+    it '保存に失敗したら繰り上げない' do
+      expect { expect(event.update(max_size: 3, name: '')).to be false }
+        .not_to have_enqueued_mail(EventMailer, :promotion_email)
+      expect(Event.find(event.id).waitlisters).to eq [ second_user, third_user ]
+    end
+
+    it '補欠を読み込んだあとでも定員を増やせる' do
+      event.waitlisters.load
+      event.waitlisted_participations.load
+      event.update!(max_size: 3)
+
+      expect(Event.find(event.id).waitlisters).to be_empty
+    end
+
+    it '中止済みのイベントでは繰り上げない' do
+      event.cancel
+      Event.find(event.id).update!(max_size: 3)
+
+      expect(event.waitlisters).to eq [ second_user, third_user ]
+    end
+  end
 end
