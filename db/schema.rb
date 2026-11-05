@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_04_022956) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_05_000000) do
   create_table "event_cancellations", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "event_id", null: false
@@ -45,17 +45,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_04_022956) do
     t.index ["user_id"], name: "index_participations_on_user_id"
   end
 
+  create_table "user_password_credentials", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "email", null: false
+    t.string "password_digest", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_user_password_credentials_on_email", unique: true
+    t.index ["user_id"], name: "index_user_password_credentials_on_user_id", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.string "email", null: false
     t.string "name"
-    t.string "password_digest", null: false
     t.datetime "updated_at", null: false
-    t.index ["email"], name: "index_users_on_email", unique: true
   end
 
   add_foreign_key "event_cancellations", "events"
   add_foreign_key "events", "users", column: "organizer_id"
   add_foreign_key "participations", "events"
   add_foreign_key "participations", "users"
+  add_foreign_key "user_password_credentials", "users"
 end

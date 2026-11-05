@@ -5,11 +5,8 @@ users = [
   { name: "suzuki", email: "suzuki@example.com" },
   { name: "tanaka", email: "tanaka@example.com" }
 ].map do |attributes|
-  User.find_or_create_by!(email: attributes[:email]) do |user|
-    user.name = attributes[:name]
-    user.password = "password"
-    user.password_confirmation = "password"
-  end
+  User.find_by_email(attributes[:email]) ||
+    User.create!(**attributes, password: "password", password_confirmation: "password")
 end
 
 organizer = users.first
