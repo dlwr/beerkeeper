@@ -28,6 +28,9 @@ end
 
 group :development do
   gem "letter_opener", "~> 1.10"
+  gem "rbs", require: false
+  gem "rbs_rails", require: false
+  gem "steep", require: false
   gem "web-console"
 end
 
