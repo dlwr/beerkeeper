@@ -8,9 +8,9 @@ class Event < ApplicationRecord
   belongs_to :organizer, class_name: "User"
   has_one :cancellation, required: false
   has_many :participations, dependent: :restrict_with_error
-  has_many :confirmed_participations, -> { Participation.confirmed }, class_name: "Participation"
+  has_many :confirmed_participations, -> { where(waitlisted: false) }, class_name: "Participation"
   has_many :participants, through: :confirmed_participations, source: :user
-  has_many :waitlisted_participations, -> { Participation.waitlisted.order(:id) }, class_name: "Participation"
+  has_many :waitlisted_participations, -> { where(waitlisted: true).order(:id) }, class_name: "Participation"
   has_many :waitlisters, through: :waitlisted_participations, source: :user
 
   validates :start_at, presence: true
