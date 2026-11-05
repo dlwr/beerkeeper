@@ -1,0 +1,5 @@
+class Event::Cancellation < ApplicationRecord
+  private
+
+  def notify_participants: () -> void
+end

@@ -1,0 +1,10 @@
+module Event::Cancellable : Event::Cancellable::_Owner
+  interface _Owner
+    def cancellation: () -> Event::Cancellation?
+    def create_cancellation: (?untyped attributes) -> Event::Cancellation
+  end
+
+  def cancelled?: () -> bool
+  def cancelled_at: () -> ActiveSupport::TimeWithZone?
+  def cancel: (?String? reason) -> Event::Cancellation?
+end
