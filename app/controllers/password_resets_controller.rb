@@ -8,7 +8,7 @@ class PasswordResetsController < ApplicationController
   def new; end
 
   def create
-    if (user = User.find_by(email: params[:email].to_s))
+    if (user = User.find_by_email(params[:email].to_s))
       UserMailer.with(user:).password_reset_email.deliver_later
     end
 
