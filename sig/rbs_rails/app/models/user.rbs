@@ -163,86 +163,6 @@ class ::User < ::ApplicationRecord
     def updated_at_before_type_cast: () -> ::Time
 
     def updated_at_for_database: () -> ::Time
-
-    def email: () -> ::String
-
-    def email=: (::String) -> ::String
-
-    def email?: () -> bool
-
-    def email_changed?: (?from: ::String?, ?to: ::String?) -> bool
-
-    def email_change: () -> [ ::String?, ::String? ]
-
-    def email_will_change!: () -> void
-
-    def email_was: () -> ::String?
-
-    def email_previously_changed?: (?from: ::String?, ?to: ::String?) -> bool
-
-    def email_previous_change: () -> ::Array[::String?]?
-
-    def email_previously_was: () -> ::String?
-
-    def email_before_last_save: () -> ::String?
-
-    def email_change_to_be_saved: () -> ::Array[::String?]?
-
-    def email_in_database: () -> ::String?
-
-    def saved_change_to_email: () -> ::Array[::String?]?
-
-    def saved_change_to_email?: (?from: ::String?, ?to: ::String?) -> bool
-
-    def will_save_change_to_email?: (?from: ::String?, ?to: ::String?) -> bool
-
-    def restore_email!: () -> void
-
-    def clear_email_change: () -> void
-
-    def email_before_type_cast: () -> ::String
-
-    def email_for_database: () -> ::String
-
-    def password_digest: () -> ::String
-
-    def password_digest=: (::String) -> ::String
-
-    def password_digest?: () -> bool
-
-    def password_digest_changed?: (?from: ::String?, ?to: ::String?) -> bool
-
-    def password_digest_change: () -> [ ::String?, ::String? ]
-
-    def password_digest_will_change!: () -> void
-
-    def password_digest_was: () -> ::String?
-
-    def password_digest_previously_changed?: (?from: ::String?, ?to: ::String?) -> bool
-
-    def password_digest_previous_change: () -> ::Array[::String?]?
-
-    def password_digest_previously_was: () -> ::String?
-
-    def password_digest_before_last_save: () -> ::String?
-
-    def password_digest_change_to_be_saved: () -> ::Array[::String?]?
-
-    def password_digest_in_database: () -> ::String?
-
-    def saved_change_to_password_digest: () -> ::Array[::String?]?
-
-    def saved_change_to_password_digest?: (?from: ::String?, ?to: ::String?) -> bool
-
-    def will_save_change_to_password_digest?: (?from: ::String?, ?to: ::String?) -> bool
-
-    def restore_password_digest!: () -> void
-
-    def clear_password_digest_change: () -> void
-
-    def password_digest_before_type_cast: () -> ::String
-
-    def password_digest_for_database: () -> ::String
   end
   include ::User::GeneratedAttributeMethods
   module ::User::GeneratedAliasAttributeMethods
@@ -298,21 +218,16 @@ class ::User < ::ApplicationRecord
   def participation_ids: () -> ::Array[::Integer]
   def participation_ids=: (::Array[::Integer]) -> ::Array[::Integer]
 
+  def password_credential: () -> ::User::PasswordCredential?
+  def password_credential=: (::User::PasswordCredential?) -> ::User::PasswordCredential?
+  def build_password_credential: (?untyped) -> ::User::PasswordCredential
+  def create_password_credential: (?untyped) -> ::User::PasswordCredential
+  def create_password_credential!: (?untyped) -> ::User::PasswordCredential
+  def reload_password_credential: () -> ::User::PasswordCredential?
+
   module ::User::GeneratedAssociationMethods
   end
   include ::User::GeneratedAssociationMethods
-  module ::User::ActiveModel_SecurePassword_InstanceMethodsOnActivation_password
-    attr_reader password: ::String?
-
-    def password=: (::String) -> ::String
-
-    def password_confirmation=: (::String) -> ::String
-
-    def authenticate_password: (::String) -> (::User | false)
-
-    alias authenticate authenticate_password
-  end
-  include ::User::ActiveModel_SecurePassword_InstanceMethodsOnActivation_password
 
   module ::User::GeneratedRelationMethods
   end
@@ -353,4 +268,8 @@ end
 class ::Participation < ::ApplicationRecord
 end
 class ::Participation::ActiveRecord_Associations_CollectionProxy < ::ActiveRecord::Associations::CollectionProxy
+end
+class ::User::PasswordCredential < ::ApplicationRecord
+end
+class ::User < ::ApplicationRecord
 end
