@@ -1,0 +1,13 @@
+class ErrorNotifier
+  INTERVAL: ActiveSupport::Duration
+
+  @to: String?
+  @cache: ActiveSupport::Cache::Store?
+
+  def initialize: (to: String?, ?cache: ActiveSupport::Cache::Store?) -> void
+  def report: (Exception error, handled: bool, severity: Symbol, context: Hash[untyped, untyped], ?source: String?) -> void
+
+  private
+
+  def first_in_interval?: (Exception error) -> bool
+end

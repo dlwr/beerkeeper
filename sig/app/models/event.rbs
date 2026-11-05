@@ -1,0 +1,23 @@
+class Event < ApplicationRecord
+  include Event::Cancellable
+
+  SCHEDULE_ATTRIBUTES: Array[String]
+
+  attr_accessor start_at_date: String?
+  attr_accessor start_at_time: String?
+  attr_accessor end_at_date: String?
+  attr_accessor end_at_time: String?
+
+  def organized_by?: (User? user) -> bool
+  def full?: () -> bool
+  def receive: (User user) -> Participation?
+  def participant_notice_visible_to?: (User? user) -> bool
+  def waitlist_position: (User? user) -> Integer?
+  def promote_waitlisters: () -> void
+
+  private
+
+  def notify_schedule_change: () -> void
+  def overbook?: () -> bool
+  def end_at_after_start_at: () -> void
+end
