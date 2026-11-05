@@ -15,7 +15,7 @@
 
 - クラウドの初期イメージには `.ruby-version` の Ruby が無く、`/opt/node22/bin` に Chrome と版の合わない chromedriver がある。環境の setup で `bin/cloud-setup` が片付ける。`ruby -v` が違えば `bash bin/cloud-setup` を流して `. /etc/profile.d/ruby.sh` する
 - system spec の Chrome はパスワード漏えい検知のダイアログで次のテストの送信を止める。`spec/support/capybara.rb` で `profile.password_manager_leak_detection` を切ってある
-- クラウドのセッションでは、ダウンロードした外部バイナリ（Litestream など）の実行が権限で拒否される。`strings` で中身を見るのと、チェックサムを確かめるところまではできる
+- クラウドのセッションでは、ダウンロードした外部バイナリ（Litestream など）の実行が権限で拒否されることがある。オーナーが許可すれば動く（flyctl は `fly.io/install.sh` で入った）。ただし Fly のトークンは環境に無く、`fly secrets list` などは使えない
 - 1 つの作業ブランチで PR を続けて出すと、squash マージ済みの古いコミットがリモートに残って push が弾かれる。force push はせず、リモートのブランチをマージしてから push する
 - rspec を流すと `app/assets/builds` が消えることがある。開発サーバーで画面を見る前に `bin/rails dartsass:build` する
 - PR 本文に `Closes` を2つ並べると片方しか閉じないことがある。マージ後に issue の状態を確かめる
