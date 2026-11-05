@@ -6,10 +6,11 @@ class Event < ApplicationRecord
   include Cancellable
 
   belongs_to :organizer, class_name: "User"
+  has_one :cancellation, required: false
   has_many :participations, dependent: :restrict_with_error
-  has_many :confirmed_participations, -> { confirmed }, class_name: "Participation"
+  has_many :confirmed_participations, -> { Participation.confirmed }, class_name: "Participation"
   has_many :participants, through: :confirmed_participations, source: :user
-  has_many :waitlisted_participations, -> { waitlisted.order(:id) }, class_name: "Participation"
+  has_many :waitlisted_participations, -> { Participation.waitlisted.order(:id) }, class_name: "Participation"
   has_many :waitlisters, through: :waitlisted_participations, source: :user
 
   validates :start_at, presence: true
@@ -29,7 +30,8 @@ class Event < ApplicationRecord
   end
 
   def full?
-    max_size.present? && participations.confirmed.count >= max_size
+    limit = max_size
+    !limit.nil? && participations.confirmed.count >= limit
   end
 
   def receive(user)
@@ -74,13 +76,16 @@ class Event < ApplicationRecord
   end
 
   def overbook?
-    max_size && participations.confirmed.count > max_size
+    limit = max_size
+    !limit.nil? && participations.confirmed.count > limit
   end
 
   def end_at_after_start_at
-    return if start_at.blank? || end_at.blank?
+    starts = start_at
+    ends = end_at
+    return if starts.nil? || ends.nil?
 
-    if end_at <= start_at
+    if ends <= starts
       errors.add(:end_at, "\u306F\u958B\u59CB\u65E5\u6642\u3088\u308A\u5F8C\u306B\u3057\u3066\u304F\u3060\u3055\u3044")
     end
   end
