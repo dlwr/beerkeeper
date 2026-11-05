@@ -4,6 +4,8 @@
 
 ## もう出さない候補
 
+- テキストメールの HTML エスケープ: `text/plain` のテンプレートはエスケープされず、`&` はそのまま届く（確かめ済み）
+
 ## 測って分かった前提
 
 - RunSpecs は 1 分ほどで終わる
@@ -23,16 +25,18 @@
 - ログインが要るコントローラーには `before_action :require_login` を自分で付ける。`authenticate` は `current_user` を入れるだけ
 - 作業ブランチは1本なので、PR の CI 待ちの間に次の issue は `wip-*` のローカルブランチでコミットし、マージ後に main を取り込んでから cherry-pick して push する。リモートのブランチ削除はプロキシで拒否される
 - `bundle exec` が見つからないときは `. /etc/profile.d/ruby.sh` を同じコマンドの中で読む（シェルの状態は呼び出しごとに消える）
+- steep の `lenient` は未定義メソッドを見逃す。`Steepfile` は `default` にしてある。手書きの型は `sig/app/`、生成物は `sig/rbs_rails/`（モデルや関連を変えたら `bin/rails rbs_rails:all`）
+- `rbs_rails` は開発 DB が migrate 済みでないと失敗する。開発 DB を migrate すると `db/schema.rb` の列順が崩れることがあるので、`db:drop db:create db:schema:load` してから migrate し直す
+- steep は `has_many` のスコープの lambda の self を自クラスとみなす。別クラスのスコープを呼ばず `where(...)` で書く（クラス起点にすると join 時の別名に追従しない）。concern の `included do` も型が付かないので、関連はモデルに直接書く
+- 本番の挙動は `SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails runner ...` で手元でも見られる（DB には触らない範囲で）
 - 否定の matcher（`define_negated_matcher` で作ったもの）に `.with` は付けられない。`not_to have_enqueued_mail(...).with(...)` と書く
 
 ## 残っている候補
 
-- `#3`（RBS 導入）と `#6`（User の認証情報の分割）は実験の範囲が広く、まだ手を付けていない。次の回で仕様化から
+- 型検査は `app/models` だけ。コントローラー・コンポーネントへ広げるのは次の候補
 - `users#destroy` は画面から呼べないうえ、参加が `dependent: :nullify`（`user_id` は NOT NULL）、主催イベントの参加が `restrict_with_error` で実際には消せない。退会を作るなら仕様から
 - セッションはクッキーに `user_id` を持つだけなので、パスワードを再設定しても他の端末のログインは残る
-- テキストメールのテンプレートも HTML エスケープされ、`&` が `&amp;` になる
 
-- 本番ログに image_processing gem が無いという警告が出る。variant を使っていなければ `config.active_storage.variant_processor = :disabled` で消える
 - 終了済みイベントでも参加をキャンセルできる。許すかどうか未定
 - `Event#receive` は `RecordInvalid` も握りつぶすので、二重参加以外の検証エラーも「参加できませんでした」になる
 - `Event.upcoming` / `.past` は `end_at` で分けるが、DB は `end_at` の NULL を許すので、NULL の行はどちらにも出ない（モデルでは必須）
