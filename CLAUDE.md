@@ -29,6 +29,11 @@ bundle exec rspec
 bundle exec rspec spec/path/to/test_spec.rb
 bundle exec rspec spec/path/to/test_spec.rb:line_number
 
+# Type check app/models (sig/ holds handwritten RBS, sig/rbs_rails/ is generated)
+bundle exec rbs collection install
+bundle exec steep check
+bin/rails rbs_rails:all  # regenerate after changing models, associations or routes
+
 # Run tests in Docker
 docker compose run --rm -e RAILS_ENV=test web bundle exec rspec
 ```
@@ -94,7 +99,7 @@ Test utilities:
 
 4. **Docker Support**: Full Docker development environment is available. All commands can be run either locally or in Docker containers.
 
-5. **CI/CD**: RunSpecs (rspec + rubocop) runs on PRs and on main. Fly Deploy runs only after RunSpecs succeeds on main. Dependabot is configured for automated dependency updates.
+5. **CI/CD**: RunSpecs (rspec + rubocop + steep) runs on PRs and on main. Fly Deploy runs only after RunSpecs succeeds on main. Dependabot is configured for automated dependency updates.
 
 
 ## Key Directories
