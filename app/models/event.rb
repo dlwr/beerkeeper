@@ -29,12 +29,19 @@ class Event < ApplicationRecord
     organizer_id == user&.id
   end
 
+  def ended?
+    ends = end_at
+    !ends.nil? && ends < Time.current
+  end
+
   def full?
     limit = max_size
     !limit.nil? && participations.confirmed.count >= limit
   end
 
   def receive(user)
+    return if ended?
+
     transaction do
       participation = participations.create!(user:, waitlisted: full?)
 

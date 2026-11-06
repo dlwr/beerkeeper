@@ -134,6 +134,32 @@ RSpec.describe Event, type: :model do
     end
   end
 
+  describe "#ended?" do
+    it "終了日時を過ぎていれば終了している" do
+      event = FactoryBot.build(:event, start_at: 2.hours.ago, end_at: 1.hour.ago)
+
+      expect(event).to be_ended
+    end
+
+    it "開催中なら終了していない" do
+      event = FactoryBot.build(:event, start_at: 1.hour.ago, end_at: 1.hour.from_now)
+
+      expect(event).not_to be_ended
+    end
+  end
+
+  describe "#receive on an ended event" do
+    it "終了済みなら参加を作らない" do
+      event = FactoryBot.create(:event, start_at: 2.hours.ago, end_at: 1.hour.ago)
+      user = FactoryBot.create(:user)
+
+      aggregate_failures do
+        expect(event.receive(user)).to be_nil
+        expect(Participation.where(event_id: event.id)).not_to exist
+      end
+    end
+  end
+
   describe ".not_cancelled" do
     let!(:event) { FactoryBot.create(:event) }
     let!(:cancelled_event) do
