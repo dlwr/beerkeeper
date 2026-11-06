@@ -163,8 +163,8 @@ RSpec.describe Event, type: :model do
   describe "#promote_waitlisters on an ended event" do
     it "終了済みなら定員を増やしても補欠を繰り上げない" do
       event = FactoryBot.create(:event, start_at: 2.hours.ago, end_at: 1.hour.ago, max_size: 1)
-      FactoryBot.create(:participation, event:)
-      waitlisted = FactoryBot.create(:participation, event:, waitlisted: true)
+      FactoryBot.create(:participation, event:, user: FactoryBot.create(:user))
+      waitlisted = FactoryBot.create(:participation, event:, user: FactoryBot.create(:user), waitlisted: true)
 
       expect do
         event.update!(max_size: 2)
