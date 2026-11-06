@@ -9,6 +9,10 @@
   </div>
 <% end %>
 
+<% if @event.ended? && !@event.cancelled? %>
+  <div class="alert alert-secondary">このイベントは終了しました</div>
+<% end %>
+
 <% if @event.participant_notice_visible_to?(current_user) %>
   <div class="alert alert-info">
     <h2 class="h6">参加者へのお知らせ</h2>
@@ -40,7 +44,7 @@
     <%= simple_format @event.description %>
   </li>
 
-  <% if @event.cancelled? %>
+  <% if @event.cancelled? || @event.ended? %>
   <% elsif current_user && current_user.participatable?(@event) %>
     <li class="list-group-item">
       <%= button_to '参加する', event_participations_path(@event) %>
