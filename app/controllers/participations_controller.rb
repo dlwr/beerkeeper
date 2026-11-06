@@ -19,7 +19,7 @@ class ParticipationsController < ApplicationController
     event = Event.not_cancelled.find(params[:event_id])
     participation = current_user&.participations&.find_by(id: params[:id], event:)
 
-    if participation&.destroy
+    if !event.ended? && participation&.destroy
       flash[:success] = "イベント参加をキャンセルしました"
     else
       flash[:alert] = "イベント参加をキャンセルできませんでした"
