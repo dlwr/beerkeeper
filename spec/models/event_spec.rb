@@ -160,6 +160,19 @@ RSpec.describe Event, type: :model do
     end
   end
 
+  describe "#promote_waitlisters on an ended event" do
+    it "終了済みなら定員を増やしても補欠を繰り上げない" do
+      event = FactoryBot.create(:event, start_at: 2.hours.ago, end_at: 1.hour.ago, max_size: 1)
+      FactoryBot.create(:participation, event:)
+      waitlisted = FactoryBot.create(:participation, event:, waitlisted: true)
+
+      expect do
+        event.update!(max_size: 2)
+      end.not_to have_enqueued_mail(EventMailer, :promotion_email)
+      expect(waitlisted.reload).to be_waitlisted
+    end
+  end
+
   describe ".not_cancelled" do
     let!(:event) { FactoryBot.create(:event) }
     let!(:cancelled_event) do
