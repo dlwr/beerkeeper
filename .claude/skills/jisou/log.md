@@ -4,6 +4,7 @@
 
 ## もう出さない候補
 
+- 終了後の参加・キャンセル: 終了したイベントでは受け付けないと決めた（#68）。開催中は許す
 - テキストメールの HTML エスケープ: `text/plain` のテンプレートはエスケープされず、`&` はそのまま届く（確かめ済み）
 
 ## 測って分かった前提
@@ -29,6 +30,7 @@
 - `rbs_rails` は開発 DB が migrate 済みでないと失敗する。開発 DB を migrate すると `db/schema.rb` の列順が崩れることがあるので、`db:drop db:create db:schema:load` してから migrate し直す
 - steep は `has_many` のスコープの lambda の self を自クラスとみなす。別クラスのスコープを呼ばず `where(...)` で書く（クラス起点にすると join 時の別名に追従しない）。concern の `included do` も型が付かないので、関連はモデルに直接書く
 - 本番の挙動は `SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails runner ...` で手元でも見られる（DB には触らない範囲で）
+- `participation` の factory は `user` を作らない。`create(:participation, event:)` だけだと検証で落ちるので `user:` を渡す
 - 否定の matcher（`define_negated_matcher` で作ったもの）に `.with` は付けられない。`not_to have_enqueued_mail(...).with(...)` と書く
 
 ## 残っている候補
@@ -37,7 +39,6 @@
 - `users#destroy` は画面から呼べないうえ、参加が `dependent: :nullify`（`user_id` は NOT NULL）、主催イベントの参加が `restrict_with_error` で実際には消せない。退会を作るなら仕様から
 - セッションはクッキーに `user_id` を持つだけなので、パスワードを再設定しても他の端末のログインは残る
 
-- 終了済みイベントでも参加をキャンセルできる。許すかどうか未定
 - `Event#receive` は `RecordInvalid` も握りつぶすので、二重参加以外の検証エラーも「参加できませんでした」になる
 - `Event.upcoming` / `.past` は `end_at` で分けるが、DB は `end_at` の NULL を許すので、NULL の行はどちらにも出ない（モデルでは必須）
 - `ErrorNotifier` の間引きは `Rails.cache`（本番は既定のファイルストア）頼み。マシンが複数台になると台ごとに1通ずつ届く
