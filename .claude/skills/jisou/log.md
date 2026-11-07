@@ -31,6 +31,7 @@
 - steep は `has_many` のスコープの lambda の self を自クラスとみなす。別クラスのスコープを呼ばず `where(...)` で書く（クラス起点にすると join 時の別名に追従しない）。concern の `included do` も型が付かないので、関連はモデルに直接書く
 - 本番の挙動は `SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails runner ...` で手元でも見られる（DB には触らない範囲で）
 - `participation` の factory は `user` を作らない。`create(:participation, event:)` だけだと検証で落ちるので `user:` を渡す
+- `event_cancellation` の factory は存在しないクラスを指していて使えない。中止は `event.cancel` で作る
 - 否定の matcher（`define_negated_matcher` で作ったもの）に `.with` は付けられない。`not_to have_enqueued_mail(...).with(...)` と書く
 
 ## 残っている候補
@@ -43,3 +44,4 @@
 - `Event.upcoming` / `.past` は `end_at` で分けるが、DB は `end_at` の NULL を許すので、NULL の行はどちらにも出ない（モデルでは必須）
 - `ErrorNotifier` の間引きは `Rails.cache`（本番は既定のファイルストア）頼み。マシンが複数台になると台ごとに1通ずつ届く
 - Litestream のコンテナは linux-x86_64 固定。arm64 の Mac で `docker compose build` すると使えないバイナリが入る（`BUCKET_NAME` が無ければ呼ばれない）
+- マイページは開催予定の参加・主催だけを出す。参加中のイベントが中止されると一覧から消えるだけで、中止の表示は無い（中止はメールで届く）。過去の参加履歴も無い
