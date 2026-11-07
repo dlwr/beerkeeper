@@ -1,1 +1,32 @@
 <%= render(UserComponent.new(user: @user)) %>
+
+<h2 class="h4 mt-5">参加予定のイベント</h2>
+<% if @participations.any? %>
+  <ul class="list-group">
+    <% @participations.each do |participation| %>
+      <li class="list-group-item">
+        <%= l(participation.event.start_at) %>
+        <%= link_to participation.event.name, participation.event %>
+        <% if participation.waitlisted? %>
+          <span class="badge text-bg-warning">補欠</span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="text-muted">参加予定のイベントはありません。</p>
+<% end %>
+
+<h2 class="h4 mt-5">主催するイベント</h2>
+<% if @organizing_events.any? %>
+  <ul class="list-group">
+    <% @organizing_events.each do |event| %>
+      <li class="list-group-item">
+        <%= l(event.start_at) %>
+        <%= link_to event.name, event %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="text-muted">主催するイベントはありません。</p>
+<% end %>
