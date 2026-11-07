@@ -4,6 +4,8 @@ class UsersController < ApplicationController
 
   # GET /users
   def show
+    @participations = @user.participations.joins(:event).merge(Event.upcoming).where.not(event_id: Event::Cancellation.select(:event_id)).includes(:event)
+    @organizing_events = @user.organizing_events.not_cancelled.upcoming
   end
 
   # GET /users/edit
