@@ -11,6 +11,7 @@ class Event::Calendar
 
   def lines: () -> Array[String]
   def location_line: () -> Array[String]
+  def stamp: () -> ActiveSupport::TimeWithZone?
   def description: () -> String
   def format_time: (ActiveSupport::TimeWithZone? time) -> String?
   def escape: (String? text) -> String

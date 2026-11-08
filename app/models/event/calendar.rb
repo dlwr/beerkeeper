@@ -22,7 +22,7 @@ class Event::Calendar
       "CALSCALE:GREGORIAN",
       "BEGIN:VEVENT",
       "UID:event-#{event.id}@#{URI.parse(url).host}",
-      "DTSTAMP:#{format_time(event.updated_at)}",
+      "DTSTAMP:#{format_time(stamp)}",
       "DTSTART:#{format_time(event.start_at)}",
       "DTEND:#{format_time(event.end_at)}",
       "SUMMARY:#{escape(event.name)}",
@@ -38,6 +38,10 @@ class Event::Calendar
   def location_line
     location = event.location
     location.present? ? [ "LOCATION:#{escape(location.to_s)}" ] : []
+  end
+
+  def stamp
+    [ event.updated_at, event.cancelled_at ].compact.max
   end
 
   def description

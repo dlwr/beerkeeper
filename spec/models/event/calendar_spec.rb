@@ -47,6 +47,15 @@ RSpec.describe Event::Calendar do
     expect(cancelled).to include("STATUS:CANCELLED\r\n")
   end
 
+  it '中止されたら DTSTAMP を中止の日時にする' do
+    event
+    travel_to(Time.zone.local(2099, 1, 1, 9, 0)) { event.cancel }
+
+    cancelled = described_class.new(event.reload, url:).to_ics
+
+    expect(cancelled).to include("DTSTAMP:20990101T000000Z\r\n")
+  end
+
   it '75 オクテットを超える行は文字の途中で切らずに折り返す' do
     event.update!(description: 'あ' * 100)
 
