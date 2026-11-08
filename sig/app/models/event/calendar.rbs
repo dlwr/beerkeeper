@@ -1,0 +1,19 @@
+class Event::Calendar
+  LINE_LIMIT: Integer
+
+  def initialize: (Event event, url: String) -> void
+  def to_ics: () -> String
+
+  private
+
+  attr_reader event: Event
+  attr_reader url: String
+
+  def lines: () -> Array[String]
+  def location_line: () -> Array[String]
+  def stamp: () -> ActiveSupport::TimeWithZone?
+  def description: () -> String
+  def format_time: (ActiveSupport::TimeWithZone? time) -> String?
+  def escape: (String? text) -> String
+  def fold: (String line) -> String
+end

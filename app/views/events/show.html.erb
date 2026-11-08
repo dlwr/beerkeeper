@@ -40,6 +40,9 @@
     参加費: <%= @event.budget %>円
   </li>
   <li class="list-group-item">
+    <%= link_to 'カレンダーに追加', event_path(@event, format: :ics) %>
+  </li>
+  <li class="list-group-item">
     詳細:<br>
     <%= simple_format @event.description %>
   </li>
