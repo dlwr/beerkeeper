@@ -63,7 +63,15 @@ RSpec.describe "Users", type: :request do
       expect(response.body).to include('自分の主催')
     end
 
-    it '中止・終了したイベントと他人のイベントは出さない' do
+    def section(title)
+      body = response.body
+      start = body.index(title)
+      rest = body[(start + title.length)..]
+      stop = rest.index('<h2') || rest.length
+      rest[0...stop]
+    end
+
+    it '中止された主催イベント・終了したイベント・他人のイベントは参加予定と主催に出さない' do
       cancelled = event_named('中止の会', organizer: user)
       cancelled.cancel
       ended = event_named('終わった会', start_at: 2.days.ago, end_at: 2.days.ago + 1.hour)
@@ -73,13 +81,46 @@ RSpec.describe "Users", type: :request do
 
       get user_path
 
-      expect(response.body).not_to include('中止の会', '終わった会', '他人の会')
+      expect(section('参加予定のイベント')).not_to include('中止の会', '終わった会', '他人の会')
+      expect(section('主催するイベント')).not_to include('中止の会', '終わった会', '他人の会')
+    end
+
+    it '参加していた開催予定のイベントが中止されたら、参加予定に中止と出す' do
+      event = event_named('中止になった会')
+      create(:participation, event:, user:)
+      event.cancel
+
+      get user_path
+
+      upcoming = section('参加予定のイベント')
+      expect(upcoming).to include('中止になった会')
+      expect(upcoming).to match(/>\s*中止\s*</)
+    end
+
+    it '補欠でなく参加した終了済みのイベントを、新しい順に参加したイベントに並べる' do
+      older = event_named('前々回', start_at: 30.days.ago, end_at: 30.days.ago + 1.hour)
+      newer = event_named('前回', start_at: 2.days.ago, end_at: 2.days.ago + 1.hour)
+      waitlisted = event_named('補欠だった会', start_at: 3.days.ago, end_at: 3.days.ago + 1.hour)
+      cancelled = event_named('中止された過去の会', start_at: 4.days.ago, end_at: 4.days.ago + 1.hour)
+      others = event_named('他人だけの過去の会', start_at: 5.days.ago, end_at: 5.days.ago + 1.hour)
+      create(:participation, event: older, user:)
+      create(:participation, event: newer, user:)
+      create(:participation, event: waitlisted, user:, waitlisted: true)
+      create(:participation, event: cancelled, user:)
+      create(:participation, event: others, user: other)
+      cancelled.cancel
+
+      get user_path
+
+      past = section('参加したイベント')
+      expect(past.index('前回')).to be < past.index('前々回')
+      expect(past).not_to include('補欠だった会', '中止された過去の会', '他人だけの過去の会')
     end
 
     it '該当が無ければありませんと出す' do
       get user_path
 
-      expect(response.body).to include('参加予定のイベントはありません', '主催するイベントはありません')
+      expect(response.body).to include('参加予定のイベントはありません', '主催するイベントはありません', '参加したイベントはありません')
     end
   end
 
