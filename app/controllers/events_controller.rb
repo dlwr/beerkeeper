@@ -12,6 +12,13 @@ class EventsController < ApplicationController
 
   # GET /events/1
   def show
+    respond_to do |format|
+      format.html
+      format.ics do
+        send_data Event::Calendar.new(@event, url: event_url(@event)).to_ics,
+                  type: :ics, filename: "event-#{@event.id}.ics"
+      end
+    end
   end
 
   # GET /events/new
