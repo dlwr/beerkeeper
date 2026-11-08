@@ -7,7 +7,9 @@
       <li class="list-group-item">
         <%= l(participation.event.start_at) %>
         <%= link_to participation.event.name, participation.event %>
-        <% if participation.waitlisted? %>
+        <% if participation.event.cancelled? %>
+          <span class="badge text-bg-danger">中止</span>
+        <% elsif participation.waitlisted? %>
           <span class="badge text-bg-warning">補欠</span>
         <% end %>
       </li>
@@ -29,4 +31,18 @@
   </ul>
 <% else %>
   <p class="text-muted">主催するイベントはありません。</p>
+<% end %>
+
+<h2 class="h4 mt-5">参加したイベント</h2>
+<% if @attended_participations.any? %>
+  <ul class="list-group">
+    <% @attended_participations.each do |participation| %>
+      <li class="list-group-item">
+        <%= l(participation.event.start_at) %>
+        <%= link_to participation.event.name, participation.event %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="text-muted">参加したイベントはありません。</p>
 <% end %>
