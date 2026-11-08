@@ -32,6 +32,7 @@
 - 本番の挙動は `SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails runner ...` で手元でも見られる（DB には触らない範囲で）
 - `participation` の factory は `user` を作らない。`create(:participation, event:)` だけだと検証で落ちるので `user:` を渡す
 - `event_cancellation` の factory は存在しないクラスを指していて使えない。中止は `event.cancel` で作る
+- request spec でページの一部だけを確かめるときは見出しで区切る（イベント名に「中止」などの語が入ると本文全体の include では区別できない）。`travel_to` の中で遅延の `let` を初めて呼ぶと、作成日時もずれる
 - 否定の matcher（`define_negated_matcher` で作ったもの）に `.with` は付けられない。`not_to have_enqueued_mail(...).with(...)` と書く
 
 ## 残っている候補
@@ -44,4 +45,6 @@
 - `Event.upcoming` / `.past` は `end_at` で分けるが、DB は `end_at` の NULL を許すので、NULL の行はどちらにも出ない（モデルでは必須）
 - `ErrorNotifier` の間引きは `Rails.cache`（本番は既定のファイルストア）頼み。マシンが複数台になると台ごとに1通ずつ届く
 - Litestream のコンテナは linux-x86_64 固定。arm64 の Mac で `docker compose build` すると使えないバイナリが入る（`BUCKET_NAME` が無ければ呼ばれない）
-- マイページは開催予定の参加・主催だけを出す。参加中のイベントが中止されると一覧から消えるだけで、中止の表示は無い（中止はメールで届く）。過去の参加履歴も無い
+- マイページの主催するイベントは開催予定・中止でないものだけ。主催の過去や中止は出ない（参加側は #76 で中止表示と参加履歴を足した）
+- .ics（#74）は `SEQUENCE` を出さない。日時変更後に取り込み直したとき、上書きされるかはカレンダーアプリ次第。中止理由も入れていない
+- 開催前日のリマインドメールは無い。定期実行の仕組み（Solid Queue の recurring など）が未導入なので、入れるなら基盤から
