@@ -26,11 +26,31 @@
       <li class="list-group-item">
         <%= l(event.start_at) %>
         <%= link_to event.name, event %>
+        <% if event.cancelled? %>
+          <span class="badge text-bg-danger">中止</span>
+        <% end %>
       </li>
     <% end %>
   </ul>
 <% else %>
   <p class="text-muted">主催するイベントはありません。</p>
+<% end %>
+
+<h2 class="h4 mt-5">主催したイベント</h2>
+<% if @organized_events.any? %>
+  <ul class="list-group">
+    <% @organized_events.each do |event| %>
+      <li class="list-group-item">
+        <%= l(event.start_at) %>
+        <%= link_to event.name, event %>
+        <% if event.cancelled? %>
+          <span class="badge text-bg-danger">中止</span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="text-muted">主催したイベントはありません。</p>
 <% end %>
 
 <h2 class="h4 mt-5">参加したイベント</h2>

@@ -71,10 +71,10 @@ RSpec.describe "Users", type: :request do
       rest[0...stop]
     end
 
-    it '中止された主催イベント・終了したイベント・他人のイベントは参加予定と主催に出さない' do
+    it '中止された主催イベント・終了したイベント・他人のイベントは参加予定に出さず、終了したイベントと他人のイベントは主催に出さない' do
       cancelled = event_named('中止の会', organizer: user)
       cancelled.cancel
-      ended = event_named('終わった会', start_at: 2.days.ago, end_at: 2.days.ago + 1.hour)
+      ended = event_named('終わった会', start_at: 2.days.ago, end_at: 2.days.ago + 1.hour, organizer: user)
       create(:participation, event: ended, user:)
       others = event_named('他人の会', organizer: other)
       create(:participation, event: others, user: other)
@@ -82,7 +82,34 @@ RSpec.describe "Users", type: :request do
       get user_path
 
       expect(section('参加予定のイベント')).not_to include('中止の会', '終わった会', '他人の会')
-      expect(section('主催するイベント')).not_to include('中止の会', '終わった会', '他人の会')
+      expect(section('主催するイベント')).not_to include('終わった会', '他人の会')
+    end
+
+    it '主催する開催予定のイベントが中止されたら、主催に中止と出す' do
+      event_named('中止した主催の会', organizer: user).cancel
+
+      get user_path
+
+      organizing = section('主催するイベント')
+      expect(organizing).to include('中止した主催の会')
+      expect(organizing).to match(/>\s*中止\s*</)
+    end
+
+    it '終了した主催イベントを新しい順に主催したイベントに並べ、中止したものには中止と出す' do
+      older = event_named('前々回の主催', start_at: 30.days.ago, end_at: 30.days.ago + 1.hour, organizer: user)
+      newer = event_named('前回の主催', start_at: 2.days.ago, end_at: 2.days.ago + 1.hour, organizer: user)
+      cancelled = event_named('取りやめた主催', start_at: 10.days.ago, end_at: 10.days.ago + 1.hour, organizer: user)
+      cancelled.cancel
+      event_named('開催予定の主催', organizer: user)
+      event_named('他人の過去の主催', start_at: 5.days.ago, end_at: 5.days.ago + 1.hour, organizer: other)
+
+      get user_path
+
+      organized = section('主催したイベント')
+      expect(organized.index('前回の主催')).to be < organized.index('取りやめた主催')
+      expect(organized.index('取りやめた主催')).to be < organized.index('前々回の主催')
+      expect(organized).to match(/>\s*中止\s*</)
+      expect(organized).not_to include('開催予定の主催', '他人の過去の主催')
     end
 
     it '参加していた開催予定のイベントが中止されたら、参加予定に中止と出す' do
@@ -120,7 +147,7 @@ RSpec.describe "Users", type: :request do
     it '該当が無ければありませんと出す' do
       get user_path
 
-      expect(response.body).to include('参加予定のイベントはありません', '主催するイベントはありません', '参加したイベントはありません')
+      expect(response.body).to include('参加予定のイベントはありません', '主催するイベントはありません', '主催したイベントはありません', '参加したイベントはありません')
     end
   end
 
