@@ -6,7 +6,8 @@ class UsersController < ApplicationController
   def show
     @participations = @user.participations.joins(:event).merge(Event.upcoming).includes(event: :cancellation)
     @attended_participations = @user.participations.confirmed.joins(:event).merge(Event.not_cancelled.past).includes(:event)
-    @organizing_events = @user.organizing_events.not_cancelled.upcoming
+    @organizing_events = @user.organizing_events.upcoming.includes(:cancellation)
+    @organized_events = @user.organizing_events.past.includes(:cancellation)
   end
 
   # GET /users/edit
