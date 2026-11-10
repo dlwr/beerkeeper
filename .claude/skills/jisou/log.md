@@ -25,6 +25,7 @@
 - `gh api search/issues` は `is:issue` か `is:pr` を q に入れないと 422 になる
 - ログインが要るコントローラーには `before_action :require_login` を自分で付ける。`authenticate` は `current_user` を入れるだけ
 - 作業ブランチは1本なので、PR の CI 待ちの間に次の issue は `wip-*` のローカルブランチでコミットし、マージ後に main を取り込んでから cherry-pick して push する。リモートのブランチ削除はプロキシで拒否される
+- `bin/cloud-setup` の `db:setup` が test DB の外部キーで落ちることがある。`RAILS_ENV=test bin/rails db:drop db:create db:schema:load` で作り直せば rspec は通る
 - `bundle exec` が見つからないときは `. /etc/profile.d/ruby.sh` を同じコマンドの中で読む（シェルの状態は呼び出しごとに消える）
 - steep の `lenient` は未定義メソッドを見逃す。`Steepfile` は `default` にしてある。手書きの型は `sig/app/`、生成物は `sig/rbs_rails/`（モデルや関連を変えたら `bin/rails rbs_rails:all`）
 - `rbs_rails` は開発 DB が migrate 済みでないと失敗する。開発 DB を migrate すると `db/schema.rb` の列順が崩れることがあるので、`db:drop db:create db:schema:load` してから migrate し直す
@@ -38,7 +39,7 @@
 ## 残っている候補
 
 - 型検査は `app/models` だけ。コントローラー・コンポーネントへ広げるのは次の候補
-- `users#destroy` は画面から呼べないうえ、参加が `dependent: :nullify`（`user_id` は NOT NULL）、主催イベントの参加が `restrict_with_error` で実際には消せない。退会を作るなら仕様から
+- `users#destroy` は画面から呼べないうえ、参加が `dependent: :nullify`（`user_id` は NOT NULL）、主催イベントの参加が `restrict_with_error` で実際には消せない（参加者のいるイベントの主催者だと `RecordNotDestroyed` で 500 になるはず。未確認）。退会を作るなら仕様から
 - セッションはクッキーに `user_id` を持つだけなので、パスワードを再設定しても他の端末のログインは残る
 
 - `Event#receive` は `RecordInvalid` も握りつぶすので、二重参加以外の検証エラーも「参加できませんでした」になる
@@ -46,4 +47,5 @@
 - `ErrorNotifier` の間引きは `Rails.cache`（本番は既定のファイルストア）頼み。マシンが複数台になると台ごとに1通ずつ届く
 - Litestream のコンテナは linux-x86_64 固定。arm64 の Mac で `docker compose build` すると使えないバイナリが入る（`BUCKET_NAME` が無ければ呼ばれない）
 - .ics（#74）は `SEQUENCE` を出さない。日時変更後に取り込み直したとき、上書きされるかはカレンダーアプリ次第。中止理由も入れていない
+- 参加費（`budget`）は文字列の列。詳細では数字だけなら「円」を付ける（#82）。一覧には定員・参加費を出していない
 - 開催前日のリマインドメールは無い。定期実行の仕組み（Solid Queue の recurring など）が未導入なので、入れるなら基盤から
