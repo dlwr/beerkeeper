@@ -149,4 +149,37 @@ RSpec.describe "Events", type: :request do
       expect(event.end_at).to eq(Time.zone.local(2026, 4, 1, 22, 0))
     end
   end
+
+  describe 'フラッシュメッセージ' do
+    let!(:event) { create(:event, organizer: user) }
+
+    it 'イベントを作成すると日本語で知らせる' do
+      post events_path, params: {
+        event: { start_at_date: '2099-03-14', start_at_time: '18:30', end_at_date: '2099-03-14', end_at_time: '21:00', name: '新しい会' }
+      }
+
+      expect(flash[:notice]).to eq 'イベントを作成しました'
+    end
+
+    it 'イベントを更新すると日本語で知らせる' do
+      patch event_path(event), params: { event: { name: '名前を変えた会' } }
+
+      expect(flash[:notice]).to eq 'イベントを更新しました'
+    end
+
+    it 'イベントを削除すると日本語で知らせる' do
+      delete event_path(event)
+
+      expect(flash[:notice]).to eq 'イベントを削除しました'
+    end
+
+    it '参加者がいて削除できなければ日本語で知らせる' do
+      create(:participation, event:, user: create(:user))
+
+      delete event_path(event)
+
+      expect(flash[:alert]).to eq 'イベントを削除できませんでした'
+      expect(Event.exists?(event.id)).to be true
+    end
+  end
 end

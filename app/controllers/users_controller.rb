@@ -17,7 +17,7 @@ class UsersController < ApplicationController
   # PATCH/PUT /users
   def update
     if @user.update(user_params)
-      redirect_to user_path, notice: "User was successfully updated."
+      redirect_to user_path, notice: "ユーザー情報を更新しました"
     else
       render :edit, status: :unprocessable_content
     end
@@ -25,8 +25,11 @@ class UsersController < ApplicationController
 
   # DELETE /users/1
   def destroy
-    @user.destroy
-    redirect_to user_url, notice: "User was successfully destroyed."
+    if @user.destroy
+      redirect_to root_url, notice: "ユーザーを削除しました"
+    else
+      redirect_to user_url, alert: "ユーザーを削除できませんでした"
+    end
   end
 
   private

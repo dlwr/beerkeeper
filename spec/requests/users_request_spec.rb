@@ -12,6 +12,7 @@ RSpec.describe "Users", type: :request do
       patch user_path, params: { user: { name: user.name, email: 'after@example.com', password: 'newpassword', password_confirmation: 'newpassword' } }
 
       expect(response).to redirect_to(user_path)
+      expect(flash[:notice]).to eq 'ユーザー情報を更新しました'
 
       delete session_path(user)
       post sessions_path, params: { email: 'after@example.com', password: 'newpassword' }
@@ -32,6 +33,16 @@ RSpec.describe "Users", type: :request do
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(user.reload.email).to eq 'before@example.com'
+    end
+  end
+
+  describe 'DELETE /user' do
+    it '削除するとトップへ戻し、日本語で知らせる' do
+      delete user_path
+
+      expect(response).to redirect_to(root_url)
+      expect(flash[:notice]).to eq 'ユーザーを削除しました'
+      expect(User.exists?(user.id)).to be false
     end
   end
 

@@ -36,7 +36,7 @@ class EventsController < ApplicationController
     @event.organizer_id = current_user.id
 
     if @event.save
-      redirect_to @event, notice: "Event was successfully created."
+      redirect_to @event, notice: "イベントを作成しました"
     else
       flash.now[:alert] = @event.errors.full_messages.join("\u3001")
       render :new, status: :unprocessable_content
@@ -46,7 +46,7 @@ class EventsController < ApplicationController
   # PATCH/PUT /events/1
   def update
     if @event.update(event_params)
-      redirect_to @event, notice: "Event was successfully updated."
+      redirect_to @event, notice: "イベントを更新しました"
     else
       flash.now[:alert] = @event.errors.full_messages.join("\u3001")
       render :edit, status: :unprocessable_content
@@ -56,9 +56,9 @@ class EventsController < ApplicationController
   # DELETE /events/1
   def destroy
     if @event.destroy
-      redirect_to events_url, notice: "Event was successfully destroyed."
+      redirect_to events_url, notice: "イベントを削除しました"
     else
-      redirect_to @event, alert: "Event could not be destroyed."
+      redirect_to @event, alert: "イベントを削除できませんでした"
     end
   end
 
