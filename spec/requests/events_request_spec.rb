@@ -46,6 +46,48 @@ RSpec.describe "Events", type: :request do
       expect(response.body).not_to include('イベント中止')
       expect(response.body).not_to include(event_cancellations_path(event))
     end
+
+    it '定員が空なら定員なしと表示する' do
+      event.update!(max_size: nil)
+
+      get event_path(event)
+
+      expect(response.body).to include('参加人数: 0人（定員なし）')
+      expect(response.body).not_to include('/ 人')
+    end
+
+    it '定員があれば参加人数と定員を表示する' do
+      event.update!(max_size: 10)
+
+      get event_path(event)
+
+      expect(response.body).to include('参加人数: 0人 / 10人')
+    end
+
+    it '参加費が空なら未定と表示する' do
+      event.update!(budget: '')
+
+      get event_path(event)
+
+      expect(response.body).to include('参加費: 未定')
+    end
+
+    it '参加費が数字だけなら円を付けて表示する' do
+      event.update!(budget: '1000')
+
+      get event_path(event)
+
+      expect(response.body).to include('参加費: 1000円')
+    end
+
+    it '参加費が数字以外を含めば入力のまま表示する' do
+      event.update!(budget: '無料')
+
+      get event_path(event)
+
+      expect(response.body).to include('参加費: 無料')
+      expect(response.body).not_to include('無料円')
+    end
   end
 
   describe 'POST /events' do

@@ -34,10 +34,10 @@
     主催者: <%= @event.organizer.name %>
   </li>
   <li class="list-group-item">
-    参加人数: <%= @event.participants.size %>人 / <%= @event.max_size %>人
+    参加人数: <%= participant_count_label(@event) %>
   </li>
   <li class="list-group-item">
-    参加費: <%= @event.budget %>円
+    参加費: <%= budget_label(@event) %>
   </li>
   <li class="list-group-item">
     <%= link_to 'カレンダーに追加', event_path(@event, format: :ics) %>
