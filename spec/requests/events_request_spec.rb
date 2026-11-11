@@ -23,6 +23,46 @@ RSpec.describe "Events", type: :request do
       expect(body.index('次の定例会')).to be < body.index('過去のイベント')
       expect(body.index('過去のイベント')).to be < body.index('前の定例会')
     end
+
+    it '開催場所と参加人数を表示し、補欠は数えない' do
+      upcoming_event.update!(location: '三鷹ネットワーク大学', max_size: 10)
+      past_event.update!(max_size: nil)
+      3.times { create(:participation, event: upcoming_event, user: create(:user)) }
+      create(:participation, event: upcoming_event, user: create(:user), waitlisted: true)
+      create(:participation, event: past_event, user: create(:user))
+
+      get events_path
+
+      body = response.body
+      expect(body).to include('三鷹ネットワーク大学')
+      expect(body).to include('3人 / 10人')
+      expect(body).to include('1人（定員なし）')
+      expect(body).not_to include('満席')
+    end
+
+    it '定員に達した開催予定のイベントには満席と表示する' do
+      upcoming_event.update!(max_size: 1)
+      create(:participation, event: upcoming_event, user: create(:user))
+
+      get events_path
+
+      expect(response.body).to include('1人 / 1人')
+      expect(response.body).to include('満席')
+    end
+
+    it '参加人数を出すためにイベントごとに問い合わせない' do
+      3.times do |i|
+        event = create(:event, start_at: Time.zone.local(2099, 2, i + 1, 19), end_at: Time.zone.local(2099, 2, i + 1, 21), max_size: 5)
+        create(:participation, event:, user: create(:user))
+      end
+      get events_path
+
+      queries = []
+      callback = ->(*, payload) { queries << payload[:sql] if payload[:sql].include?('participations') }
+      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { get events_path }
+
+      expect(queries.size).to be <= 2
+    end
   end
 
   describe 'GET /events/:id' do

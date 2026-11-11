@@ -3,6 +3,8 @@
     <tr>
       <th scope="col">開催日時</th>
       <th scope="col">イベント名</th>
+      <th scope="col">開催場所</th>
+      <th scope="col">参加人数</th>
       <th scope="col">説明</th>
     </tr>
   </thead>
@@ -11,6 +13,13 @@
       <tr>
         <td><%= l(event.start_at) %></td>
         <td><%= link_to event.name, event %></td>
+        <td><%= event.location %></td>
+        <td>
+          <%= participant_count_label(event) %>
+          <% if seats_full?(event) %>
+            <span class="badge text-bg-secondary">満席</span>
+          <% end %>
+        </td>
         <td><%= event.description %></td>
       </tr>
     <% end %>

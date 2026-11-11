@@ -6,8 +6,8 @@ class EventsController < ApplicationController
 
   # GET /events
   def index
-    @upcoming_events = Event.not_cancelled.upcoming
-    @past_events = Event.not_cancelled.past
+    @upcoming_events = Event.not_cancelled.upcoming.includes(:confirmed_participations)
+    @past_events = Event.not_cancelled.past.includes(:confirmed_participations)
   end
 
   # GET /events/1
