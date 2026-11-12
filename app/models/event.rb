@@ -1,5 +1,6 @@
 class Event < ApplicationRecord
   SCHEDULE_ATTRIBUTES = %w[start_at end_at location].freeze
+  COPIED_ATTRIBUTES = %w[name location max_size budget description participant_notice].freeze
 
   attr_accessor :start_at_date, :start_at_time, :end_at_date, :end_at_time
 
@@ -24,6 +25,10 @@ class Event < ApplicationRecord
   scope :not_cancelled, -> { where.missing(:cancellation) }
   scope :upcoming, -> { where(end_at: Time.current..).order(:start_at, :id) }
   scope :past, -> { where(end_at: ...Time.current).order(start_at: :desc, id: :desc) }
+
+  def copy
+    Event.new(attributes.slice(*COPIED_ATTRIBUTES))
+  end
 
   def organized_by?(user)
     organizer_id == user&.id

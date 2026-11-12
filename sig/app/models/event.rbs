@@ -2,12 +2,14 @@ class Event < ApplicationRecord
   include Event::Cancellable
 
   SCHEDULE_ATTRIBUTES: Array[String]
+  COPIED_ATTRIBUTES: Array[String]
 
   attr_accessor start_at_date: String?
   attr_accessor start_at_time: String?
   attr_accessor end_at_date: String?
   attr_accessor end_at_time: String?
 
+  def copy: () -> Event
   def organized_by?: (User? user) -> bool
   def ended?: () -> bool
   def full?: () -> bool

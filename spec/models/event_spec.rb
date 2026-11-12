@@ -40,6 +40,23 @@ RSpec.describe Event, type: :model do
     end
   end
 
+  describe '#copy' do
+    it '日時と主催者を除いた内容を持つ保存前のイベントを返す' do
+      source = create(:event, name: '定例会', location: '三鷹', max_size: 20, budget: '1000',
+                              description: '説明', participant_notice: 'お知らせ')
+
+      copied = source.copy
+
+      expect(copied).to be_new_record
+      expect(copied.attributes.slice('name', 'location', 'max_size', 'budget', 'description', 'participant_notice'))
+        .to eq('name' => '定例会', 'location' => '三鷹', 'max_size' => 20, 'budget' => '1000',
+               'description' => '説明', 'participant_notice' => 'お知らせ')
+      expect(copied.start_at).to be_nil
+      expect(copied.end_at).to be_nil
+      expect(copied.organizer_id).to be_nil
+    end
+  end
+
   describe '#organized_by?' do
     let!(:event) { FactoryBot.create(:event) }
 
