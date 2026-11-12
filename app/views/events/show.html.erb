@@ -90,4 +90,7 @@
     <%= f.submit "イベント中止" %>
   <% end %>
 <% end %>
+<% if @event.organized_by?(current_user) %>
+  <div><%= link_to 'このイベントをもとに作成', new_event_path(source_id: @event.id) %></div>
+<% end %>
 <div><%= link_to 'トップへ戻る', root_path %></div>
