@@ -23,7 +23,8 @@ class EventsController < ApplicationController
 
   # GET /events/new
   def new
-    @event = Event.new
+    source = current_user.organizing_events.find_by(id: params[:source_id]) if params[:source_id].present?
+    @event = source ? source.copy : Event.new
   end
 
   # GET /events/1/edit
