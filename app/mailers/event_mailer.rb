@@ -1,4 +1,5 @@
 class EventMailer < ApplicationMailer
+  after_action :skip_without_email
   # Subject can be set in your I18n file at config/locales/en.yml
   # with the following lookup:
   #
@@ -39,5 +40,11 @@ class EventMailer < ApplicationMailer
     @reason = @event.cancellation&.reason
 
     mail to: @user.email, subject: "【#{@event.name}】イベントは中止になりました"
+  end
+
+  private
+
+  def skip_without_email
+    message.perform_deliveries = false if @user.email.blank?
   end
 end
