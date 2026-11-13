@@ -4,3 +4,7 @@ end
 class EventNotificationJob < ApplicationJob
   def self.perform_later: (String kind, User user, Event event, ?Hash[String, untyped] changes) -> untyped
 end
+
+class EventAnnouncementJob < ApplicationJob
+  def self.perform_later: (String kind, Event event) -> untyped
+end

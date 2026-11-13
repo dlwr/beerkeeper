@@ -20,6 +20,7 @@ class Event < ApplicationRecord
 
   private
 
+  def announce: () -> void
   def notify_schedule_change: () -> void
   def overbook?: () -> bool
   def end_at_after_start_at: () -> void
