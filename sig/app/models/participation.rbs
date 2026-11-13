@@ -2,6 +2,6 @@ class Participation < ApplicationRecord
   private
 
   def promote_waitlisters: () -> void
-  def send_application_email: () -> void
-  def send_promotion_email: () -> void
+  def notify_application: () -> void
+  def notify_promotion: () -> void
 end

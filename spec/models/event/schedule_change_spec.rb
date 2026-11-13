@@ -14,9 +14,9 @@ RSpec.describe Event, type: :model do
   describe '日時・場所の変更' do
     it '開催場所を変えると参加者と補欠に1通ずつ知らせる' do
       expect { event.update!(location: '吉祥寺') }
-        .to have_enqueued_mail(EventMailer, :schedule_change_email).exactly(2)
-        .and have_enqueued_mail(EventMailer, :schedule_change_email).with(params: { user: participant, event:, changes: { 'location' => [ '三鷹', '吉祥寺' ] } }, args: [])
-        .and have_enqueued_mail(EventMailer, :schedule_change_email).with(params: { user: waitlister, event:, changes: { 'location' => [ '三鷹', '吉祥寺' ] } }, args: [])
+        .to have_enqueued_notification(:schedule_change).exactly(2)
+        .and have_enqueued_notification(:schedule_change, participant, event, { 'location' => [ '三鷹', '吉祥寺' ] })
+        .and have_enqueued_notification(:schedule_change, waitlister, event, { 'location' => [ '三鷹', '吉祥寺' ] })
     end
 
     it '開始日時と終了日時の変更も知らせる' do
@@ -24,30 +24,30 @@ RSpec.describe Event, type: :model do
       new_end = Time.zone.local(2099, 1, 22, 21, 0)
 
       expect { event.update!(start_at: new_start, end_at: new_end) }
-        .to have_enqueued_mail(EventMailer, :schedule_change_email).exactly(2)
-        .and have_enqueued_mail(EventMailer, :schedule_change_email).with(params: { user: participant, event:, changes: { 'start_at' => [ Time.zone.local(2099, 1, 15, 19, 0), new_start ], 'end_at' => [ Time.zone.local(2099, 1, 15, 21, 0), new_end ] } }, args: [])
+        .to have_enqueued_notification(:schedule_change).exactly(2)
+        .and have_enqueued_notification(:schedule_change, participant, event, { 'start_at' => [ Time.zone.local(2099, 1, 15, 19, 0), new_start ], 'end_at' => [ Time.zone.local(2099, 1, 15, 21, 0), new_end ] })
     end
 
     it '主催者が参加していなければ主催者には送らない' do
       expect { event.update!(location: '吉祥寺') }
-        .not_to have_enqueued_mail(EventMailer, :schedule_change_email).with(params: hash_including(user: organizer), args: [])
+        .not_to have_enqueued_notification(:schedule_change, organizer, any_args)
     end
 
     it '定員と場所を同時に変えると、繰り上がった人には繰り上げと変更を1通ずつ送る' do
       expect { event.update!(max_size: 2, location: '吉祥寺') }
-        .to have_enqueued_mail(EventMailer, :schedule_change_email).exactly(2)
-        .and have_enqueued_mail(EventMailer, :promotion_email).with(params: { user: waitlister, event: }, args: []).exactly(:once)
-        .and have_enqueued_mail(EventMailer, :schedule_change_email).with(params: { user: waitlister, event:, changes: { 'location' => [ '三鷹', '吉祥寺' ] } }, args: []).exactly(:once)
+        .to have_enqueued_notification(:schedule_change).exactly(2)
+        .and have_enqueued_notification(:promotion, waitlister, event).exactly(:once)
+        .and have_enqueued_notification(:schedule_change, waitlister, event, { 'location' => [ '三鷹', '吉祥寺' ] }).exactly(:once)
     end
 
     it '日時・場所以外の変更では送らない' do
       expect { event.update!(name: '別の名前', description: '詳細', budget: '500') }
-        .not_to have_enqueued_mail(EventMailer, :schedule_change_email)
+        .not_to have_enqueued_notification(:schedule_change)
     end
 
     it '保存に失敗したら送らない' do
       expect { event.update(location: '吉祥寺', name: '') }
-        .not_to have_enqueued_mail(EventMailer, :schedule_change_email)
+        .not_to have_enqueued_notification(:schedule_change)
     end
 
     it '中止済みのイベントには送らない' do
@@ -55,7 +55,7 @@ RSpec.describe Event, type: :model do
       cancelled = Event.find(event.id)
 
       expect { cancelled.update!(location: '吉祥寺') }
-        .not_to have_enqueued_mail(EventMailer, :schedule_change_email)
+        .not_to have_enqueued_notification(:schedule_change)
     end
   end
 end

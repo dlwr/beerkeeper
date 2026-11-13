@@ -24,8 +24,8 @@ RSpec.describe Participation, type: :model do
     let(:user) { create(:user) }
     let(:event) { create(:event) }
 
-    it 'send a participation_email' do
-      expect { create(:participation, user:, event:) }.to have_enqueued_mail(EventMailer, :participation_email)
+    it '参加の通知を送る' do
+      expect { create(:participation, user:, event:) }.to have_enqueued_notification(:participation)
     end
   end
 end

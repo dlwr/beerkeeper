@@ -28,7 +28,7 @@ RSpec.describe "Participations", type: :request do
 
       expect do
         post event_participations_path(roomy_event)
-      end.not_to have_enqueued_mail(EventMailer, :participation_email)
+      end.not_to have_enqueued_notification(:participation)
     end
   end
 
@@ -124,7 +124,7 @@ RSpec.describe "Participations", type: :request do
 
       expect do
         delete event_participation_path(ended_event, participation)
-      end.not_to have_enqueued_mail(EventMailer, :promotion_email)
+      end.not_to have_enqueued_notification(:promotion)
       aggregate_failures do
         expect(Participation.exists?(participation.id)).to be true
         expect(ended_event.participants).to eq [ user ]

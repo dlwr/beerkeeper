@@ -8,8 +8,8 @@ class Participation < ApplicationRecord
   scope :waitlisted, -> { where(waitlisted: true) }
 
   after_destroy :promote_waitlisters, unless: :waitlisted?
-  after_create_commit :send_application_email
-  after_update_commit :send_promotion_email, if: -> { saved_change_to_waitlisted?(from: true, to: false) }
+  after_create_commit :notify_application
+  after_update_commit :notify_promotion, if: -> { saved_change_to_waitlisted?(from: true, to: false) }
 
   private
 
@@ -17,12 +17,11 @@ class Participation < ApplicationRecord
     event.promote_waitlisters
   end
 
-  def send_application_email
-    mailer = EventMailer.with(user:, event:)
-    (waitlisted? ? mailer.waitlist_email : mailer.participation_email).deliver_later
+  def notify_application
+    EventNotificationJob.perform_later(waitlisted? ? "waitlist" : "participation", user, event)
   end
 
-  def send_promotion_email
-    EventMailer.with(user:, event:).promotion_email.deliver_later
+  def notify_promotion
+    EventNotificationJob.perform_later("promotion", user, event)
   end
 end
