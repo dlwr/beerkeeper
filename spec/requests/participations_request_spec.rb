@@ -22,7 +22,7 @@ RSpec.describe "Participations", type: :request do
       expect(flash[:alert]).to be_present
     end
 
-    it '二重参加では参加メールを送らない' do
+    it '二重参加では参加の通知を送らない' do
       log_in(user)
       post event_participations_path(roomy_event)
 

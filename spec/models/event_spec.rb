@@ -126,7 +126,7 @@ RSpec.describe Event, type: :model do
   end
 
   describe "#receive twice by the same user" do
-    it "2回目は参加を作らず、メールも送らない" do
+    it "2回目は参加を作らず、通知も送らない" do
       event = FactoryBot.create(:event)
       user = FactoryBot.create(:user)
       event.receive(user)

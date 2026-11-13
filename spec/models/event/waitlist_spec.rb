@@ -139,7 +139,7 @@ RSpec.describe Event, type: :model do
       end
     end
 
-    it '繰り上がったユーザーにだけメールを送る' do
+    it '繰り上がったユーザーにだけ通知を送る' do
       expect { event.update!(max_size: 2) }
         .to have_enqueued_notification(:promotion, second_user, event).exactly(:once)
         .and have_enqueued_notification(:promotion).exactly(:once)
