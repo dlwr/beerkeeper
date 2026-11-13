@@ -70,7 +70,11 @@ RSpec.describe "Discord でのログイン", type: :request do
       get discord_callback_path, params: { code: "the-code", state: }
       DiscordDmJob.remember_welcome_failure(User.last)
 
-      get events_path
+      delete session_path(User.last)
+      expect(DiscordDmJob.welcome_failed?(User.last)).to be true
+      state = start_login
+      get discord_callback_path, params: { code: "the-code", state: }
+      follow_redirect!
       expect(response.body).to include("サーバーにいるメンバーからのダイレクトメッセージを許可する")
 
       get events_path

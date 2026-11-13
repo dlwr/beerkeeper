@@ -67,9 +67,8 @@ class DiscordClient
 
     def send_dm(user_id:, content:)
       channel = bot_request(Net::HTTP::Post, "/users/@me/channels", { recipient_id: user_id })
-      bot_request(Net::HTTP::Post, "/channels/#{channel.fetch("id")}/messages", { content:, allowed_mentions: { parse: [] } })
-    rescue KeyError
-      raise Error, "Discord API returned no DM channel"
+      channel_id = channel["id"].presence || raise(Error, "Discord API returned no DM channel")
+      bot_request(Net::HTTP::Post, "/channels/#{channel_id}/messages", { content:, allowed_mentions: { parse: [] } })
     end
 
     private
@@ -102,7 +101,7 @@ class DiscordClient
       raise Error.new(message, code: details["code"])
     rescue JSON::ParserError
       raise Error, "Discord API #{request.method} #{request.uri&.path} returned #{response&.code} with invalid JSON"
-    rescue Net::OpenTimeout, Net::ReadTimeout, SystemCallError, SocketError => e
+    rescue Net::OpenTimeout, Net::ReadTimeout, Net::WriteTimeout, OpenSSL::SSL::SSLError, EOFError, SystemCallError, SocketError => e
       raise Error, "Discord API #{request.method} #{request.uri&.path} failed: #{e.class}"
     end
   end

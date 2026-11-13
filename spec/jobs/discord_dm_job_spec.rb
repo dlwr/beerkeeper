@@ -41,7 +41,7 @@ RSpec.describe DiscordDmJob, :discord do
     expect { described_class.perform_now(user, "こんにちは") }.not_to raise_error
 
     expect(Rails.logger).to have_received(:warn).with(/Discord DM/)
-    expect(DiscordDmJob.pop_welcome_failure(user)).to be false
+    expect(DiscordDmJob.welcome_failed?(user)).to be false
   end
 
   it "歓迎の DM が失敗したら、失敗したことを覚えておく" do
@@ -49,7 +49,6 @@ RSpec.describe DiscordDmJob, :discord do
 
     described_class.perform_now(user, "ようこそ", welcome: true)
 
-    expect(DiscordDmJob.pop_welcome_failure(user)).to be true
-    expect(DiscordDmJob.pop_welcome_failure(user)).to be false
+    expect(DiscordDmJob.welcome_failed?(user)).to be true
   end
 end

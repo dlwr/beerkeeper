@@ -5,11 +5,12 @@ class DiscordDmJob < ApplicationJob
     Rails.cache.write(welcome_failure_key(user), true, expires_in: 30.days)
   end
 
-  def self.pop_welcome_failure(user)
-    key = welcome_failure_key(user)
-    failed = Rails.cache.read(key).present?
-    Rails.cache.delete(key) if failed
-    failed
+  def self.welcome_failed?(user)
+    Rails.cache.read(welcome_failure_key(user)).present?
+  end
+
+  def self.forget_welcome_failure(user)
+    Rails.cache.delete(welcome_failure_key(user))
   end
 
   def self.welcome_failure_key(user)
