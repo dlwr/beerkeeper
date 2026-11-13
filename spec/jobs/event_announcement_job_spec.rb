@@ -32,6 +32,14 @@ RSpec.describe EventAnnouncementJob, :discord do
     expect(DiscordClient).to have_received(:post_message).with(channel_id: "events-channel", content: a_string_including("中止", "mitaka.rb #1", "中止理由：台風"))
   end
 
+  it "積んでから中止されたイベントの作成は告知しない" do
+    event.cancel
+
+    described_class.perform_now("created", event)
+
+    expect(DiscordClient).not_to have_received(:post_message)
+  end
+
   it "DISCORD_EVENTS_CHANNEL_ID が無ければ何もしない" do
     with_env("DISCORD_EVENTS_CHANNEL_ID" => nil) { described_class.perform_now("created", event) }
 

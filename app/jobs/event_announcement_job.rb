@@ -6,6 +6,7 @@ class EventAnnouncementJob < ApplicationJob
   def perform(kind, event)
     channel_id = ENV["DISCORD_EVENTS_CHANNEL_ID"]
     return if channel_id.blank? || ENV["DISCORD_BOT_TOKEN"].blank?
+    return if kind == "created" && event.cancelled?
 
     DiscordClient.post_message(channel_id:, content: content(kind, event))
   rescue DiscordClient::RateLimited => e
