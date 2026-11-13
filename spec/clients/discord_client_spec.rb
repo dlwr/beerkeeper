@@ -105,4 +105,42 @@ RSpec.describe DiscordClient, :discord do
       }.to raise_error(DiscordClient::Error)
     end
   end
+
+  describe ".send_dm" do
+    let!(:channel_stub) do
+      stub_request(:post, "https://discord.com/api/v10/users/@me/channels")
+        .with(headers: { "Authorization" => "Bot bot-token" }, body: { recipient_id: "123" }.to_json)
+        .to_return(status: 200, body: { id: "dm-channel" }.to_json)
+    end
+
+    it "DM のチャンネルを作り、メンションを無効にして送る" do
+      message_stub = stub_request(:post, "https://discord.com/api/v10/channels/dm-channel/messages")
+        .with(
+          headers: { "Authorization" => "Bot bot-token" },
+          body: { content: "こんにちは", allowed_mentions: { parse: [] } }.to_json
+        )
+        .to_return(status: 200, body: { id: "m1" }.to_json)
+
+      described_class.send_dm(user_id: "123", content: "こんにちは")
+
+      expect(channel_stub).to have_been_requested.once
+      expect(message_stub).to have_been_requested.once
+    end
+
+    it "DM を受け取れない相手なら Discord のエラーコードを持った DiscordClient::Error を投げる" do
+      stub_request(:post, "https://discord.com/api/v10/channels/dm-channel/messages")
+        .to_return(status: 403, body: { code: 50007, message: "Cannot send messages to this user" }.to_json)
+
+      expect { described_class.send_dm(user_id: "123", content: "こんにちは") }
+        .to raise_error(DiscordClient::Error) { |error| expect(error.code).to eq 50007 }
+    end
+
+    it "429 なら待つ秒数を持った DiscordClient::RateLimited を投げる" do
+      stub_request(:post, "https://discord.com/api/v10/channels/dm-channel/messages")
+        .to_return(status: 429, body: { message: "You are being rate limited.", retry_after: 1.5, global: false }.to_json)
+
+      expect { described_class.send_dm(user_id: "123", content: "こんにちは") }
+        .to raise_error(DiscordClient::RateLimited) { |error| expect(error.retry_after).to eq 1.5 }
+    end
+  end
 end
