@@ -17,6 +17,7 @@ class DiscordSessionsController < ApplicationController
     profile = DiscordClient.fetch_user(access_token)
     user = User.sign_in_with_discord(profile)
     join_guild(user, access_token)
+    DiscordDmJob.perform_later(user, welcome_message, welcome: true) if user.previously_new_record?
 
     reset_session
     session[:user_id] = user.id
@@ -41,6 +42,10 @@ class DiscordSessionsController < ApplicationController
     DiscordClient.add_guild_member(user_id: user.discord_user_id, access_token:)
   rescue DiscordClient::Error => e
     Rails.logger.warn("Discord guild join failed for user #{user.id}: #{e.message}")
+  end
+
+  def welcome_message
+    "beerkeeper へようこそ！ イベントの参加登録や中止などのお知らせは、この DM でお届けします。\n#{root_url}"
   end
 
   def fail_login(message = "Discord でのログインに失敗しました。もう一度お試しください")

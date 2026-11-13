@@ -46,6 +46,37 @@ RSpec.describe "Discord でのログイン", type: :request do
       expect(User.last).to have_attributes(discord_user_id: "123", name: "Taro")
     end
 
+    it "初回ログインでだけ歓迎の DM を送る" do
+      stub_discord
+
+      expect {
+        state = start_login
+        get discord_callback_path, params: { code: "the-code", state: }
+      }.to have_enqueued_job(DiscordDmJob).with(an_instance_of(User), a_string_including("ようこそ"), welcome: true).once
+
+      delete session_path(User.last)
+
+      expect {
+        state = start_login
+        get discord_callback_path, params: { code: "the-code", state: }
+      }.not_to have_enqueued_job(DiscordDmJob)
+    end
+
+    it "歓迎の DM が失敗していたら、次に開いた画面に直し方を出す" do
+      cache = ActiveSupport::Cache::MemoryStore.new
+      allow(Rails).to receive(:cache).and_return(cache)
+      stub_discord
+      state = start_login
+      get discord_callback_path, params: { code: "the-code", state: }
+      DiscordDmJob.remember_welcome_failure(User.last)
+
+      get events_path
+      expect(response.body).to include("サーバーにいるメンバーからのダイレクトメッセージを許可する")
+
+      get events_path
+      expect(response.body).not_to include("サーバーにいるメンバーからのダイレクトメッセージを許可する")
+    end
+
     it "登録済みの Discord アカウントなら同じユーザーでログインし、名前は変えない" do
       user = User.sign_in_with_discord("id" => "123", "username" => "taro", "global_name" => "Taro", "avatar" => "hash1")
       user.update!(name: "たろう")
