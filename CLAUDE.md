@@ -120,4 +120,4 @@ This is `dlwr/beerkeeper`, a fork of `mitakarb/beerkeeper` developed independent
 - Pre-release: migrations, authorization changes and deploys may be merged without asking, once CI is green and `beerkeeper-invariants-reviewer` has no blocking findings.
 - Post-release: production deploys, migrations, and secret changes need the owner's approval. Stop at the PR for any change that drops or rewrites data.
 
-The release criteria (north star) live in the `release` milestone. The autonomous loop is described in `.claude/skills/jisou/SKILL.md`.
+The north star is the first milestone with open issues, in the order `discord` → `usability` (the `release` milestone is done). The autonomous loop is described in `.claude/skills/jisou/SKILL.md`.
