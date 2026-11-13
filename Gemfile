@@ -39,6 +39,7 @@ group :test do
   gem "factory_bot_rails"
   gem "rspec-rails"
   gem "selenium-webdriver"
+  gem "webmock"
 end
 
 gem "rubocop-rails-omakase", "~> 1.1", group: :development, require: false

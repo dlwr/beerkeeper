@@ -1,3 +1,11 @@
+<% if DiscordClient.configured? %>
+  <div class="mb-4">
+    <%= button_to discord_login_path, class: "btn btn-primary", data: { turbo: false } do %>
+      <i class="bi bi-discord" aria-hidden="true"></i> Discord でログイン
+    <% end %>
+  </div>
+<% end %>
+
 <%= form_with local: true, url: sessions_path do |form| %>
   <div class="field">
     <%= form.label :email %>

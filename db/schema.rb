@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_13_000000) do
   create_table "event_cancellations", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "event_id", null: false
@@ -59,6 +59,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_000000) do
     t.datetime "created_at", null: false
     t.string "name"
     t.datetime "updated_at", null: false
+    t.string "discord_user_id"
+    t.string "discord_avatar"
+    t.index ["discord_user_id"], name: "index_users_on_discord_user_id", unique: true
   end
 
   add_foreign_key "event_cancellations", "events"

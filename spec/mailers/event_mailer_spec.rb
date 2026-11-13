@@ -1,6 +1,17 @@
 require 'rails_helper'
 
 RSpec.describe EventMailer, type: :mailer do
+  describe 'メールアドレスの無いユーザー' do
+    let(:user) { User.sign_in_with_discord("id" => "123", "username" => "taro", "avatar" => nil) }
+    let(:event) { FactoryBot.create(:event) }
+
+    it '送らない' do
+      expect {
+        EventMailer.with(user:, event:).participation_email.deliver_now
+      }.not_to change(ActionMailer::Base.deliveries, :count)
+    end
+  end
+
   describe 'participation_email' do
     let(:mail) { EventMailer.with(user:, event:).participation_email }
     let(:user) { FactoryBot.create(:user) }

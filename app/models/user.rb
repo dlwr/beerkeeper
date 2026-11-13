@@ -9,6 +9,16 @@ class User < ApplicationRecord
 
   delegate :email, :password, :password_confirmation, :password_reset_token, to: :password_credential, allow_nil: true
 
+  def self.sign_in_with_discord(profile)
+    user = find_or_initialize_by(discord_user_id: profile.fetch("id"))
+    user.name = profile["global_name"].presence || profile.fetch("username") if user.new_record?
+    user.discord_avatar = profile["avatar"]
+    user.save!
+    user
+  rescue ActiveRecord::RecordNotUnique
+    retry
+  end
+
   def self.find_by_email(email)
     joins(:password_credential).find_by(user_password_credentials: { email: })
   end
@@ -33,6 +43,12 @@ class User < ApplicationRecord
     password_credential&.authenticate(password) && self
   end
 
+  def avatar_url
+    return if discord_user_id.blank? || discord_avatar.blank?
+
+    "https://cdn.discordapp.com/avatars/#{discord_user_id}/#{discord_avatar}.png?size=64"
+  end
+
   def participatable?(event)
     !participations.find_by(event_id: event.id)
   end
@@ -44,6 +60,7 @@ class User < ApplicationRecord
   end
 
   def password_credential_must_be_valid
+    return if discord_user_id.present? && password_credential.nil?
     return if credential.valid?
 
     credential.errors.each { |error| errors.import(error) }
