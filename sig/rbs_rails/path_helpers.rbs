@@ -11,6 +11,8 @@ interface ::_RbsRailsPathHelpers
   def root_path: (*untyped) -> ::String
   def login_path: (*untyped) -> ::String
   def signup_path: (*untyped) -> ::String
+  def discord_login_path: (*untyped) -> ::String
+  def discord_callback_path: (*untyped) -> ::String
   def sessions_path: (*untyped) -> ::String
   def session_path: (*untyped) -> ::String
   def password_resets_path: (*untyped) -> ::String
@@ -64,6 +66,8 @@ interface ::_RbsRailsPathHelpers
   def root_url: (*untyped) -> ::String
   def login_url: (*untyped) -> ::String
   def signup_url: (*untyped) -> ::String
+  def discord_login_url: (*untyped) -> ::String
+  def discord_callback_url: (*untyped) -> ::String
   def sessions_url: (*untyped) -> ::String
   def session_url: (*untyped) -> ::String
   def password_resets_url: (*untyped) -> ::String
