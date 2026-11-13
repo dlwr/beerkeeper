@@ -1,7 +1,23 @@
 require "net/http"
 
 class DiscordClient
-  class Error < StandardError; end
+  class Error < StandardError
+    attr_reader :code
+
+    def initialize(message = nil, code: nil)
+      super(message)
+      @code = code
+    end
+  end
+
+  class RateLimited < Error
+    attr_reader :retry_after
+
+    def initialize(message = nil, retry_after:)
+      super(message)
+      @retry_after = retry_after
+    end
+  end
 
   API_BASE = "https://discord.com/api/v10"
   AUTHORIZE_URL = "https://discord.com/oauth2/authorize"
@@ -46,14 +62,25 @@ class DiscordClient
     end
 
     def add_guild_member(user_id:, access_token:)
-      request = Net::HTTP::Put.new(uri("/guilds/#{ENV.fetch("DISCORD_GUILD_ID")}/members/#{user_id}"))
-      request["Authorization"] = "Bot #{ENV.fetch("DISCORD_BOT_TOKEN")}"
-      request["Content-Type"] = "application/json"
-      request.body = { access_token: }.to_json
-      perform(request)
+      bot_request(Net::HTTP::Put, "/guilds/#{ENV.fetch("DISCORD_GUILD_ID")}/members/#{user_id}", { access_token: })
+    end
+
+    def send_dm(user_id:, content:)
+      channel = bot_request(Net::HTTP::Post, "/users/@me/channels", { recipient_id: user_id })
+      bot_request(Net::HTTP::Post, "/channels/#{channel.fetch("id")}/messages", { content:, allowed_mentions: { parse: [] } })
+    rescue KeyError
+      raise Error, "Discord API returned no DM channel"
     end
 
     private
+
+    def bot_request(request_class, path, payload)
+      request = request_class.new(uri(path))
+      request["Authorization"] = "Bot #{ENV.fetch("DISCORD_BOT_TOKEN")}"
+      request["Content-Type"] = "application/json"
+      request.body = payload.to_json
+      perform(request)
+    end
 
     def uri(path)
       URI("#{API_BASE}#{path}")
@@ -65,10 +92,17 @@ class DiscordClient
       response = Net::HTTP.start(target.host, target.port, use_ssl: true, open_timeout: 5, read_timeout: 10) do |http|
         http.request(request)
       end
-      raise Error, "Discord API #{request.method} #{target.path} returned #{response.code}" unless response.is_a?(Net::HTTPSuccess)
+      body = response.body.present? ? JSON.parse(response.body) : {}
+      return body if response.is_a?(Net::HTTPSuccess)
 
-      response.body.present? ? JSON.parse(response.body) : {}
-    rescue JSON::ParserError, Net::OpenTimeout, Net::ReadTimeout, SystemCallError, SocketError => e
+      details = body.is_a?(Hash) ? body : {}
+      message = "Discord API #{request.method} #{target.path} returned #{response.code}"
+      raise RateLimited.new(message, retry_after: details["retry_after"].to_f) if response.code == "429"
+
+      raise Error.new(message, code: details["code"])
+    rescue JSON::ParserError
+      raise Error, "Discord API #{request.method} #{request.uri&.path} returned #{response&.code} with invalid JSON"
+    rescue Net::OpenTimeout, Net::ReadTimeout, SystemCallError, SocketError => e
       raise Error, "Discord API #{request.method} #{request.uri&.path} failed: #{e.class}"
     end
   end
