@@ -68,6 +68,10 @@ class DiscordClient
     def send_dm(user_id:, content:)
       channel = bot_request(Net::HTTP::Post, "/users/@me/channels", { recipient_id: user_id })
       channel_id = channel["id"].presence || raise(Error, "Discord API returned no DM channel")
+      post_message(channel_id:, content:)
+    end
+
+    def post_message(channel_id:, content:)
       bot_request(Net::HTTP::Post, "/channels/#{channel_id}/messages", { content:, allowed_mentions: { parse: [] } })
     end
 
