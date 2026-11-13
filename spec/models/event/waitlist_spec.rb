@@ -1,7 +1,5 @@
 require 'rails_helper'
 
-RSpec::Matchers.define_negated_matcher :not_have_enqueued_mail, :have_enqueued_mail
-
 RSpec.describe Event, type: :model do
   let(:event) { create(:event, max_size: 1) }
   let(:first_user) { create(:user) }
@@ -29,10 +27,10 @@ RSpec.describe Event, type: :model do
       end
     end
 
-    it '補欠には参加メールではなく補欠のメールを送る' do
+    it '補欠には参加ではなく補欠の通知だけを送る' do
       expect { event.receive(second_user) }
-        .to have_enqueued_mail(EventMailer, :waitlist_email)
-        .and not_have_enqueued_mail(EventMailer, :participation_email)
+        .to have_enqueued_notification(:waitlist)
+        .and have_enqueued_job(EventNotificationJob).exactly(:once)
     end
   end
 
@@ -66,10 +64,10 @@ RSpec.describe Event, type: :model do
       end
     end
 
-    it '繰り上がったユーザーにメールを1通だけ送る' do
+    it '繰り上がったユーザーに通知を1通だけ送る' do
       expect { first_user.participations.find_by(event:).destroy }
-        .to have_enqueued_mail(EventMailer, :promotion_email).with(params: { user: second_user, event: }, args: []).exactly(:once)
-        .and have_enqueued_mail(EventMailer, :promotion_email).exactly(:once)
+        .to have_enqueued_notification(:promotion, second_user, event).exactly(:once)
+        .and have_enqueued_notification(:promotion).exactly(:once)
     end
   end
 
@@ -80,7 +78,7 @@ RSpec.describe Event, type: :model do
       Event.find(event.id).cancel
 
       expect { first_user.participations.find_by(event:).destroy }
-        .not_to have_enqueued_mail(EventMailer, :promotion_email)
+        .not_to have_enqueued_notification(:promotion)
       expect(event.waitlisters).to eq [ second_user ]
     end
   end
@@ -94,7 +92,7 @@ RSpec.describe Event, type: :model do
 
     it '補欠自身もキャンセルでき、誰も繰り上がらない' do
       expect { second_user.participations.find_by(event:).destroy }
-        .not_to have_enqueued_mail(EventMailer, :promotion_email)
+        .not_to have_enqueued_notification(:promotion)
 
       aggregate_failures do
         expect(event.participants).to eq [ first_user ]
@@ -141,10 +139,10 @@ RSpec.describe Event, type: :model do
       end
     end
 
-    it '繰り上がったユーザーにだけメールを送る' do
+    it '繰り上がったユーザーにだけ通知を送る' do
       expect { event.update!(max_size: 2) }
-        .to have_enqueued_mail(EventMailer, :promotion_email).with(params: { user: second_user, event: }, args: []).exactly(:once)
-        .and have_enqueued_mail(EventMailer, :promotion_email).exactly(:once)
+        .to have_enqueued_notification(:promotion, second_user, event).exactly(:once)
+        .and have_enqueued_notification(:promotion).exactly(:once)
     end
 
     it '定員を空にすると補欠が全員参加になる' do
@@ -167,13 +165,13 @@ RSpec.describe Event, type: :model do
     end
 
     it '定員以外の変更では繰り上げない' do
-      expect { event.update!(name: '別の名前') }.not_to have_enqueued_mail(EventMailer, :promotion_email)
+      expect { event.update!(name: '別の名前') }.not_to have_enqueued_notification(:promotion)
       expect(event.waitlisters).to eq [ second_user, third_user ]
     end
 
     it '保存に失敗したら繰り上げない' do
       expect { expect(event.update(max_size: 3, name: '')).to be false }
-        .not_to have_enqueued_mail(EventMailer, :promotion_email)
+        .not_to have_enqueued_notification(:promotion)
       expect(Event.find(event.id).waitlisters).to eq [ second_user, third_user ]
     end
 

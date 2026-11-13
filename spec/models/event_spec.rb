@@ -126,13 +126,13 @@ RSpec.describe Event, type: :model do
   end
 
   describe "#receive twice by the same user" do
-    it "2回目は参加を作らず、メールも送らない" do
+    it "2回目は参加を作らず、通知も送らない" do
       event = FactoryBot.create(:event)
       user = FactoryBot.create(:user)
       event.receive(user)
 
       aggregate_failures do
-        expect { expect(event.receive(user)).to be_falsey }.not_to have_enqueued_mail(EventMailer, :participation_email)
+        expect { expect(event.receive(user)).to be_falsey }.not_to have_enqueued_notification(:participation)
         expect(Participation.where(event:, user:).count).to eq 1
       end
     end
@@ -185,7 +185,7 @@ RSpec.describe Event, type: :model do
 
       expect do
         event.update!(max_size: 2)
-      end.not_to have_enqueued_mail(EventMailer, :promotion_email)
+      end.not_to have_enqueued_notification(:promotion)
       expect(waitlisted.reload).to be_waitlisted
     end
   end

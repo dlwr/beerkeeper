@@ -83,7 +83,7 @@ class Event < ApplicationRecord
     return if schedule_changes.empty? || Event::Cancellation.exists?(event_id: id)
 
     participations.includes(:user).map(&:user).each do |user|
-      EventMailer.with(user:, event: self, changes: schedule_changes).schedule_change_email.deliver_later
+      EventNotificationJob.perform_later("schedule_change", user, self, schedule_changes)
     end
   end
 

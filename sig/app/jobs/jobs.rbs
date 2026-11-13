@@ -1,0 +1,6 @@
+class ApplicationJob < ActiveJob::Base
+end
+
+class EventNotificationJob < ApplicationJob
+  def self.perform_later: (String kind, User user, Event event, ?Hash[String, untyped] changes) -> untyped
+end

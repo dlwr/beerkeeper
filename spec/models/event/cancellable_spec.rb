@@ -38,21 +38,21 @@ RSpec.describe Event::Cancellable, type: :model do
         participants.each { |user| FactoryBot.create(:participation, event:, user:) }
       end
 
-      it 'sends a cancellation email to each participant' do
+      it '参加者それぞれに中止を知らせる' do
         expect { event.cancel('台風') }
-          .to have_enqueued_mail(EventMailer, :cancellation_email).exactly(2).times
+          .to have_enqueued_notification(:cancellation).exactly(2).times
       end
 
-      it 'sends a cancellation email to waitlisted users too' do
+      it '補欠にも中止を知らせる' do
         FactoryBot.create(:participation, event:, user: FactoryBot.create(:user), waitlisted: true)
 
         expect { event.cancel('台風') }
-          .to have_enqueued_mail(EventMailer, :cancellation_email).exactly(3).times
+          .to have_enqueued_notification(:cancellation).exactly(3).times
       end
 
-      it 'does not send emails again when cancelled twice' do
+      it '2回中止しても再び知らせない' do
         event.cancel
-        expect { event.cancel }.not_to have_enqueued_mail(EventMailer, :cancellation_email)
+        expect { event.cancel }.not_to have_enqueued_notification(:cancellation)
       end
     end
   end
