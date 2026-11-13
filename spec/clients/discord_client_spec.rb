@@ -143,4 +143,19 @@ RSpec.describe DiscordClient, :discord do
         .to raise_error(DiscordClient::RateLimited) { |error| expect(error.retry_after).to eq 1.5 }
     end
   end
+
+  describe ".post_message" do
+    it "Bot でチャンネルに投稿し、メンションを無効にする" do
+      stub = stub_request(:post, "https://discord.com/api/v10/channels/events-channel/messages")
+        .with(
+          headers: { "Authorization" => "Bot bot-token" },
+          body: { content: "告知", allowed_mentions: { parse: [] } }.to_json
+        )
+        .to_return(status: 200, body: { id: "m1" }.to_json)
+
+      described_class.post_message(channel_id: "events-channel", content: "告知")
+
+      expect(stub).to have_been_requested.once
+    end
+  end
 end
