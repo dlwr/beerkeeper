@@ -1,6 +1,8 @@
 class DiscordDmJob < ApplicationJob
   MAX_ATTEMPTS = 5
 
+  discard_on ActiveJob::DeserializationError
+
   def self.remember_welcome_failure(user)
     Rails.cache.write(welcome_failure_key(user), true, expires_in: 30.days)
   end
