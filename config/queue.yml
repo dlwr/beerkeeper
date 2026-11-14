@@ -7,11 +7,5 @@ default: &default
       threads: 2
       polling_interval: 1
 
-development:
-  <<: *default
-
-test:
-  <<: *default
-
 production:
   <<: *default

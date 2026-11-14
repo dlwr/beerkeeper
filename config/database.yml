@@ -23,6 +23,7 @@ test:
 production:
   primary:
     <<: *default
+    pool: 10
     database: <%= ENV.fetch("RAILS_STORAGE_PATH", "storage") %>/production.sqlite3
   queue:
     <<: *default
