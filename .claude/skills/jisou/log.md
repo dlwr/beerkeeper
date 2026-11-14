@@ -37,6 +37,7 @@
 - 否定の matcher（`define_negated_matcher` で作ったもの）に `.with` は付けられない。`not_to have_enqueued_mail(...).with(...)` と書く
 - `rbs_rails:all` は触っていないモデルの生成物も列順を変えて書き直す。変えたモデルの分だけ残し、ほかは `git checkout` で戻す
 - squash マージ後に main を作業ブランチへ取り込むと、新しく足したファイルが add/add で衝突する。中身は作業ブランチの方が新しいので `git checkout --ours` で解く
+- 本番の DB を試すときは `RAILS_STORAGE_PATH` に一時ディレクトリを渡すと、`storage/` を汚さずに `db:prepare` まで流せる（`spec/scripts/production_queue_spec.rb`）
 - Discord の HTTP は WebMock でスタブする。シークレットは `:discord` タグ（`spec/support/discord.rb`）で入れ、ほかの ENV は `with_env` で一時的に変える
 
 ## 残っている候補
@@ -51,8 +52,8 @@
 - Litestream のコンテナは linux-x86_64 固定。arm64 の Mac で `docker compose build` すると使えないバイナリが入る（`BUCKET_NAME` が無ければ呼ばれない）
 - .ics（#74）は `SEQUENCE` を出さない。日時変更後に取り込み直したとき、上書きされるかはカレンダーアプリ次第。中止理由も入れていない
 - 参加費（`budget`）は文字列の列。詳細では数字だけなら「円」を付ける（#82）。一覧には開催場所と参加人数・満席を出す（#87）が、参加費は出していない
-- 開催前日のリマインドは無い。定期実行の仕組み（Solid Queue の recurring など）が未導入なので、入れるなら基盤から
-- 本番の Active Job は既定の async（プロセス内）。再起動・auto_stop・デプロイの前に積まれた DM や告知、429 の再試行待ちは消える。歓迎の DM の失敗も `Rails.cache`（ファイルストア）頼み
+- 本番の Active Job は Solid Queue（Puma 内の async モード、`storage/production_queue.sqlite3`）。止まる瞬間に送信中だったジョブは次の起動で再実行され、DM が2通になりうる。`min_machines_running = 0` なので、時刻指定のジョブ（429 の再試行）はマシンが起きるまで走らない。キューの DB は Litestream の対象外。歓迎の DM の失敗は今も `Rails.cache`（ファイルストア）頼み
+- 開催前日のリマインドは、Solid Queue の recurring で作れるが、マシンが止まっていると時刻どおりに走らない
 - 歓迎の DM を積むところで例外が出るとログインは 500 になり、次のログインでは新規ではないので歓迎の DM は二度と送られない（async では起きにくい）
 - メールとパスワードのアカウントを持つ人が Discord でログインすると、紐づけずに別のユーザーができる。#95 で Discord に紐づかないユーザーは消す方針
 - #95 は #93（オーナーが本番にシークレットを入れる）まで待つ。先に消すと本番で誰もログインできなくなる
