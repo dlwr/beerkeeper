@@ -24,6 +24,15 @@ RSpec.describe DiscordDmJob, :discord do
     expect(DiscordClient).not_to have_received(:send_dm)
   end
 
+  it "積んだあとにユーザーが消えていれば、送らずに捨てる" do
+    allow(DiscordClient).to receive(:send_dm)
+    described_class.perform_later(user, "こんにちは")
+    user.destroy!
+
+    expect { perform_enqueued_jobs }.not_to raise_error
+    expect(DiscordClient).not_to have_received(:send_dm)
+  end
+
   it "429 なら retry_after だけ待って再試行する" do
     allow(DiscordClient).to receive(:send_dm).and_raise(DiscordClient::RateLimited.new("rate limited", retry_after: 2.5))
 
