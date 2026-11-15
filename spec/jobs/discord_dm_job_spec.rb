@@ -16,14 +16,6 @@ RSpec.describe DiscordDmJob, :discord do
     expect(DiscordClient).to have_received(:send_dm).with(user_id: "123", content: "こんにちは")
   end
 
-  it "Discord に紐づいていないユーザーには送らない" do
-    allow(DiscordClient).to receive(:send_dm)
-
-    described_class.perform_now(create(:user), "こんにちは")
-
-    expect(DiscordClient).not_to have_received(:send_dm)
-  end
-
   it "積んだあとにユーザーが消えていれば、送らずに捨てる" do
     allow(DiscordClient).to receive(:send_dm)
     described_class.perform_later(user, "こんにちは")

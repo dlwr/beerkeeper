@@ -31,6 +31,15 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '検証' do
+    it 'Discord のアカウントに紐づかないユーザーは作れない' do
+      expect(User.new(name: "taro")).not_to be_valid
+      expect {
+        User.new(name: "taro").save!(validate: false)
+      }.to raise_error(ActiveRecord::NotNullViolation)
+    end
+  end
+
   describe '#avatar_url' do
     it 'Discord のアバターの URL を返す' do
       user = User.sign_in_with_discord("id" => "123", "username" => "taro", "avatar" => "hash1")

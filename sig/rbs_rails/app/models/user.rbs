@@ -164,9 +164,9 @@ class ::User < ::ApplicationRecord
 
     def updated_at_for_database: () -> ::Time
 
-    def discord_user_id: () -> ::String?
+    def discord_user_id: () -> ::String
 
-    def discord_user_id=: (::String?) -> ::String?
+    def discord_user_id=: (::String) -> ::String
 
     def discord_user_id?: () -> bool
 
@@ -200,9 +200,9 @@ class ::User < ::ApplicationRecord
 
     def clear_discord_user_id_change: () -> void
 
-    def discord_user_id_before_type_cast: () -> ::String?
+    def discord_user_id_before_type_cast: () -> ::String
 
-    def discord_user_id_for_database: () -> ::String?
+    def discord_user_id_for_database: () -> ::String
 
     def discord_avatar: () -> ::String?
 
@@ -298,13 +298,6 @@ class ::User < ::ApplicationRecord
   def participation_ids: () -> ::Array[::Integer]
   def participation_ids=: (::Array[::Integer]) -> ::Array[::Integer]
 
-  def password_credential: () -> ::User::PasswordCredential?
-  def password_credential=: (::User::PasswordCredential?) -> ::User::PasswordCredential?
-  def build_password_credential: (?untyped) -> ::User::PasswordCredential
-  def create_password_credential: (?untyped) -> ::User::PasswordCredential
-  def create_password_credential!: (?untyped) -> ::User::PasswordCredential
-  def reload_password_credential: () -> ::User::PasswordCredential?
-
   module ::User::GeneratedAssociationMethods
   end
   include ::User::GeneratedAssociationMethods
@@ -348,8 +341,4 @@ end
 class ::Participation < ::ApplicationRecord
 end
 class ::Participation::ActiveRecord_Associations_CollectionProxy < ::ActiveRecord::Associations::CollectionProxy
-end
-class ::User::PasswordCredential < ::ApplicationRecord
-end
-class ::User < ::ApplicationRecord
 end
