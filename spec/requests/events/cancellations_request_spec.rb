@@ -1,11 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe "Event::Cancellation", type: :request do
-  let!(:user) { create(:user, password: 'password', password_confirmation: 'password') }
+  let!(:user) { create(:user) }
   let!(:event) { create(:event, organizer: user) }
 
   before do
-    post sessions_path, params: { email: user.email, password: 'password' }
+    log_in(user)
   end
 
   describe 'POST /events/:id/cancellations' do
@@ -23,7 +23,7 @@ RSpec.describe "Event::Cancellation", type: :request do
 
     it '主催者以外のログインユーザーは中止できない' do
       other = create(:user)
-      post sessions_path, params: { email: other.email, password: 'password' }
+      log_in(other)
 
       expect do
         post event_cancellations_path(event.id)
@@ -45,7 +45,7 @@ RSpec.describe "Event::Cancellation", type: :request do
     before do
       create(:participation, event:, user: participant)
       event.cancel('台風のため')
-      post sessions_path, params: { email: participant.email, password: 'password' }
+      log_in(participant)
     end
 
     it '詳細ページで中止と理由が表示される' do
@@ -67,7 +67,7 @@ RSpec.describe "Event::Cancellation", type: :request do
 
     it '中止イベントには参加できない' do
       other = create(:user)
-      post sessions_path, params: { email: other.email, password: 'password' }
+      log_in(other)
 
       post event_participations_path(event)
 

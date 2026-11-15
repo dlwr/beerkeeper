@@ -1,10 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe "Events", type: :request do
-  let!(:user) { create(:user, password: 'password', password_confirmation: 'password') }
+  let!(:user) { create(:user) }
 
   before do
-    post sessions_path, params: { email: user.email, password: 'password' }
+    log_in(user)
   end
 
   describe 'GET /events' do
@@ -78,7 +78,7 @@ RSpec.describe "Events", type: :request do
     end
 
     it '主催者以外にはイベント中止リンクを表示しない' do
-      post sessions_path, params: { email: other_user.email, password: 'password' }
+      log_in(other_user)
 
       get event_path(event)
 

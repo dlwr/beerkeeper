@@ -90,8 +90,8 @@ RSpec.describe "ログインが要る操作", type: :request do
   end
 
   describe 'ログインせずに開ける画面' do
-    it 'イベント一覧・詳細、ログイン、サインアップ、パスワード再設定を開ける' do
-      [ root_path, events_path, event_path(event), login_path, signup_path, new_password_reset_path ].each do |path|
+    it 'イベント一覧・詳細、ログインを開ける' do
+      [ root_path, events_path, event_path(event), login_path ].each do |path|
         get path
         expect(response).to have_http_status(:ok), path
       end

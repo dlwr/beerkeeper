@@ -4,16 +4,6 @@
       <i class="bi bi-discord" aria-hidden="true"></i> Discord でログイン
     <% end %>
   </div>
+<% else %>
+  <p class="text-muted">Discord でのログインが設定されていません。</p>
 <% end %>
-
-<%= form_with local: true, url: sessions_path do |form| %>
-  <div class="field">
-    <%= form.label :email %>
-    <%= form.text_field :email %>
-    <%= form.label :password %>
-    <%= form.password_field :password %>
-  </div>
-  <%= form.submit 'Login' %>
-<% end %>
-
-<p class="mt-3"><%= link_to 'パスワードを忘れた場合', new_password_reset_path %></p>

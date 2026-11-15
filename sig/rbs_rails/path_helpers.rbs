@@ -10,15 +10,9 @@ interface ::_RbsRailsPathHelpers
   def rails_info_path: (*untyped) -> ::String
   def root_path: (*untyped) -> ::String
   def login_path: (*untyped) -> ::String
-  def signup_path: (*untyped) -> ::String
   def discord_login_path: (*untyped) -> ::String
   def discord_callback_path: (*untyped) -> ::String
-  def sessions_path: (*untyped) -> ::String
   def session_path: (*untyped) -> ::String
-  def password_resets_path: (*untyped) -> ::String
-  def new_password_reset_path: (*untyped) -> ::String
-  def edit_password_reset_path: (*untyped) -> ::String
-  def password_reset_path: (*untyped) -> ::String
   def event_participations_path: (*untyped) -> ::String
   def event_participation_path: (*untyped) -> ::String
   def event_cancellations_path: (*untyped) -> ::String
@@ -65,15 +59,9 @@ interface ::_RbsRailsPathHelpers
   def rails_info_url: (*untyped) -> ::String
   def root_url: (*untyped) -> ::String
   def login_url: (*untyped) -> ::String
-  def signup_url: (*untyped) -> ::String
   def discord_login_url: (*untyped) -> ::String
   def discord_callback_url: (*untyped) -> ::String
-  def sessions_url: (*untyped) -> ::String
   def session_url: (*untyped) -> ::String
-  def password_resets_url: (*untyped) -> ::String
-  def new_password_reset_url: (*untyped) -> ::String
-  def edit_password_reset_url: (*untyped) -> ::String
-  def password_reset_url: (*untyped) -> ::String
   def event_participations_url: (*untyped) -> ::String
   def event_participation_url: (*untyped) -> ::String
   def event_cancellations_url: (*untyped) -> ::String

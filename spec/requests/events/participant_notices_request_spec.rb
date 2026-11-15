@@ -1,19 +1,15 @@
 require 'rails_helper'
 
 RSpec.describe "参加者向けのお知らせ", type: :request do
-  let!(:organizer) { create(:user, password: 'password', password_confirmation: 'password') }
-  let!(:participant) { create(:user, password: 'password', password_confirmation: 'password') }
-  let!(:waitlister) { create(:user, password: 'password', password_confirmation: 'password') }
-  let!(:stranger) { create(:user, password: 'password', password_confirmation: 'password') }
+  let!(:organizer) { create(:user) }
+  let!(:participant) { create(:user) }
+  let!(:waitlister) { create(:user) }
+  let!(:stranger) { create(:user) }
   let!(:event) { create(:event, organizer:, max_size: 1, participant_notice: '集合は改札前に19時') }
 
   before do
     event.receive(participant)
     event.receive(waitlister)
-  end
-
-  def log_in(user)
-    post sessions_path, params: { email: user.email, password: 'password' }
   end
 
   describe 'GET /events/:id' do

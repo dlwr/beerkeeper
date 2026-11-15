@@ -1,8 +1,6 @@
 FactoryBot.define do
   factory :user do
     name { "MyString" }
-    sequence(:email) { |n| "email#{n}@example.com" }
-    password { 'password' }
-    password_confirmation { 'password' }
+    sequence(:discord_user_id) { |n| (100_000 + n).to_s }
   end
 end

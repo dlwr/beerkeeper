@@ -1,15 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe "イベントをもとにした新規作成", type: :request do
-  let!(:user) { create(:user, password: 'password', password_confirmation: 'password') }
+  let!(:user) { create(:user) }
   let!(:source) do
     create(:event, organizer: user, name: 'mitaka.rb 定例会', location: '三鷹市 某所', max_size: 20, budget: '1000',
                    description: 'Ruby の話をする会', participant_notice: '受付は 2 階です',
                    start_at: Time.zone.local(2026, 3, 14, 18, 30), end_at: Time.zone.local(2026, 3, 14, 21, 0))
-  end
-
-  def log_in(account)
-    post sessions_path, params: { email: account.email, password: 'password' }
   end
 
   def form_section
@@ -44,7 +40,7 @@ RSpec.describe "イベントをもとにした新規作成", type: :request do
     end
 
     it '他人のイベントを指定すると空のフォームを出す' do
-      other = create(:user, password: 'password', password_confirmation: 'password')
+      other = create(:user)
       log_in(other)
 
       get new_event_path(source_id: source.id)
@@ -85,7 +81,7 @@ RSpec.describe "イベントをもとにした新規作成", type: :request do
     end
 
     it '主催者以外には出さない' do
-      log_in(create(:user, password: 'password', password_confirmation: 'password'))
+      log_in(create(:user))
 
       get event_path(source)
 

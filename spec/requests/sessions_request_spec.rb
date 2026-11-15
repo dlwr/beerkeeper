@@ -2,47 +2,40 @@ require 'rails_helper'
 
 RSpec.describe "Sessions", type: :request do
   describe 'GET /login' do
-    it 'ログインフォームを表示する' do
+    it 'Discord でログインのボタンだけを出し、メールアドレスとパスワードの欄は出さない', :discord do
       get login_path
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include('Login')
+      expect(response.body).to include('Discord でログイン')
+      expect(response.body).not_to include('type="password"', 'name="email"', 'パスワードを忘れた場合')
+    end
+
+    it 'Discord のシークレットが無い環境では、ログインできないことを知らせる', :without_discord do
+      get login_path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('Discord でのログインが設定されていません')
     end
   end
 
-  describe 'POST /sessions' do
-    let!(:user) { create(:user, password: 'password', password_confirmation: 'password') }
+  describe 'メールアドレスとパスワードの経路' do
+    it 'サインアップ・パスワード再設定・パスワードでのログインは無い' do
+      get '/signup'
+      expect(response).to have_http_status(:not_found)
 
-    context '認証に成功した場合' do
-      it 'events にリダイレクトし、ログアウトリンクが表示される（= セッションが張られる）' do
-        post sessions_path, params: { email: user.email, password: 'password' }
+      get '/password_resets/new'
+      expect(response).to have_http_status(:not_found)
 
-        expect(response).to redirect_to(events_path)
-
-        follow_redirect!
-
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to include('ログインに成功しました')
-        expect(response.body).to include('ログアウト')
-      end
-    end
-
-    context '認証に失敗した場合' do
-      it '401 を返し、同じ画面にエラーメッセージを表示する' do
-        post sessions_path, params: { email: user.email, password: 'wrong' }
-
-        expect(response).to have_http_status(:unauthorized)
-        expect(response.body).to include('ログインに失敗しました')
-        expect(response.body).to include('Login')
-      end
+      post '/sessions', params: { email: 'a@example.com', password: 'password' }
+      expect(response).to have_http_status(:not_found)
     end
   end
 
   describe 'DELETE /sessions/:id' do
-    let!(:user) { create(:user, password: 'password', password_confirmation: 'password') }
+    let!(:user) { create(:user) }
 
     it 'ログアウトして login にリダイレクトし、ログインリンクが表示される' do
-      post sessions_path, params: { email: user.email, password: 'password' }
+      log_in(user)
       expect(response).to redirect_to(events_path)
 
       delete session_path(user)
@@ -51,27 +44,12 @@ RSpec.describe "Sessions", type: :request do
       follow_redirect!
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include('Login')
       expect(response.body).to include('ログイン')
-      expect(response.body).not_to include('ログアウト')
-    end
-  end
-
-  describe 'セッションの作り直し' do
-    let!(:user) { create(:user, password: 'password', password_confirmation: 'password') }
-
-    it 'ログインするとセッション ID が変わる' do
-      get new_event_path
-      before_id = session.id.to_s
-      expect(before_id).to be_present
-
-      post sessions_path, params: { email: user.email, password: 'password' }
-
-      expect(session.id.to_s).not_to eq before_id
+      expect(response.body).not_to include('ログアウト', 'サインアップ')
     end
 
     it 'ログアウトするとセッション ID が変わり、ログイン状態が消える' do
-      post sessions_path, params: { email: user.email, password: 'password' }
+      log_in(user)
       before_id = session.id.to_s
 
       delete session_path(user)

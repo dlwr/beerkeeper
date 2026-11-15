@@ -20,8 +20,6 @@ class DiscordDmJob < ApplicationJob
   end
 
   def perform(user, content, welcome: false)
-    return if user.discord_user_id.blank?
-
     DiscordClient.send_dm(user_id: user.discord_user_id, content:)
   rescue DiscordClient::RateLimited => e
     if executions < MAX_ATTEMPTS
