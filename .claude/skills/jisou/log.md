@@ -39,12 +39,17 @@
 - squash マージ後に main を作業ブランチへ取り込むと、新しく足したファイルが add/add で衝突する。中身は作業ブランチの方が新しいので `git checkout --ours` で解く
 - 本番の DB を試すときは `RAILS_STORAGE_PATH` に一時ディレクトリを渡すと、`storage/` を汚さずに `db:prepare` まで流せる（`spec/scripts/production_queue_spec.rb`）
 - Discord の HTTP は WebMock でスタブする。シークレットは `:discord` タグ（`spec/support/discord.rb`）で入れ、ほかの ENV は `with_env` で一時的に変える
+- request spec のログインは `log_in(user)`（`spec/support/login.rb`）で、スタブした Discord の OAuth を通す。system spec は `allow_any_instance_of(ApplicationController).to receive(:current_user)`
+- パスワードのログインが無いので、開発サーバーでは Discord のシークレット無しにログインできない。画面の点検は、`ApplicationController#authenticate` をクッキーの `dev_user_id` で差し替えるスクリプトを scratchpad に置き、`RUBYOPT=-r<それ> bin/rails s` で起こして Playwright で撮る（`ActiveSupport.on_load(:after_initialize)` で prepend する）
+- クラウドの gh は 2.89 で `--attach` が無い。スクリーンショットは添付できない
 
 ## 残っている候補
 
+- 開発環境で Discord 無しにログインする手段（development だけのログイン）。今は点検用のスクリプト頼み
+
 - 型検査は `app/models` だけ。コントローラー・コンポーネントへ広げるのは次の候補
 - `users#destroy` は画面から呼べないうえ、参加が `dependent: :nullify`（`user_id` は NOT NULL）、主催イベントの参加が `restrict_with_error` で実際には消せない（参加者のいるイベントの主催者だと `RecordNotDestroyed` で 500 になるはず。未確認）。退会を作るなら仕様から
-- セッションはクッキーに `user_id` を持つだけなので、パスワードを再設定しても他の端末のログインは残る
+- セッションはクッキーに `user_id` を持つだけなので、ほかの端末のログインを切る手段が無い
 
 - `Event#receive` は `RecordInvalid` も握りつぶすので、二重参加以外の検証エラーも「参加できませんでした」になる
 - `Event.upcoming` / `.past` は `end_at` で分けるが、DB は `end_at` の NULL を許すので、NULL の行はどちらにも出ない（モデルでは必須）
@@ -55,6 +60,4 @@
 - 本番の Active Job は Solid Queue（Puma 内の async モード、`storage/production_queue.sqlite3`）。止まる瞬間に送信中だったジョブは次の起動で再実行され、DM が2通になりうる。`min_machines_running = 0` なので、時刻指定のジョブ（429 の再試行）はマシンが起きるまで走らない。キューの DB は Litestream の対象外。歓迎の DM の失敗は今も `Rails.cache`（ファイルストア）頼み
 - 開催前日のリマインドは、Solid Queue の recurring で作れるが、マシンが止まっていると時刻どおりに走らない
 - 歓迎の DM を積むところで例外が出るとログインは 500 になり、次のログインでは新規ではないので歓迎の DM は二度と送られない（async では起きにくい）
-- メールとパスワードのアカウントを持つ人が Discord でログインすると、紐づけずに別のユーザーができる。#95 で Discord に紐づかないユーザーは消す方針
-- #95 は #93（オーナーが本番にシークレットを入れる）まで待つ。先に消すと本番で誰もログインできなくなる
 - イベントをもとにした新規作成（#90）は内容を写すだけで、日時は空。翌月の同じ曜日などを入れる案や、繰り返しイベントは未着手
