@@ -18,5 +18,20 @@ export PATH=$dir/$arch/bin:$PATH
 # node22 の古い chromedriver を拾うと Chrome と版が合わず system spec が落ちる
 [ -e /opt/node22/bin/chromedriver ] && mv /opt/node22/bin/chromedriver /opt/node22/bin/chromedriver.old
 
+install_gh() {
+  local v=2.103.0 a sum tmp
+  a=$([ "$(uname -m)" = aarch64 ] && echo arm64 || echo amd64)
+  sum=$([ "$a" = arm64 ] && echo 7f322df34e624d14f5ec0c4acb121fd6dfa14392fdbbd1066aa8e0a05ac3721e || echo fdd768eb70f6409f80fcfa9f3a1c0adf0fc98d827ab3ce0bed2ac22762c5d786)
+  tmp=$(mktemp -d)
+  curl -fsSL -o "$tmp/gh.tgz" "https://github.com/cli/cli/releases/download/v$v/gh_${v}_linux_$a.tar.gz" &&
+    echo "$sum  $tmp/gh.tgz" | sha256sum -c --quiet &&
+    tar xzf "$tmp/gh.tgz" -C "$tmp" &&
+    install -m 755 "$tmp/gh_${v}_linux_$a/bin/gh" "${GH_INSTALL_DIR:-/usr/local/bin}/gh"
+  local status=$?
+  rm -rf "$tmp"
+  return $status
+}
+install_gh || echo "gh の更新に失敗したため、既存の gh を使う" >&2
+
 bundle install -j4
 RAILS_ENV=test bin/rails db:setup

@@ -41,7 +41,7 @@
 - Discord の HTTP は WebMock でスタブする。シークレットは `:discord` タグ（`spec/support/discord.rb`）で入れ、ほかの ENV は `with_env` で一時的に変える
 - request spec のログインは `log_in(user)`（`spec/support/login.rb`）で、スタブした Discord の OAuth を通す。system spec は `allow_any_instance_of(ApplicationController).to receive(:current_user)`
 - パスワードのログインが無いので、開発サーバーでは Discord のシークレット無しにログインできない。画面の点検は、`ApplicationController#authenticate` をクッキーの `dev_user_id` で差し替えるスクリプトを scratchpad に置き、`RUBYOPT=-r<それ> bin/rails s` で起こして Playwright で撮る（`ActiveSupport.on_load(:after_initialize)` で prepend する）
-- クラウドの gh は 2.89 で `--attach` が無い。スクリーンショットは添付できない
+- イメージの gh は 2.89 で `--attach` が無い。`bin/cloud-setup` が 2.103 に置き換える（失敗しても既存の gh で続く）。`gh --version` で確かめてから `--attach` を使う
 
 ## 残っている候補
 
