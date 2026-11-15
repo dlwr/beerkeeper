@@ -5,10 +5,6 @@ RSpec.describe "Participations", type: :request do
   let!(:other_user) { create(:user) }
   let!(:event) { create(:event, max_size: 1) }
 
-  def log_in(user)
-    post sessions_path, params: { email: user.email, password: 'password' }
-  end
-
   describe 'POST /events/:event_id/participations' do
     let!(:roomy_event) { create(:event, max_size: 10) }
 
