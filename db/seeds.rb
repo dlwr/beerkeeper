@@ -1,12 +1,13 @@
 return if Rails.env.production?
 
 users = [
-  { name: "sakurai", email: "email@example.com" },
-  { name: "suzuki", email: "suzuki@example.com" },
-  { name: "tanaka", email: "tanaka@example.com" }
+  { name: "sakurai", discord_user_id: "seed-sakurai" },
+  { name: "suzuki", discord_user_id: "seed-suzuki" },
+  { name: "tanaka", discord_user_id: "seed-tanaka" }
 ].map do |attributes|
-  User.find_by_email(attributes[:email]) ||
-    User.create!(**attributes, password: "password", password_confirmation: "password")
+  User.find_or_create_by!(discord_user_id: attributes[:discord_user_id]) do |user|
+    user.name = attributes[:name]
+  end
 end
 
 organizer = users.first

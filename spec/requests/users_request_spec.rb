@@ -1,38 +1,34 @@
 require 'rails_helper'
 
 RSpec.describe "Users", type: :request do
-  let!(:user) { create(:user, email: 'before@example.com', password: 'password', password_confirmation: 'password') }
+  let!(:user) { create(:user, name: '前の名前') }
 
   before do
-    post sessions_path, params: { email: 'before@example.com', password: 'password' }
+    log_in(user)
+  end
+
+  describe 'GET /user/edit' do
+    it '名前だけを編集でき、メールアドレスとパスワードの欄は無い' do
+      get edit_user_path
+
+      expect(response.body).to include('name="user[name]"')
+      expect(response.body).not_to include('type="password"', 'type="email"', 'user[email]')
+    end
   end
 
   describe 'PATCH /user' do
-    it 'メールアドレスとパスワードを変えると、新しい組み合わせでログインできる' do
-      patch user_path, params: { user: { name: user.name, email: 'after@example.com', password: 'newpassword', password_confirmation: 'newpassword' } }
+    it '名前を変えられる' do
+      patch user_path, params: { user: { name: '新しい名前' } }
 
       expect(response).to redirect_to(user_path)
       expect(flash[:notice]).to eq 'ユーザー情報を更新しました'
-
-      delete session_path(user)
-      post sessions_path, params: { email: 'after@example.com', password: 'newpassword' }
-      expect(response).to redirect_to(events_path)
-    end
-
-    it 'パスワードを空にすると今のパスワードのまま名前だけ変わる' do
-      patch user_path, params: { user: { name: '新しい名前', email: 'before@example.com', password: '', password_confirmation: '' } }
-
       expect(user.reload.name).to eq '新しい名前'
-      expect(user.authenticate('password')).to eq user
     end
 
-    it '他の人のメールアドレスには変えられない' do
-      create(:user, email: 'taken@example.com')
+    it 'Discord のアカウントは変えられない' do
+      patch user_path, params: { user: { name: user.name, discord_user_id: 'someone-else' } }
 
-      patch user_path, params: { user: { name: user.name, email: 'taken@example.com' } }
-
-      expect(response).to have_http_status(:unprocessable_content)
-      expect(user.reload.email).to eq 'before@example.com'
+      expect(user.reload.discord_user_id).not_to eq 'someone-else'
     end
   end
 
