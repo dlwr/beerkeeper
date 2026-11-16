@@ -31,7 +31,7 @@ RSpec.describe "イベント詳細の操作", type: :request do
     get event_path(event)
 
     expect(primary_buttons.map { |b| b.text.strip }).to eq [ "Discord でログインして参加する" ]
-    expect(primary_buttons.first["href"]).to eq login_path
+    expect(primary_buttons.first["href"]).to eq login_path(return_to: event_path(event))
   end
 
   it "参加できる人には参加するだけを主な操作として出す" do
