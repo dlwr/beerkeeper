@@ -31,6 +31,22 @@ module EventsHelper
     left.positive? ? "あと#{left}人" : "満席・補欠受付中"
   end
 
+  def field_error_id(record, attribute)
+    "#{record.model_name.param_key}_#{attribute}_error"
+  end
+
+  def field_error_attributes(record, attribute)
+    return {} if record.errors[attribute].empty?
+
+    { aria: { invalid: true, describedby: field_error_id(record, attribute) } }
+  end
+
+  def field_error(record, attribute)
+    return if record.errors[attribute].empty?
+
+    tag.p(record.errors.full_messages_for(attribute).join("\u3001"), id: field_error_id(record, attribute), class: "field-error")
+  end
+
   def budget_label(event)
     budget = event.budget.to_s.strip
     return "未定" if budget.empty?

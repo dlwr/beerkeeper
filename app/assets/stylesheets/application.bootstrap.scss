@@ -461,3 +461,80 @@ $alert-border-radius: $border-radius;
   align-items: center;
   min-height: 2.75rem;
 }
+
+.event-form {
+  max-width: 40rem;
+}
+
+.form-group {
+  margin: 0 0 1.5rem;
+  padding: 0;
+  border: 0;
+
+  legend {
+    margin-bottom: .5rem;
+    font-size: $font-size-base;
+    font-weight: 700;
+  }
+
+  > .form-label {
+    font-weight: 700;
+  }
+}
+
+.datetime-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: .75rem;
+  max-width: 24rem;
+
+  .form-label {
+    margin-bottom: .25rem;
+    font-size: $font-size-sm;
+  }
+}
+
+.field-tag {
+  margin-left: .25rem;
+  color: $red;
+  font-size: $font-size-sm;
+  font-weight: 700;
+}
+
+.field-tag--optional {
+  color: $ink-muted;
+  font-weight: 400;
+}
+
+.form-control--short {
+  max-width: 10rem;
+}
+
+.form-hint {
+  margin: .25rem 0 0;
+  color: $ink-muted;
+  font-size: $font-size-sm;
+}
+
+.field-error {
+  margin: .25rem 0 0;
+  color: $red;
+  font-size: $font-size-sm;
+  font-weight: 700;
+}
+
+.form-control[aria-invalid="true"] {
+  border-color: $red;
+  border-width: 2px;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-top: 2rem;
+
+  .btn {
+    min-width: 8rem;
+  }
+}

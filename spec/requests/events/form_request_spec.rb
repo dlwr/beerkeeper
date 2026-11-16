@@ -1,0 +1,80 @@
+require "rails_helper"
+
+RSpec.describe "イベントのフォーム", type: :request do
+  let(:user) { create(:user) }
+
+  before { log_in(user) }
+
+  def form_html
+    Nokogiri::HTML(response.body).at("main form")
+  end
+
+  def valid_params(**overrides)
+    { start_at_date: "2099-03-14", start_at_time: "18:30", end_at_date: "2099-03-14", end_at_time: "21:00",
+      name: "定例会", location: "三鷹" }.merge(overrides)
+  end
+
+  it "すべての入力欄に label を結びつける" do
+    get new_event_path
+
+    fields = form_html.css("input:not([type=hidden]):not([type=submit]), textarea, select")
+    expect(fields).not_to be_empty
+    fields.each do |field|
+      expect(form_html.at(%(label[for="#{field['id']}"]))).to be_present, "#{field['name']} に label が無い"
+    end
+  end
+
+  it "必須と任意を文字で示す" do
+    get new_event_path
+
+    label_text = ->(id) { form_html.at(%(label[for="#{id}"])).text.squish }
+    expect(label_text.call("event_name")).to include "必須"
+    expect(form_html.at("fieldset.event-start legend").text).to include "必須"
+    expect(form_html.at("fieldset.event-end legend").text).to include "必須"
+    %w[event_location event_max_size event_budget event_description event_participant_notice].each do |id|
+      expect(label_text.call(id)).to include "任意"
+    end
+  end
+
+  it "参加人数は数字の入力にする" do
+    get new_event_path
+
+    field = form_html.at("#event_max_size")
+    expect(field["inputmode"]).to eq "numeric"
+    expect(field["min"]).to eq "1"
+  end
+
+  it "イベント名が空なら欄のすぐ下にエラーを出し、ほかの入力を残す" do
+    post events_path, params: { event: valid_params(name: "") }
+
+    expect(response).to have_http_status(:unprocessable_content)
+    field = form_html.at("#event_name")
+    expect(field["aria-invalid"]).to eq "true"
+    error = form_html.at("##{field['aria-describedby']}")
+    expect(error.text.squish).to eq "イベント名を入力してください"
+    expect(field.parent.css(".field-error").map { |e| e["id"] }).to eq [ error["id"] ]
+    expect(form_html.at("#event_location")["value"]).to eq "三鷹"
+    expect(form_html.at("#event_start_at_time")["value"]).to eq "18:30"
+  end
+
+  it "開始日時が空なら開始の欄の近くにエラーを出す" do
+    post events_path, params: { event: valid_params(start_at_date: "", start_at_time: "") }
+
+    fieldset = form_html.at("fieldset.event-start")
+    expect(fieldset.at(".field-error").text).to include "開始日時を入力してください"
+    expect(fieldset.at("#event_start_at_date")["aria-invalid"]).to eq "true"
+  end
+
+  it "終了が開始より前なら終了の欄の近くにエラーを出す" do
+    post events_path, params: { event: valid_params(end_at_time: "17:00") }
+
+    fieldset = form_html.at("fieldset.event-end")
+    expect(fieldset.at(".field-error").text).to include "終了日時は開始日時より後にしてください"
+  end
+
+  it "エラーが無ければ aria-invalid を付けない" do
+    get new_event_path
+
+    expect(form_html.css("[aria-invalid]")).to be_empty
+  end
+end

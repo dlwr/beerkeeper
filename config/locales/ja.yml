@@ -1,6 +1,6 @@
 ja:
   errors:
-    format: "%{attribute} %{message}"
+    format: "%{attribute}%{message}"
     messages:
       invalid: の形式が不正です
 

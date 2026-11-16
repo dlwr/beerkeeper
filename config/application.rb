@@ -25,6 +25,7 @@ module Beerkeeper
     # config.eager_load_paths << Rails.root.join("extras")
     config.i18n.default_locale = :ja
     config.time_zone = "Tokyo"
+    config.action_view.field_error_proc = proc { |html_tag, _instance| html_tag }
     config.view_component.preview_paths = [ "#{Rails.root}/spec/components/previews" ]
     config.action_mailer.preview_paths << "#{Rails.root}/spec/mailers/previews"
     config.active_storage.variant_processor = :disabled
