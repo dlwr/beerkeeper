@@ -19,9 +19,10 @@ class DiscordSessionsController < ApplicationController
     join_guild(user, access_token)
     DiscordDmJob.perform_later(user, welcome_message, welcome: true) if user.previously_new_record?
 
+    return_to = session[:return_to]
     reset_session
     session[:user_id] = user.id
-    redirect_to events_path, notice: "ログインに成功しました"
+    redirect_to local_path?(return_to) ? return_to : events_path, notice: "ログインに成功しました"
   rescue DiscordClient::Error, ActiveRecord::RecordInvalid => e
     Rails.logger.warn("Discord login failed: #{e.message}")
     fail_login

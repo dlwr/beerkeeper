@@ -54,7 +54,7 @@
 <% unless @event.cancelled? || @event.ended? %>
   <div class="event-action">
     <% if current_user.nil? %>
-      <%= link_to "Discord でログインして参加する", login_path, class: "btn btn-primary btn-lg" %>
+      <%= link_to "Discord でログインして参加する", login_path(return_to: event_path(@event)), class: "btn btn-primary btn-lg" %>
     <% elsif current_user.participatable?(@event) %>
       <% if @event.full? %>
         <p class="event-action__note">満席のため補欠で申し込みます</p>

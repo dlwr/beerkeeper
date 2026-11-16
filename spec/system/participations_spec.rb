@@ -32,7 +32,7 @@ RSpec.describe 'Participations', type: :system, js: true do
 
       it 'does not show participating button but leads to login' do
         expect(page).not_to have_button('参加する')
-        expect(page).to have_link('Discord でログインして参加する', href: login_path)
+        expect(page).to have_link('Discord でログインして参加する', href: login_path(return_to: event_path(event)))
       end
     end
   end
