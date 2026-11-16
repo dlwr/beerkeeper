@@ -38,6 +38,25 @@ RSpec.describe Event, type: :model do
         it { expect(event).to be_invalid }
       end
     end
+
+    describe 'max_size' do
+      it '空なら定員なしとして有効' do
+        expect(FactoryBot.build(:event, max_size: nil)).to be_valid
+      end
+
+      it '1 以上の整数なら有効' do
+        expect(FactoryBot.build(:event, max_size: 1)).to be_valid
+      end
+
+      [ 0, -1, '1.5' ].each do |value|
+        it "#{value} は無効で、定員のエラーを出す" do
+          event = FactoryBot.build(:event, max_size: value)
+
+          expect(event).to be_invalid
+          expect(event.errors[:max_size]).to be_present
+        end
+      end
+    end
   end
 
   describe '#copy' do

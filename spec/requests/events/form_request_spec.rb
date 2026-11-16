@@ -77,4 +77,13 @@ RSpec.describe "イベントのフォーム", type: :request do
 
     expect(form_html.css("[aria-invalid]")).to be_empty
   end
+
+  it "定員が 0 なら保存せず、定員の欄の下にエラーを出す" do
+    expect do
+      post events_path, params: { event: valid_params(max_size: "0") }
+    end.not_to change(Event, :count)
+
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(form_html.at("#event_max_size_error").text).to eq "定員は1以上の値にしてください"
+  end
 end
