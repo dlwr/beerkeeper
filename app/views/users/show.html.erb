@@ -1,68 +1,47 @@
+<h1>マイページ</h1>
+
 <%= render(UserComponent.new(user: @user)) %>
 
-<h2 class="h4 mt-5">参加予定のイベント</h2>
+<h2 class="section-heading">参加予定のイベント</h2>
 <% if @participations.any? %>
-  <ul class="list-group">
+  <ul class="event-rows">
     <% @participations.each do |participation| %>
-      <li class="list-group-item">
-        <%= l(participation.event.start_at) %>
-        <%= link_to participation.event.name, participation.event %>
-        <% if participation.event.cancelled? %>
-          <span class="badge text-bg-danger">中止</span>
-        <% elsif participation.waitlisted? %>
-          <span class="badge text-bg-warning">補欠</span>
-        <% end %>
-      </li>
+      <%= render "event_row", event: participation.event, waitlisted: participation.waitlisted? %>
     <% end %>
   </ul>
 <% else %>
-  <p class="text-muted">参加予定のイベントはありません。</p>
+  <p class="text-body-secondary">参加予定のイベントはありません。</p>
 <% end %>
 
-<h2 class="h4 mt-5">主催するイベント</h2>
+<h2 class="section-heading">主催するイベント</h2>
 <% if @organizing_events.any? %>
-  <ul class="list-group">
+  <ul class="event-rows">
     <% @organizing_events.each do |event| %>
-      <li class="list-group-item">
-        <%= l(event.start_at) %>
-        <%= link_to event.name, event %>
-        <% if event.cancelled? %>
-          <span class="badge text-bg-danger">中止</span>
-        <% end %>
-      </li>
+      <%= render "event_row", event: %>
     <% end %>
   </ul>
 <% else %>
-  <p class="text-muted">主催するイベントはありません。</p>
+  <p class="text-body-secondary">主催するイベントはありません。</p>
 <% end %>
 
-<h2 class="h4 mt-5">主催したイベント</h2>
+<h2 class="section-heading">主催したイベント</h2>
 <% if @organized_events.any? %>
-  <ul class="list-group">
+  <ul class="event-rows">
     <% @organized_events.each do |event| %>
-      <li class="list-group-item">
-        <%= l(event.start_at) %>
-        <%= link_to event.name, event %>
-        <% if event.cancelled? %>
-          <span class="badge text-bg-danger">中止</span>
-        <% end %>
-      </li>
+      <%= render "event_row", event: %>
     <% end %>
   </ul>
 <% else %>
-  <p class="text-muted">主催したイベントはありません。</p>
+  <p class="text-body-secondary">主催したイベントはありません。</p>
 <% end %>
 
-<h2 class="h4 mt-5">参加したイベント</h2>
+<h2 class="section-heading">参加したイベント</h2>
 <% if @attended_participations.any? %>
-  <ul class="list-group">
+  <ul class="event-rows">
     <% @attended_participations.each do |participation| %>
-      <li class="list-group-item">
-        <%= l(participation.event.start_at) %>
-        <%= link_to participation.event.name, participation.event %>
-      </li>
+      <%= render "event_row", event: participation.event %>
     <% end %>
   </ul>
 <% else %>
-  <p class="text-muted">参加したイベントはありません。</p>
+  <p class="text-body-secondary">参加したイベントはありません。</p>
 <% end %>

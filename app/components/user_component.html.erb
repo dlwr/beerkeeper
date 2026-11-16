@@ -1,5 +1,9 @@
-<ul class="list-group">
-  <li class="list-group-item">
-    名前: <%= @user.name %>
-  </li>
-</ul>
+<div class="profile">
+  <% if @user.avatar_url %>
+    <%= image_tag @user.avatar_url, alt: "", width: 64, height: 64, class: "avatar" %>
+  <% end %>
+  <div>
+    <p class="profile__name"><%= @user.name %></p>
+    <%= link_to "名前を編集", helpers.edit_user_path, class: "btn btn-outline-secondary" %>
+  </div>
+</div>
