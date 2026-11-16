@@ -41,8 +41,7 @@
 - Discord の HTTP は WebMock でスタブする。シークレットは `:discord` タグ（`spec/support/discord.rb`）で入れ、ほかの ENV は `with_env` で一時的に変える
 - request spec のログインは `log_in(user)`（`spec/support/login.rb`）で、スタブした Discord の OAuth を通す。system spec は `allow_any_instance_of(ApplicationController).to receive(:current_user)`
 - パスワードのログインが無いので、開発サーバーでは Discord のシークレット無しにログインできない。画面の点検は、`ApplicationController#authenticate` をクッキーの `dev_user_id` で差し替えるスクリプトを scratchpad に置き、`RUBYOPT=-r<それ> bin/rails s` で起こして Playwright で撮る（`ActiveSupport.on_load(:after_initialize)` で prepend する）
-- イメージの gh は 2.89 で `--attach` が無い。`bin/cloud-setup` が 2.103 に置き換える（失敗しても既存の gh で続く）。`gh --version` で確かめてから `--attach` を使う
-- gh 2.103 でも `gh pr create --attach` と `gh pr comment --attach` は GraphQL を通るので、クラウドでは 403 で使えない。スクリーンショットは添付できず、PR 本文にそう書いて進めている
+- `gh pr create --attach` と `gh pr comment --attach` は GraphQL を通るので、クラウドでは 403 で使えない（gh 2.103 でも同じ）。スクリーンショットの添付はやめ、判定できることは spec に、見た目は本番の URL を報告に並べる
 - 点検用のログイン差し替えは `ActiveSupport.on_load(:after_initialize)` だけだと、app/ のファイルを変えて再読み込みされた時点で外れる。`Rails.application.reloader.to_prepare` の中で prepend する。スクリプトの先頭で `require "active_support/lazy_load_hooks"` も要る
 - 開発 DB が空（テーブル無し）のことがある。`bin/rails db:drop db:create db:schema:load db:seed` で作り直す
 - UI の方針は `design.md`。色・余白・部品は `app/assets/stylesheets/application.bootstrap.scss` の変数とクラスにまとめてあり、画面ごとに新しい値を足さない
