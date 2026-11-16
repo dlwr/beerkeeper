@@ -1,21 +1,24 @@
-<h1>イベント一覧</h1>
+<div class="page-heading">
+  <h1>イベント一覧</h1>
+  <% if current_user %>
+    <%= link_to "新規作成", new_event_path, class: "btn btn-primary" %>
+  <% end %>
+</div>
 
-<h2 class="h4 mt-4">開催予定</h2>
-<% if @upcoming_events.any? %>
-  <%= render "table", events: @upcoming_events %>
-<% else %>
-  <p class="text-muted">開催予定のイベントはありません。</p>
-<% end %>
+<section aria-labelledby="upcoming-heading">
+  <h2 id="upcoming-heading" class="section-heading">開催予定</h2>
+  <% if @upcoming_events.any? %>
+    <%= render "list", events: @upcoming_events %>
+  <% else %>
+    <p class="text-body-secondary">開催予定のイベントはありません。</p>
+  <% end %>
+</section>
 
-<% if current_user %>
-  <%= link_to '新規作成', new_event_path, class: "btn btn-primary" %>
-<% end %>
-
-<h2 class="h4 mt-5">過去のイベント</h2>
-<% if @past_events.any? %>
-  <div class="text-muted">
-    <%= render "table", events: @past_events %>
-  </div>
-<% else %>
-  <p class="text-muted">過去のイベントはありません。</p>
-<% end %>
+<section aria-labelledby="past-heading">
+  <h2 id="past-heading" class="section-heading">過去のイベント</h2>
+  <% if @past_events.any? %>
+    <%= render "list", events: @past_events %>
+  <% else %>
+    <p class="text-body-secondary">過去のイベントはありません。</p>
+  <% end %>
+</section>
