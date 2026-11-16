@@ -22,7 +22,6 @@ class Event < ApplicationRecord
 
   after_update :promote_waitlisters, if: :saved_change_to_max_size?
   after_update_commit :notify_schedule_change
-  after_create_commit :announce
 
   scope :not_cancelled, -> { where.missing(:cancellation) }
   scope :upcoming, -> { where(end_at: Time.current..).order(:start_at, :id) }
@@ -79,10 +78,6 @@ class Event < ApplicationRecord
   end
 
   private
-
-  def announce
-    EventAnnouncementJob.perform_later("created", self)
-  end
 
   def notify_schedule_change
     schedule_changes = saved_changes.slice(*SCHEDULE_ATTRIBUTES)
