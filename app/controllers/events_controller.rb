@@ -39,7 +39,7 @@ class EventsController < ApplicationController
     if @event.save
       redirect_to @event, notice: "イベントを作成しました"
     else
-      flash.now[:alert] = @event.errors.full_messages.join("\u3001")
+      flash.now[:alert] = "入力内容を確認してください（#{@event.errors.count}件）"
       render :new, status: :unprocessable_content
     end
   end
@@ -49,7 +49,7 @@ class EventsController < ApplicationController
     if @event.update(event_params)
       redirect_to @event, notice: "イベントを更新しました"
     else
-      flash.now[:alert] = @event.errors.full_messages.join("\u3001")
+      flash.now[:alert] = "入力内容を確認してください（#{@event.errors.count}件）"
       render :edit, status: :unprocessable_content
     end
   end
