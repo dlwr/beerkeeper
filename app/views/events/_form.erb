@@ -1,102 +1,74 @@
-<%= form_with model: @event, class: "needs-validation" do |form| %>
-  <div class="container py-4">
-    <div class="row g-4">
-      <div class="col-md-12">
-        <div class="card shadow-sm border-0">
-          <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="bi bi-calendar-event me-2"></i>イベント日時</h5>
-          </div>
-          <div class="card-body bg-light">
-            <div class="mb-4">
-              <%= form.label :start_at, class: "form-label fw-bold" %>
-              <div class="row">
-                <div class="col col-2">
-                  <%= form.date_field :start_at,
-                      name: "event[start_at_date]",
-                      id: "event_start_at_date",
-                      value: @event.start_at_date.presence || @event.start_at&.to_date,
-                      class: "form-control shadow-sm" %>
-                </div>
-                <div class="col col-2">
-                  <%= form.time_field :start_at,
-                      name: "event[start_at_time]",
-                      id: "event_start_at_time",
-                      value: @event.start_at_time.presence || @event.start_at&.strftime("%H:%M"),
-                      class: "form-control shadow-sm" %>
-                </div>
-              </div>
-            </div>
-            <div class="mb-4">
-              <%= form.label :end_at, class: "form-label fw-bold" %>
-              <div class="row">
-                <div class="col col-2">
-                  <%= form.date_field :end_at,
-                      name: "event[end_at_date]",
-                      id: "event_end_at_date",
-                      value: @event.end_at_date.presence || @event.end_at&.to_date,
-                      class: "form-control shadow-sm" %>
-                </div>
-                <div class="col col-2">
-                  <%= form.time_field :end_at,
-                      name: "event[end_at_time]",
-                      id: "event_end_at_time",
-                      value: @event.end_at_time.presence || @event.end_at&.strftime("%H:%M"),
-                      class: "form-control shadow-sm" %>
-                </div>
-              </div>
-            </div>
-          </div>
+<%= form_with model: @event, class: "event-form" do |form| %>
+  <% [[:start_at, "開始", "event-start"], [:end_at, "終了", "event-end"]].each do |attribute, label, klass| %>
+    <fieldset class="form-group <%= klass %>">
+      <legend><%= label %>日時 <span class="field-tag">必須</span></legend>
+      <div class="datetime-fields">
+        <div>
+          <%= form.label "#{attribute}_date", "日付", class: "form-label" %>
+          <%= form.date_field attribute,
+              name: "event[#{attribute}_date]",
+              id: "event_#{attribute}_date",
+              value: @event.public_send("#{attribute}_date").presence || @event.public_send(attribute)&.to_date,
+              required: true,
+              class: "form-control",
+              **field_error_attributes(@event, attribute) %>
+        </div>
+        <div>
+          <%= form.label "#{attribute}_time", "時刻", class: "form-label" %>
+          <%= form.time_field attribute,
+              name: "event[#{attribute}_time]",
+              id: "event_#{attribute}_time",
+              value: @event.public_send("#{attribute}_time").presence || @event.public_send(attribute)&.strftime("%H:%M"),
+              required: true,
+              class: "form-control",
+              **field_error_attributes(@event, attribute) %>
         </div>
       </div>
+      <%= field_error(@event, attribute) %>
+    </fieldset>
+  <% end %>
 
-      <div class="col-md-12">
-        <div class="card shadow-sm border-0">
-          <div class="card-header bg-success text-white">
-            <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>イベント詳細</h5>
-          </div>
-          <div class="card-body bg-light">
-            <div class="mb-4">
-              <%= form.label :name, class: "form-label fw-bold" %>
-              <%= form.text_field :name, class: "form-control shadow-sm", placeholder: "イベント名を入力してください" %>
-            </div>
-            <div class="mb-4">
-              <%= form.label :location, class: "form-label fw-bold" %>
-              <%= form.text_field :location, class: "form-control shadow-sm", placeholder: "開催場所を入力してください" %>
-            </div>
-            <div class="mb-4">
-              <%= form.label :max_size, class: "form-label fw-bold" %>
-              <%= form.number_field :max_size, class: "form-control shadow-sm", placeholder: "参加人数を入力してください" %>
-            </div>
-            <div class="mb-4">
-              <%= form.label :budget, class: "form-label fw-bold" %>
-              <%= form.text_field :budget, class: "form-control shadow-sm", placeholder: "参加費を入力してください" %>
-            </div>
-          </div>
-        </div>
-      </div>
+  <div class="form-group">
+    <%= form.label :name, class: "form-label" do %>イベント名 <span class="field-tag">必須</span><% end %>
+    <%= form.text_field :name, class: "form-control", required: true, **field_error_attributes(@event, :name) %>
+    <%= field_error(@event, :name) %>
+  </div>
 
-      <div class="col-md-12">
-        <div class="card shadow-sm border-0">
-          <div class="card-header bg-info text-white">
-            <h5 class="mb-0"><i class="bi bi-file-text me-2"></i>イベント説明</h5>
-          </div>
-          <div class="card-body bg-light">
-            <div class="mb-4">
-              <%= form.label :description, class: "form-label fw-bold" %>
-              <%= form.text_area :description, class: "form-control shadow-sm", rows: 5, placeholder: "イベントの詳細な説明を入力してください" %>
-            </div>
-            <div class="mb-3">
-              <%= form.label :participant_notice, class: "form-label fw-bold" %>
-              <%= form.text_area :participant_notice, class: "form-control shadow-sm", rows: 3, placeholder: "集合場所や持ち物など、参加者にだけ見せる連絡を入力してください" %>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="form-group">
+    <%= form.label :location, class: "form-label" do %>開催場所 <span class="field-tag field-tag--optional">任意</span><% end %>
+    <%= form.text_field :location, class: "form-control", **field_error_attributes(@event, :location) %>
+    <%= field_error(@event, :location) %>
+  </div>
 
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-      <%= link_to 'キャンセル', root_path, class: "btn btn-outline-secondary me-md-2 px-4" %>
-      <%= form.submit "保存", class: "btn btn-primary px-4" %>
-    </div>
+  <div class="form-group">
+    <%= form.label :max_size, class: "form-label" do %>定員 <span class="field-tag field-tag--optional">任意</span><% end %>
+    <%= form.number_field :max_size, class: "form-control form-control--short", inputmode: "numeric", min: 1, step: 1, **field_error_attributes(@event, :max_size) %>
+    <p class="form-hint">空なら定員なし</p>
+    <%= field_error(@event, :max_size) %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :budget, class: "form-label" do %>参加費 <span class="field-tag field-tag--optional">任意</span><% end %>
+    <%= form.text_field :budget, class: "form-control", **field_error_attributes(@event, :budget) %>
+    <p class="form-hint">数字だけなら「円」を付けて表示します。空なら「未定」</p>
+    <%= field_error(@event, :budget) %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :description, class: "form-label" do %>詳細 <span class="field-tag field-tag--optional">任意</span><% end %>
+    <%= form.text_area :description, class: "form-control", rows: 5, **field_error_attributes(@event, :description) %>
+    <%= field_error(@event, :description) %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :participant_notice, class: "form-label" do %>参加者へのお知らせ <span class="field-tag field-tag--optional">任意</span><% end %>
+    <%= form.text_area :participant_notice, class: "form-control", rows: 3, **field_error_attributes(@event, :participant_notice) %>
+    <p class="form-hint">集合場所や持ち物など。主催者と参加者にだけ見せます</p>
+    <%= field_error(@event, :participant_notice) %>
+  </div>
+
+  <div class="form-actions">
+    <%= form.submit "保存", class: "btn btn-primary" %>
+    <%= link_to "キャンセル", (@event.persisted? ? event_path(@event) : root_path), class: "btn btn-outline-secondary" %>
   </div>
 <% end %>
