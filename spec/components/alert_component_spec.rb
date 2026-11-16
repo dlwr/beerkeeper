@@ -7,7 +7,7 @@ RSpec.describe AlertComponent, type: :component do
     render_inline(
       described_class.new(message_type: "notice", message: "success message")
     )
-    expect(page).to have_selector ".alert-success", text: "success message"
+    expect(page).to have_selector ".alert-success[role='status']", text: "success message"
     expect(page).not_to have_selector ".alert-danger"
   end
 
@@ -15,7 +15,7 @@ RSpec.describe AlertComponent, type: :component do
     render_inline(
       described_class.new(message_type: "alert", message: "danger message")
     )
-    expect(page).to have_selector ".alert-danger", text: "danger message"
+    expect(page).to have_selector ".alert-danger[role='alert']", text: "danger message"
     expect(page).not_to have_selector ".alert-success"
   end
 end
