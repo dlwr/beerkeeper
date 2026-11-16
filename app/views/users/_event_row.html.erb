@@ -1,0 +1,14 @@
+<li>
+  <%= link_to event, class: "event-row" do %>
+    <span class="event-row__name"><%= event.name %></span>
+    <span class="event-row__when">
+      <span><%= event_date_label(event) %></span>
+      <span><%= event_time_range(event) %></span>
+    </span>
+    <% if event.cancelled? %>
+      <span class="seat-status seat-status--full">中止</span>
+    <% elsif local_assigns[:waitlisted] %>
+      <span class="seat-status">補欠</span>
+    <% end %>
+  <% end %>
+</li>

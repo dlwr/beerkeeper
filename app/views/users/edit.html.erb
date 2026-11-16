@@ -1,7 +1,15 @@
-<%= form_with model: @user, url: user_path do |form| %>
-  <div class="field">
-    <%= form.label :name %>
-    <%= form.text_field :name %>
+<h1>名前の編集</h1>
+
+<%= form_with model: @user, url: user_path, class: "event-form" do |form| %>
+  <div class="form-group">
+    <%= form.label :name, class: "form-label" do %>名前 <span class="field-tag">必須</span><% end %>
+    <%= form.text_field :name, class: "form-control", required: true, autocomplete: "nickname", **field_error_attributes(@user, :name) %>
+    <p class="form-hint">イベントの参加者リストに出ます</p>
+    <%= field_error(@user, :name) %>
   </div>
-  <%= form.submit 'Update' %>
+
+  <div class="form-actions">
+    <%= form.submit "保存", class: "btn btn-primary" %>
+    <%= link_to "キャンセル", user_path, class: "btn btn-outline-secondary" %>
+  </div>
 <% end %>
