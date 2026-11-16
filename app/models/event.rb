@@ -17,6 +17,7 @@ class Event < ApplicationRecord
   validates :start_at, presence: true
   validates :end_at, presence: true
   validates :name, presence: true
+  validates :max_size, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_nil: true
   validate :end_at_after_start_at
 
   after_update :promote_waitlisters, if: :saved_change_to_max_size?
