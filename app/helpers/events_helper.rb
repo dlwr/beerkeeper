@@ -10,6 +10,27 @@ module EventsHelper
     !limit.nil? && !event.ended? && event.confirmed_participations.size >= limit
   end
 
+  def event_date_label(event)
+    l(event.start_at, format: "%Y年%-m月%-d日(%a)")
+  end
+
+  def event_time_range(event)
+    start_at = event.start_at
+    end_at = event.end_at
+    end_format = start_at.to_date == end_at.to_date ? "%H:%M" : "%-m月%-d日 %H:%M"
+    "#{l(start_at, format: '%H:%M')}〜#{l(end_at, format: end_format)}"
+  end
+
+  def seats_status(event)
+    return "終了" if event.ended?
+
+    limit = event.max_size
+    return "定員なし" if limit.nil?
+
+    left = limit - event.confirmed_participations.size
+    left.positive? ? "あと#{left}人" : "満席・補欠受付中"
+  end
+
   def budget_label(event)
     budget = event.budget.to_s.strip
     return "未定" if budget.empty?

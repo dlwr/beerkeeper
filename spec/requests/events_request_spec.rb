@@ -16,8 +16,8 @@ RSpec.describe "Events", type: :request do
 
       expect(response).to have_http_status(:ok)
       body = response.body
-      expect(body).to include(I18n.l(upcoming_event.start_at))
-      expect(body).to include(I18n.l(past_event.start_at))
+      expect(body).to include('2099年1月15日(木)', '19:30〜21:00')
+      expect(body).to include('2020年1月15日(水)')
       expect(body).to include('開催予定')
       expect(body).to include('過去のイベント')
       expect(body.index('次の定例会')).to be < body.index('過去のイベント')
@@ -37,6 +37,7 @@ RSpec.describe "Events", type: :request do
       expect(body).to include('三鷹ネットワーク大学')
       expect(body).to include('3人 / 10人')
       expect(body).to include('1人（定員なし）')
+      expect(body).to include('あと7人')
       expect(body).not_to include('満席')
     end
 
@@ -47,7 +48,29 @@ RSpec.describe "Events", type: :request do
       get events_path
 
       expect(response.body).to include('1人 / 1人')
-      expect(response.body).to include('満席')
+      expect(response.body).to include('満席・補欠受付中')
+    end
+
+    it '各イベントを詳細へのリンクのまとまりにし、説明は出さない' do
+      upcoming_event.update!(description: '一覧には出さない説明', location: '三鷹')
+
+      get events_path
+
+      html = Nokogiri::HTML(response.body)
+      item = html.at(%(a.event-item[href="#{event_path(upcoming_event)}"]))
+      expect(item.at('h3').text.strip).to eq '次の定例会'
+      expect(item.text).to include('三鷹', '19:30〜21:00')
+      expect(response.body).not_to include('一覧には出さない説明')
+      expect(html.at('table')).to be_nil
+    end
+
+    it '過去のイベントは終了と文字で示す' do
+      get events_path
+
+      html = Nokogiri::HTML(response.body)
+      item = html.at(%(a.event-item[href="#{event_path(past_event)}"]))
+      expect(item['class']).to include('event-item--past')
+      expect(item.text).to include('終了')
     end
 
     it '参加人数を出すためにイベントごとに問い合わせない' do

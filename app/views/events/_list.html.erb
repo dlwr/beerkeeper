@@ -1,0 +1,20 @@
+<ul class="event-list">
+  <% events.each do |event| %>
+    <li>
+      <%= link_to event, class: ["event-item", ("event-item--past" if event.ended?), ("event-item--full" if seats_full?(event))] do %>
+        <h3 class="event-item__name"><%= event.name %></h3>
+        <p class="event-item__when">
+          <span><%= event_date_label(event) %></span>
+          <span><%= event_time_range(event) %></span>
+        </p>
+        <% if event.location.present? %>
+          <p class="event-item__where"><%= event.location %></p>
+        <% end %>
+        <p class="event-item__seats">
+          <span class="event-item__status"><%= seats_status(event) %></span>
+          <span class="event-item__count"><%= participant_count_label(event) %></span>
+        </p>
+      <% end %>
+    </li>
+  <% end %>
+</ul>
