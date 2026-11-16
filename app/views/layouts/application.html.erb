@@ -32,9 +32,9 @@
               <li>
                 <%= link_to "ログアウト", session_path(current_user), data: { turbo_method: :delete }, class: "btn btn-outline-secondary" %>
               </li>
-            <% else %>
+            <% elsif !current_page?(login_path) %>
               <li>
-                <%= link_to "ログイン", login_path, class: "btn btn-outline-secondary" %>
+                <%= link_to "ログイン", login_path(return_to: (request.fullpath if request.get?)), class: "btn btn-outline-secondary" %>
               </li>
             <% end %>
           </ul>

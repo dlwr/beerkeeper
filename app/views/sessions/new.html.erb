@@ -1,9 +1,17 @@
-<% if DiscordClient.configured? %>
-  <div class="mb-4">
-    <%= button_to discord_login_path, class: "btn btn-primary", data: { turbo: false } do %>
+<div class="login">
+  <h1>ログイン</h1>
+  <% if DiscordClient.configured? %>
+    <p>beerkeeper には Discord のアカウントでログインします。</p>
+    <ul class="login__facts">
+      <li>Discord のアカウントが要ります。まだ無ければ <a href="https://discord.com/register">Discord で作れます</a></li>
+      <li>はじめてログインすると、beerkeeper の Discord サーバーに参加します</li>
+      <li>参加の受付やイベントの中止などのお知らせは、Discord の DM で届きます</li>
+    </ul>
+    <%= button_to discord_login_path, class: "btn btn-primary btn-lg", form_class: "login__form", data: { turbo: false } do %>
       <i class="bi bi-discord" aria-hidden="true"></i> Discord でログイン
     <% end %>
-  </div>
-<% else %>
-  <p class="text-muted">Discord でのログインが設定されていません。</p>
-<% end %>
+    <p class="form-hint">Discord の画面で「認証」を押すと、この画面に戻ってきます。</p>
+  <% else %>
+    <p class="text-body-secondary">Discord でのログインが設定されていません。</p>
+  <% end %>
+</div>

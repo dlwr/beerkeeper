@@ -598,3 +598,29 @@ $alert-border-radius: $border-radius;
     white-space: nowrap;
   }
 }
+
+.login {
+  max-width: 32rem;
+}
+
+.login__facts {
+  margin-bottom: 1.5rem;
+  padding-left: 1.25rem;
+
+  li {
+    margin-bottom: .25rem;
+  }
+}
+
+.login__form {
+  margin-bottom: .5rem;
+
+  .btn {
+    width: 100%;
+
+    @include media-breakpoint-up(md) {
+      width: auto;
+      min-width: 16rem;
+    }
+  }
+}

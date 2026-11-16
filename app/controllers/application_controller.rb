@@ -26,6 +26,17 @@ class ApplicationController < ActionController::Base
   end
 
   def require_login
-    redirect_to login_path, alert: "ログインしてください" unless current_user
+    return if current_user
+
+    remember_return_to(request.fullpath) if request.get?
+    redirect_to login_path, alert: "ログインしてください"
+  end
+
+  def remember_return_to(path)
+    session[:return_to] = path if local_path?(path)
+  end
+
+  def local_path?(path)
+    path.is_a?(String) && path.match?(%r{\A/(?![/\\])}) && !path.match?(/[[:cntrl:]]/)
   end
 end
