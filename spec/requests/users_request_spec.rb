@@ -14,6 +14,16 @@ RSpec.describe "Users", type: :request do
       expect(response.body).to include('name="user[name]"')
       expect(response.body).not_to include('type="password"', 'type="email"', 'user[email]')
     end
+
+    it '日本語のラベルと保存ボタンで、英語の文言を残さない' do
+      get edit_user_path
+
+      form = Nokogiri::HTML(response.body).at('main form')
+      expect(form.at('label[for="user_name"]').text.squish).to eq '名前 必須'
+      expect(form.at('input[type=submit]')['value']).to eq '保存'
+      expect(form.text + form.css('input').map { |i| i['value'] }.join).not_to match(/Name|Update/)
+      expect(form.at('#user_name')['autocomplete']).to eq 'nickname'
+    end
   end
 
   describe 'PATCH /user' do
@@ -23,6 +33,15 @@ RSpec.describe "Users", type: :request do
       expect(response).to redirect_to(user_path)
       expect(flash[:notice]).to eq 'ユーザー情報を更新しました'
       expect(user.reload.name).to eq '新しい名前'
+    end
+
+    it '名前が空なら欄の下にエラーを出す' do
+      patch user_path, params: { user: { name: '' } }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      html = Nokogiri::HTML(response.body)
+      expect(html.at('#user_name')['aria-invalid']).to eq 'true'
+      expect(html.at('#user_name_error').text).to eq '名前を入力してください'
     end
 
     it 'Discord のアカウントは変えられない' do
@@ -60,6 +79,24 @@ RSpec.describe "Users", type: :request do
       body = response.body
       expect(body.index('さきの会')).to be < body.index('あとの会')
       expect(body).to include('補欠')
+    end
+
+    it '名前の編集画面へのリンクを出す' do
+      get user_path
+
+      link = Nokogiri::HTML(response.body).at(%(main a[href="#{edit_user_path}"]))
+      expect(link.text.strip).to eq '名前を編集'
+    end
+
+    it '各イベントを行全体のリンクにし、名前を日時より先に出す' do
+      event = event_named('さきの会', start_at: Time.zone.local(2099, 1, 15, 19, 30), end_at: Time.zone.local(2099, 1, 15, 21, 0))
+      create(:participation, event:, user:)
+
+      get user_path
+
+      row = Nokogiri::HTML(response.body).at(%(main a.event-row[href="#{event_path(event)}"]))
+      expect(row.element_children.first.text.strip).to eq 'さきの会'
+      expect(row.text).to include('2099年1月15日(木)', '19:30〜21:00')
     end
 
     it '主催する開催予定のイベントを並べる' do
