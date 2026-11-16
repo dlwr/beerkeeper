@@ -42,10 +42,19 @@
 - request spec のログインは `log_in(user)`（`spec/support/login.rb`）で、スタブした Discord の OAuth を通す。system spec は `allow_any_instance_of(ApplicationController).to receive(:current_user)`
 - パスワードのログインが無いので、開発サーバーでは Discord のシークレット無しにログインできない。画面の点検は、`ApplicationController#authenticate` をクッキーの `dev_user_id` で差し替えるスクリプトを scratchpad に置き、`RUBYOPT=-r<それ> bin/rails s` で起こして Playwright で撮る（`ActiveSupport.on_load(:after_initialize)` で prepend する）
 - イメージの gh は 2.89 で `--attach` が無い。`bin/cloud-setup` が 2.103 に置き換える（失敗しても既存の gh で続く）。`gh --version` で確かめてから `--attach` を使う
+- gh 2.103 でも `gh pr create --attach` と `gh pr comment --attach` は GraphQL を通るので、クラウドでは 403 で使えない。スクリーンショットは添付できず、PR 本文にそう書いて進めている
+- 点検用のログイン差し替えは `ActiveSupport.on_load(:after_initialize)` だけだと、app/ のファイルを変えて再読み込みされた時点で外れる。`Rails.application.reloader.to_prepare` の中で prepend する。スクリプトの先頭で `require "active_support/lazy_load_hooks"` も要る
+- 開発 DB が空（テーブル無し）のことがある。`bin/rails db:drop db:create db:schema:load db:seed` で作り直す
+- UI の方針は `design.md`。色・余白・部品は `app/assets/stylesheets/application.bootstrap.scss` の変数とクラスにまとめてあり、画面ごとに新しい値を足さない
+- 詳細画面の項目は `dl.event-facts` の dt/dd。request spec は `event_fact('参加人数')`（`spec/support/event_facts.rb`）で値を取る
+- `field_error_proc` は素通しにしてある。欄のエラーは `field_error_attributes` と `field_error`（`EventsHelper`）で `aria-invalid`・`aria-describedby` と欄の下の文言を付ける
 
 ## 残っている候補
 
-- 開発環境で Discord 無しにログインする手段（development だけのログイン）。今は点検用のスクリプト頼み
+- 開発環境で Discord 無しにログインする手段（development だけのログイン）。今は点検用のスクリプト頼み。ログイン画面の説明も Discord のシークレットが無いと表示されず、見た目を確かめられていない
+- `max_size` に DB の CHECK 制約が無い（検証はモデルだけ）。本番に 0 以下の定員が残っていないかも未確認
+- 一覧の満席の色（`seats_full?`）と文言（`seats_status`）が別の判定。片方を変えるとずれる
+- usability の次の点検: 中止したイベントの詳細、参加者へのお知らせ、主催者が自分のイベントに参加する流れ、キーボードだけでの操作
 
 - 型検査は `app/models` だけ。コントローラー・コンポーネントへ広げるのは次の候補
 - `users#destroy` は画面から呼べないうえ、参加が `dependent: :nullify`（`user_id` は NOT NULL）、主催イベントの参加が `restrict_with_error` で実際には消せない（参加者のいるイベントの主催者だと `RecordNotDestroyed` で 500 になるはず。未確認）。退会を作るなら仕様から
