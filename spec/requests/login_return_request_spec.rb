@@ -56,4 +56,13 @@ RSpec.describe "ログイン画面とログイン後の戻り先", type: :reques
       expect(response).to redirect_to(events_path)
     end
   end
+
+  it "長すぎる戻り先は覚えず、ログイン画面を開ける" do
+    get login_path(return_to: "/#{'a' * 5000}")
+    expect(response).to have_http_status(:ok)
+
+    log_in(user)
+
+    expect(response).to redirect_to(events_path)
+  end
 end

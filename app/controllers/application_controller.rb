@@ -28,7 +28,7 @@ class ApplicationController < ActionController::Base
   def require_login
     return if current_user
 
-    remember_return_to(request.fullpath) if request.get?
+    remember_return_to(request.fullpath) if request.get? && request.format.html?
     redirect_to login_path, alert: "ログインしてください"
   end
 
@@ -37,6 +37,6 @@ class ApplicationController < ActionController::Base
   end
 
   def local_path?(path)
-    path.is_a?(String) && path.match?(%r{\A/(?![/\\])}) && !path.match?(/[[:cntrl:]]/)
+    path.is_a?(String) && path.bytesize <= 1024 && path.match?(%r{\A/(?![/\\])}) && !path.match?(/[[:cntrl:]]/)
   end
 end
