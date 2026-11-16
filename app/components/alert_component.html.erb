@@ -1,4 +1,4 @@
-<% alert_name = @message_type.to_sym == :alert ? 'danger' : 'success' %>
-<div class="alert alert-<%= alert_name %>">
+<% danger = @message_type.to_sym == :alert %>
+<div class="alert alert-<%= danger ? 'danger' : 'success' %>" role="<%= danger ? 'alert' : 'status' %>">
   <%= @message %>
 </div>
