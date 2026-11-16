@@ -86,4 +86,19 @@ RSpec.describe "イベントのフォーム", type: :request do
     expect(response).to have_http_status(:unprocessable_content)
     expect(form_html.at("#event_max_size_error").text).to eq "定員は1以上の値にしてください"
   end
+
+  it "検証エラーのフラッシュは件数の要約にし、欄の文言を繰り返さない" do
+    post events_path, params: { event: valid_params(name: "", max_size: "0") }
+
+    alert = Nokogiri::HTML(response.body).at("main .alert-danger")
+    expect(alert.text.squish).to eq "入力内容を確認してください（2件）"
+  end
+
+  it "更新の検証エラーも要約にする" do
+    event = create(:event, organizer: user)
+
+    patch event_path(event), params: { event: { name: "" } }
+
+    expect(Nokogiri::HTML(response.body).at("main .alert-danger").text.squish).to eq "入力内容を確認してください（1件）"
+  end
 end
