@@ -47,7 +47,7 @@ RSpec.describe "Participations", type: :request do
       get event_path(event)
 
       aggregate_failures do
-        expect(response.body).to include('参加人数: 1人')
+        expect(event_fact('参加人数')).to start_with('1人')
         expect(response.body).to include('補欠リスト')
         expect(response.body).to include('補欠の1番目')
       end
@@ -186,7 +186,7 @@ RSpec.describe "Participations", type: :request do
 
       expect(response.body).not_to include('参加をキャンセルする')
       expect(response.body).to include('参加する</button>')
-      expect(response.body).to include('参加人数: 0人')
+      expect(event_fact('参加人数')).to start_with('0人')
     end
   end
 end

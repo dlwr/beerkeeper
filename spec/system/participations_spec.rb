@@ -21,7 +21,7 @@ RSpec.describe 'Participations', type: :system, js: true do
         accept_confirm { click_on '参加をキャンセルする' }
 
         expect(page).to have_button('参加する')
-        expect(page).to have_content('参加人数: 0人')
+        expect(page).to have_content('0人（定員なし）')
       end
     end
 
@@ -30,8 +30,9 @@ RSpec.describe 'Participations', type: :system, js: true do
         visit event_path(event)
       end
 
-      it 'does not show participating button' do
-        expect(page).not_to have_content('参加する')
+      it 'does not show participating button but leads to login' do
+        expect(page).not_to have_button('参加する')
+        expect(page).to have_link('Discord でログインして参加する', href: login_path)
       end
     end
   end

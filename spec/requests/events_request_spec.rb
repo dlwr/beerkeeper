@@ -115,7 +115,7 @@ RSpec.describe "Events", type: :request do
 
       get event_path(event)
 
-      expect(response.body).to include('参加人数: 0人（定員なし）')
+      expect(event_fact('参加人数')).to start_with('0人（定員なし）')
       expect(response.body).not_to include('/ 人')
     end
 
@@ -124,7 +124,7 @@ RSpec.describe "Events", type: :request do
 
       get event_path(event)
 
-      expect(response.body).to include('参加人数: 0人 / 10人')
+      expect(event_fact('参加人数')).to start_with('0人 / 10人')
     end
 
     it '参加費が空なら未定と表示する' do
@@ -132,7 +132,7 @@ RSpec.describe "Events", type: :request do
 
       get event_path(event)
 
-      expect(response.body).to include('参加費: 未定')
+      expect(event_fact('参加費')).to eq '未定'
     end
 
     it '参加費が数字だけなら円を付けて表示する' do
@@ -140,7 +140,7 @@ RSpec.describe "Events", type: :request do
 
       get event_path(event)
 
-      expect(response.body).to include('参加費: 1000円')
+      expect(event_fact('参加費')).to eq '1000円'
     end
 
     it '参加費が数字以外を含めば入力のまま表示する' do
@@ -148,7 +148,7 @@ RSpec.describe "Events", type: :request do
 
       get event_path(event)
 
-      expect(response.body).to include('参加費: 無料')
+      expect(event_fact('参加費')).to eq '無料'
       expect(response.body).not_to include('無料円')
     end
   end
