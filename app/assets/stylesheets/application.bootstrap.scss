@@ -208,6 +208,7 @@ $alert-border-radius: $border-radius;
 
 .site-main {
   padding-top: 1.5rem;
+  overflow-wrap: anywhere;
   padding-bottom: 3rem;
 
   @include media-breakpoint-up(md) {
@@ -550,7 +551,6 @@ $alert-border-radius: $border-radius;
   margin-bottom: .5rem;
   font-size: $h3-font-size;
   font-weight: 700;
-  overflow-wrap: anywhere;
 }
 
 .event-rows {
