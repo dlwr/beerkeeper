@@ -41,6 +41,36 @@ RSpec.describe 'Layout', type: :system, js: true do
     end
   end
 
+  context '長い URL や英数字を入れたイベント' do
+    let(:url) { "https://example.com/#{'a' * 120}" }
+    let!(:long_event) do
+      create(:event, organizer:, name: 'x' * 120, location: url, description: url, participant_notice: url)
+    end
+    let!(:cancelled_event) { create(:event, organizer:, name: 'y' * 120, location: url) }
+
+    before do
+      create(:participation, event: long_event, user: participant)
+      cancelled_event.cancel('z' * 200)
+    end
+
+    {
+      'イベント一覧' => [ nil, -> { root_path } ],
+      'イベント詳細（参加者）' => [ :participant, -> { event_path(long_event) } ],
+      'イベント詳細（主催者）' => [ :organizer, -> { event_path(long_event) } ],
+      '中止したイベントの詳細' => [ nil, -> { event_path(cancelled_event) } ]
+    }.each do |name, (user, path)|
+      [ 375, 1280 ].each do |width|
+        it "#{name}は #{width}px で横スクロールが出ない" do
+          log_in_as(public_send(user)) if user
+          resize_viewport(width)
+          visit instance_exec(&path)
+
+          expect(horizontal_overflow).to be <= 0
+        end
+      end
+    end
+  end
+
   it '幅の広い要素があると横スクロールを検出する' do
     resize_viewport(375)
     visit root_path
