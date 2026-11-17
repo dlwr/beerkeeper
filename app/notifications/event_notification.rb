@@ -21,7 +21,7 @@ class EventNotification
       "【#{@event.name}】#{LEADS.fetch(@kind)}",
       "",
       *change_lines,
-      "日時：#{format_value(@event.start_at)}",
+      "日時：#{schedule_label}",
       "場所：#{format_value(@event.location)}",
       *reason_lines,
       "",
@@ -36,6 +36,11 @@ class EventNotification
 
     lines = @changes.map { |attribute, (before, after)| "#{SCHEDULE_LABELS.fetch(attribute)}：#{format_value(before)} → #{format_value(after)}" }
     [ *lines, "" ]
+  end
+
+  def schedule_label
+    helpers = ApplicationController.helpers
+    "#{helpers.event_date_label(@event)} #{helpers.event_time_range(@event)}"
   end
 
   def reason_lines

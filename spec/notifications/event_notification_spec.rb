@@ -10,7 +10,7 @@ RSpec.describe EventNotification do
   end
 
   it "参加登録の通知にイベント名・日時・場所・URL を入れる" do
-    expect(content("participation")).to include("【mitaka.rb #1】参加登録を受け付けました", "2099年01月15日(木) 19時00分", "三鷹", url)
+    expect(content("participation")).to include("【mitaka.rb #1】参加登録を受け付けました", "日時：2099年1月15日(木) 19:00〜21:00", "三鷹", url)
   end
 
   it "補欠登録の通知" do
@@ -31,6 +31,20 @@ RSpec.describe EventNotification do
     text = content("schedule_change", { "location" => [ "三鷹", "吉祥寺" ], "start_at" => [ Time.zone.local(2099, 1, 15, 19, 0), Time.zone.local(2099, 1, 22, 19, 0) ] })
 
     expect(text).to include("開催日時・場所が変更されました", "開催場所：三鷹 → 吉祥寺", "開始日時：2099年01月15日(木) 19時00分 → 2099年01月22日(木) 19時00分", url)
+  end
+
+  %w[participation waitlist promotion cancellation schedule_change].each do |kind|
+    it "#{kind} の通知の日時に終了時刻を入れる" do
+      event.cancel if kind == "cancellation"
+
+      expect(content(kind)).to include("日時：2099年1月15日(木) 19:00〜21:00")
+    end
+  end
+
+  it "日をまたぐイベントは終了の日付も入れる" do
+    event.update!(end_at: Time.zone.local(2099, 1, 16, 1, 0))
+
+    expect(content("participation")).to include("日時：2099年1月15日(木) 19:00〜1月16日 01:00")
   end
 
   it "場所が空なら未定と書く" do
