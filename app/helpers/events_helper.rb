@@ -1,4 +1,7 @@
 module EventsHelper
+  URL_PATTERN = %r{https?://[!#-;=?-~]+}
+  URL_TRAILING_PUNCTUATION = /[.,!?;:')\]]+\z/
+
   def participant_count_label(event)
     count = event.confirmed_participations.size
     limit = event.max_size
@@ -52,5 +55,21 @@ module EventsHelper
     return "未定" if budget.empty?
 
     budget.match?(/\A\d+\z/) ? "#{budget}円" : budget
+  end
+
+  def text_with_links(text)
+    parts = []
+    rest = text.to_s
+    while (match = URL_PATTERN.match(rest))
+      url = match[0].sub(URL_TRAILING_PUNCTUATION, "")
+      parts << match.pre_match << link_to(url, url, target: "_blank", rel: "noopener noreferrer", class: "text-link")
+      rest = rest[(match.begin(0) + url.length)..].to_s
+    end
+    parts << rest
+    safe_join(parts)
+  end
+
+  def format_with_links(text, html_options = {})
+    simple_format(text_with_links(text), html_options, sanitize: false)
   end
 end

@@ -151,6 +151,24 @@ RSpec.describe "Events", type: :request do
       expect(event_fact('参加費')).to eq '無料'
       expect(response.body).not_to include('無料円')
     end
+
+    it '場所・詳細・お知らせの URL をリンクにする' do
+      event.update!(location: 'https://example.com/place', description: "詳細は\nhttps://example.com/detail",
+                    participant_notice: 'https://example.com/notice')
+
+      get event_path(event)
+
+      hrefs = Nokogiri::HTML(response.body).css('main a[target=_blank]').map { |a| a['href'] }
+      expect(hrefs).to include('https://example.com/place', 'https://example.com/detail', 'https://example.com/notice')
+    end
+
+    it '中止理由の URL をリンクにする' do
+      event.cancel('振替は https://example.com/next')
+
+      get event_path(event)
+
+      expect(Nokogiri::HTML(response.body).css('main .alert a').map { |a| a['href'] }).to eq [ 'https://example.com/next' ]
+    end
   end
 
   describe 'POST /events' do

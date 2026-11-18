@@ -4,7 +4,7 @@
   <div class="alert alert-danger">
     <p class="mb-0">このイベントは中止されました</p>
     <% if @event.cancellation.reason.present? %>
-      <p class="mb-0">中止理由: <%= @event.cancellation.reason %></p>
+      <p class="mb-0">中止理由: <%= text_with_links(@event.cancellation.reason) %></p>
     <% end %>
   </div>
 <% end %>
@@ -16,7 +16,7 @@
 <% if @event.participant_notice_visible_to?(current_user) %>
   <div class="alert alert-info">
     <h2 class="h6">参加者へのお知らせ</h2>
-    <%= simple_format @event.participant_notice, class: "mb-0" %>
+    <%= format_with_links @event.participant_notice, class: "mb-0" %>
   </div>
 <% end %>
 
@@ -30,7 +30,7 @@
   </div>
   <div>
     <dt>場所</dt>
-    <dd><%= @event.location.presence || "未定" %></dd>
+    <dd><%= @event.location.present? ? text_with_links(@event.location) : "未定" %></dd>
   </div>
   <div>
     <dt>参加人数</dt>
@@ -79,7 +79,7 @@
 
 <% if @event.description.present? %>
   <h2 class="section-heading">詳細</h2>
-  <%= simple_format @event.description %>
+  <%= format_with_links @event.description %>
 <% end %>
 
 <h2 class="section-heading">参加者リスト</h2>
