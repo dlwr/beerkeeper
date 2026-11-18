@@ -84,7 +84,46 @@ RSpec.describe "Events", type: :request do
       callback = ->(*, payload) { queries << payload[:sql] if payload[:sql].include?('participations') }
       ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { get events_path }
 
-      expect(queries.size).to be <= 2
+      expect(queries.size).to be <= 3
+    end
+
+    describe '自分の参加状態' do
+      let!(:waitlisted_event) { create(:event, start_at: Time.zone.local(2099, 3, 1, 19), end_at: Time.zone.local(2099, 3, 1, 21)) }
+      let!(:other_event) { create(:event, start_at: Time.zone.local(2099, 4, 1, 19), end_at: Time.zone.local(2099, 4, 1, 21)) }
+
+      before do
+        create(:participation, event: upcoming_event, user:)
+        create(:participation, event: waitlisted_event, user:, waitlisted: true)
+        create(:participation, event: other_event, user: create(:user))
+      end
+
+      def card_status(event)
+        Nokogiri::HTML(response.body).at(%(a.event-item[href="#{event_path(event)}"] .event-item__mine))&.text&.strip
+      end
+
+      it '参加予定と補欠を文字で出し、申し込んでいないイベントには出さない' do
+        get events_path
+
+        expect(card_status(upcoming_event)).to eq '参加予定'
+        expect(card_status(waitlisted_event)).to eq '補欠'
+        expect(card_status(other_event)).to be_nil
+      end
+
+      it '終了したイベントには出さない' do
+        create(:participation, event: past_event, user:)
+
+        get events_path
+
+        expect(card_status(past_event)).to be_nil
+      end
+
+      it '未ログインのときは出さない' do
+        delete session_path(user)
+
+        get events_path
+
+        expect(Nokogiri::HTML(response.body).css('.event-item__mine')).to be_empty
+      end
     end
   end
 
