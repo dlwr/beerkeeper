@@ -73,9 +73,12 @@
   </div>
 <% end %>
 
-<p class="mt-4">
-  <%= link_to "カレンダーに追加", event_path(@event, format: :ics), class: "btn btn-outline-secondary" %>
-</p>
+<div class="d-flex flex-wrap gap-2 mt-4">
+  <% unless @event.cancelled? %>
+    <%= link_to "Google カレンダーに追加", Event::Calendar.new(@event, url: event_url(@event)).google_url, class: "btn btn-outline-secondary", target: "_blank", rel: "noopener" %>
+  <% end %>
+  <%= link_to "その他のカレンダー (.ics)", event_path(@event, format: :ics), class: "btn btn-outline-secondary" %>
+</div>
 
 <% if @event.description.present? %>
   <h2 class="section-heading">詳細</h2>

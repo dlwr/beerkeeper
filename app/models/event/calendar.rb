@@ -1,5 +1,6 @@
 class Event::Calendar
   LINE_LIMIT = 75
+  GOOGLE_DESCRIPTION_LIMIT = 500
 
   def initialize(event, url:)
     @event = event
@@ -8,6 +9,17 @@ class Event::Calendar
 
   def to_ics
     lines.map { |line| fold(line) }.join("\r\n") + "\r\n"
+  end
+
+  def google_url
+    query = {
+      action: "TEMPLATE",
+      text: event.name,
+      dates: "#{format_time(event.start_at)}/#{format_time(event.end_at)}",
+      details: description(limit: GOOGLE_DESCRIPTION_LIMIT),
+      location: event.location.presence
+    }.compact
+    "https://calendar.google.com/calendar/render?#{query.to_query}"
   end
 
   private
@@ -44,8 +56,10 @@ class Event::Calendar
     [ event.updated_at, event.cancelled_at ].compact.max
   end
 
-  def description
-    [ event.description.presence, url ].compact.join("\n\n")
+  def description(limit: nil)
+    text = event.description.presence
+    text = text.truncate(limit, omission: "…") if text && limit
+    [ text, url ].compact.join("\n\n")
   end
 
   def format_time(time)

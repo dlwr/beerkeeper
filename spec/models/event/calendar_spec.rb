@@ -71,4 +71,48 @@ RSpec.describe Event::Calendar do
     expect(lines.grep(/\ALOCATION/)).to be_empty
     expect(lines).to include("DESCRIPTION:#{url}")
   end
+
+  describe '#google_url' do
+    let(:google_url) { described_class.new(event, url:).google_url }
+    let(:query) { Rack::Utils.parse_query(URI.parse(google_url).query) }
+
+    it 'Google カレンダーの予定作成画面を指す' do
+      expect(google_url).to start_with('https://calendar.google.com/calendar/render?')
+      expect(query['action']).to eq('TEMPLATE')
+    end
+
+    it '名前をタイトルに入れる' do
+      expect(query['text']).to eq('定例会, 第1回; \\特別')
+    end
+
+    it '開始・終了日時を UTC で入れる' do
+      expect(query['dates']).to eq('20990115T103000Z/20990115T120000Z')
+    end
+
+    it '場所を入れる' do
+      expect(query['location']).to eq("三鷹\n駅前")
+    end
+
+    it '詳細の末尾にイベントの URL を足す' do
+      expect(query['details']).to eq("詳細です\n\n#{url}")
+    end
+
+    it '詳細が 500 文字を超えたら切り、イベントの URL は残す' do
+      event.update!(description: 'あ' * 501)
+
+      expect(query['details']).to eq("#{'あ' * 499}…\n\n#{url}")
+    end
+
+    it '詳細が空なら URL だけを入れる' do
+      event.update!(description: nil)
+
+      expect(query['details']).to eq(url)
+    end
+
+    it '場所が空なら location を付けない' do
+      event.update!(location: nil)
+
+      expect(query).not_to have_key('location')
+    end
+  end
 end
