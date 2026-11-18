@@ -62,7 +62,7 @@ module EventsHelper
     rest = text.to_s
     while (match = URL_PATTERN.match(rest))
       url = match[0].sub(URL_TRAILING_PUNCTUATION, "")
-      parts << match.pre_match << link_to(url, url, target: "_blank", rel: "noopener noreferrer", class: "text-link")
+      parts << match.pre_match << link_to(url, url, target: "_blank", rel: "noopener noreferrer nofollow ugc", class: "text-link")
       rest = rest[(match.begin(0) + url.length)..].to_s
     end
     parts << rest

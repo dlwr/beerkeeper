@@ -9,7 +9,7 @@ RSpec.describe EventsHelper, type: :helper do
       expect(links.map { |a| a['href'] }).to eq [ 'https://example.com/map?a=1&b=2', 'http://example.org' ]
       expect(links.map(&:text)).to eq [ 'https://example.com/map?a=1&b=2', 'http://example.org' ]
       expect(links.map { |a| a['target'] }).to all(eq '_blank')
-      expect(links.map { |a| a['rel'] }).to all(eq 'noopener noreferrer')
+      expect(links.map { |a| a['rel'] }).to all(eq 'noopener noreferrer nofollow ugc')
       expect(html.text).to eq '地図 https://example.com/map?a=1&b=2 と http://example.org'
     end
 
