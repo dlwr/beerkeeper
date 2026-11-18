@@ -18,6 +18,7 @@ RSpec.describe 'Layout', type: :system, js: true do
 
   screens = {
     'イベント一覧' => [ nil, -> { root_path } ],
+    'イベント一覧（参加者）' => [ :participant, -> { root_path } ],
     'イベント詳細（未ログイン）' => [ nil, -> { event_path(event) } ],
     'イベント詳細（参加者）' => [ :participant, -> { event_path(event) } ],
     'イベント詳細（主催者）' => [ :organizer, -> { event_path(event) } ],

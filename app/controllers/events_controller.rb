@@ -8,6 +8,7 @@ class EventsController < ApplicationController
   def index
     @upcoming_events = Event.not_cancelled.upcoming.includes(:confirmed_participations)
     @past_events = Event.not_cancelled.past.includes(:confirmed_participations)
+    @participation_states = current_user ? current_user.participations.pluck(:event_id, :waitlisted).to_h : {}
   end
 
   # GET /events/1
