@@ -71,6 +71,25 @@ RSpec.describe 'Layout', type: :system, js: true do
     end
   end
 
+  context '場所と詳細に URL だけを入れたイベント' do
+    let!(:link_event) do
+      create(:event, organizer:, location: 'https://example.com/map', description: 'https://example.com/detail',
+                     participant_notice: 'https://example.com/notice')
+    end
+
+    [ 375, 1280 ].each do |width|
+      it "詳細は #{width}px で横スクロールが出ず、リンクのタップ範囲が 44px 以上ある" do
+        log_in_as(organizer)
+        resize_viewport(width)
+        visit event_path(link_event)
+
+        expect(page).to have_link('https://example.com/map', href: 'https://example.com/map')
+        expect(horizontal_overflow).to be <= 0
+        expect(small_tap_targets).to eq([])
+      end
+    end
+  end
+
   it '幅の広い要素があると横スクロールを検出する' do
     resize_viewport(375)
     visit root_path
