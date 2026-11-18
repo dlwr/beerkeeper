@@ -13,7 +13,7 @@
         <p class="event-item__seats">
           <span class="event-item__status"><%= seats_status(event) %></span>
           <span class="event-item__count"><%= participant_count_label(event) %></span>
-          <% if !event.ended? && participation_states.key?(event.id) %>
+          <% if participation_states.key?(event.id) %>
             <span class="seat-status event-item__mine"><%= participation_states[event.id] ? "補欠" : "参加予定" %></span>
           <% end %>
         </p>
