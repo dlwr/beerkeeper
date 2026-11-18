@@ -48,6 +48,8 @@
 - 詳細画面の項目は `dl.event-facts` の dt/dd。request spec は `event_fact('参加人数')`（`spec/support/event_facts.rb`）で値を取る
 - 横スクロールとタップ範囲は `spec/system/layout_spec.rb`（`spec/support/layout_checks.rb` の `resize_viewport`・`horizontal_overflow`・`small_tap_targets`）で確かめる。新しい画面や状態はここに足す。キーボードの Tab 順とフォーカスの輪郭は手元で確かめ済み（spec にはしていない）
 - `field_error_proc` は素通しにしてある。欄のエラーは `field_error_attributes` と `field_error`（`EventsHelper`）で `aria-invalid`・`aria-describedby` と欄の下の文言を付ける
+- CI の Chrome は手元と書体が違い、インラインの要素の高さが 3px ほど低く出る。44px の判定は手元でぎりぎりにしない（本文中のリンクは `.text-link` の上下の余白で取っている）
+- 利用者の入力をリンクにするのは `text_with_links` / `format_with_links`（`EventsHelper`）。`simple_format` に直接渡さない
 
 ## 残っている候補
 
@@ -55,7 +57,8 @@
 - `max_size` に DB の CHECK 制約が無い（検証はモデルだけ）。本番に 0 以下の定員が残っていないかも未確認
 - 一覧の満席の色（`seats_full?`）と文言（`seats_status`）が別の判定。片方を変えるとずれる
 - 主催者は自分のイベントにも「参加する」で参加でき、定員に数えられる。主催者は参加するものとみなして変えていない。主催者を自動で参加者にするかは未決
-- 場所や詳細の URL はリンクにならない（#135 のスコープ外）
+- URL のリンク化（#140）は詳細画面だけ。DM・マイページと、`www.` だけの URL・メールアドレスはリンクにならない
+- 一覧の自分の参加状態（#141）は開催予定だけ。過去のイベントに「参加した」は出さない
 
 - 型検査は `app/models` だけ。コントローラー・コンポーネントへ広げるのは次の候補
 - `users#destroy` は画面から呼べないうえ、参加が `dependent: :nullify`（`user_id` は NOT NULL）、主催イベントの参加が `restrict_with_error` で実際には消せない（参加者のいるイベントの主催者だと `RecordNotDestroyed` で 500 になるはず。未確認）。退会を作るなら仕様から
