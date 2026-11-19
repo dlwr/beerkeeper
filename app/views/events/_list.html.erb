@@ -6,6 +6,9 @@
         <p class="event-item__when">
           <span><%= event_date_label(event) %></span>
           <span><%= event_time_range(event) %></span>
+          <% if (timing = event_timing_label(event)) %>
+            <span class="seat-status"><%= timing %></span>
+          <% end %>
         </p>
         <% if event.location.present? %>
           <p class="event-item__where"><%= event.location %></p>
