@@ -6,6 +6,7 @@ Rails.application.routes.draw do
 
   resources :sessions, only: %i[destroy]
   resources :events do
+    get :past, on: :collection
     resources :participations, only: %i[create destroy]
     scope module: :events do
       resources :cancellations, only: %i[create]

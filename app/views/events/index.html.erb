@@ -18,6 +18,9 @@
   <h2 id="past-heading" class="section-heading">過去のイベント</h2>
   <% if @past_events.any? %>
     <%= render "list", events: @past_events, participation_states: @participation_states %>
+    <% if @more_past_events %>
+      <%= link_to "過去のイベントをすべて見る", past_events_path, class: "more-link" %>
+    <% end %>
   <% else %>
     <p class="text-body-secondary">過去のイベントはありません。</p>
   <% end %>

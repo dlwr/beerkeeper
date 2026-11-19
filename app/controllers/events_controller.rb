@@ -1,5 +1,8 @@
 class EventsController < ApplicationController
-  before_action :require_login, except: %i[index show]
+  PAST_EVENTS_ON_INDEX = 5
+  PAST_EVENTS_PER_PAGE = 20
+
+  before_action :require_login, except: %i[index show past]
   before_action :set_event, only: %i[show]
   before_action :set_editable_event, only: %i[edit update destroy]
   before_action :authorize_organizer, only: %i[edit update destroy]
@@ -7,8 +10,19 @@ class EventsController < ApplicationController
   # GET /events
   def index
     @upcoming_events = Event.not_cancelled.upcoming.includes(:confirmed_participations)
-    @past_events = Event.not_cancelled.past.includes(:confirmed_participations)
+    past_events = Event.not_cancelled.past.includes(:confirmed_participations).limit(PAST_EVENTS_ON_INDEX + 1).to_a
+    @more_past_events = past_events.size > PAST_EVENTS_ON_INDEX
+    @past_events = past_events.first(PAST_EVENTS_ON_INDEX)
     @participation_states = current_user ? current_user.participations.where(event: @upcoming_events).pluck(:event_id, :waitlisted).to_h : {}
+  end
+
+  # GET /events/past
+  def past
+    @page = Integer(params[:page].to_s, 10, exception: false).to_i.clamp(1, 10_000)
+    events = Event.not_cancelled.past.includes(:confirmed_participations)
+                  .offset((@page - 1) * PAST_EVENTS_PER_PAGE).limit(PAST_EVENTS_PER_PAGE + 1).to_a
+    @older_page = @page + 1 if events.size > PAST_EVENTS_PER_PAGE
+    @past_events = events.first(PAST_EVENTS_PER_PAGE)
   end
 
   # GET /events/1
