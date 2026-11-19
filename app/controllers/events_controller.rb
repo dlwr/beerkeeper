@@ -18,7 +18,7 @@ class EventsController < ApplicationController
 
   # GET /events/past
   def past
-    @page = [ Integer(params[:page].to_s, 10, exception: false).to_i, 1 ].max
+    @page = Integer(params[:page].to_s, 10, exception: false).to_i.clamp(1, 10_000)
     events = Event.not_cancelled.past.includes(:confirmed_participations)
                   .offset((@page - 1) * PAST_EVENTS_PER_PAGE).limit(PAST_EVENTS_PER_PAGE + 1).to_a
     @older_page = @page + 1 if events.size > PAST_EVENTS_PER_PAGE

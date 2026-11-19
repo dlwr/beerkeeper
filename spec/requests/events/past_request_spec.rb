@@ -80,7 +80,7 @@ RSpec.describe "過去のイベント", type: :request do
       expect(event_names(Nokogiri::HTML(response.body))).to eq %w[過去の会1]
     end
 
-    it '範囲外や数字でないページは 1 ページ目として扱う' do
+    it '範囲外や数字でないページでもエラーにしない' do
       create_past_events(1)
 
       [ '0', '-1', 'x' ].each do |page|
@@ -88,6 +88,10 @@ RSpec.describe "過去のイベント", type: :request do
 
         expect(event_names(Nokogiri::HTML(response.body))).to eq %w[過去の会1]
       end
+
+      get past_events_path(page: '100000000000000000000')
+
+      expect(response).to have_http_status(:ok)
     end
   end
 end
