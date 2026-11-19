@@ -1,0 +1,20 @@
+<h1>過去のイベント</h1>
+
+<% if @past_events.any? %>
+  <%= render "list", events: @past_events, participation_states: {} %>
+<% else %>
+  <p class="text-body-secondary">過去のイベントはありません。</p>
+<% end %>
+
+<% if @page > 1 || @older_page %>
+  <nav class="pager" aria-label="ページ送り">
+    <% if @page > 1 %>
+      <%= link_to "新しいイベント", past_events_path(page: (@page == 2 ? nil : @page - 1)), class: "btn btn-outline-secondary" %>
+    <% end %>
+    <% if @older_page %>
+      <%= link_to "古いイベント", past_events_path(page: @older_page), class: "btn btn-outline-secondary pager__older" %>
+    <% end %>
+  </nav>
+<% end %>
+
+<p class="mt-5"><%= link_to "トップへ戻る", root_path, class: "back-link" %></p>

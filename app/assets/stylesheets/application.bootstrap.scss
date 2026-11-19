@@ -457,10 +457,26 @@ $alert-border-radius: $border-radius;
   }
 }
 
-.back-link {
+.back-link,
+.more-link {
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
+}
+
+.more-link {
+  margin-top: .75rem;
+}
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-top: 1.5rem;
+}
+
+.pager__older {
+  margin-left: auto;
 }
 
 .text-link {
