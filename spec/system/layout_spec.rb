@@ -117,6 +117,28 @@ RSpec.describe 'Layout', type: :system, js: true do
     end
   end
 
+  context '開催中のイベント' do
+    let!(:ongoing_event) do
+      create(:event, organizer:, name: '開催中の会', location: '三鷹駅前', max_size: 10,
+                     start_at: 1.hour.ago, end_at: 2.hours.from_now)
+    end
+
+    {
+      'イベント一覧' => -> { root_path },
+      'イベント詳細' => -> { event_path(ongoing_event) }
+    }.each do |name, path|
+      [ 375, 1280 ].each do |width|
+        it "#{name}は #{width}px で開催中と出し、横スクロールが出ない" do
+          resize_viewport(width)
+          visit instance_exec(&path)
+
+          expect(page).to have_text('開催中')
+          expect(horizontal_overflow).to be <= 0
+        end
+      end
+    end
+  end
+
   it '幅の広い要素があると横スクロールを検出する' do
     resize_viewport(375)
     visit root_path

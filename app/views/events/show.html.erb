@@ -26,6 +26,9 @@
     <dd>
       <span><%= event_date_label(@event) %></span>
       <span><%= event_time_range(@event) %></span>
+      <% if !@event.cancelled? && (timing = event_timing_label(@event)) %>
+        <span class="seat-status"><%= timing %></span>
+      <% end %>
     </dd>
   </div>
   <div>

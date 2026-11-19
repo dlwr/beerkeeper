@@ -24,6 +24,17 @@ module EventsHelper
     "#{l(start_at, format: '%H:%M')}〜#{l(end_at, format: end_format)}"
   end
 
+  def event_timing_label(event)
+    return if event.ended?
+
+    now = Time.current
+    if event.start_at <= now
+      "開催中"
+    elsif event.start_at.to_date == now.to_date
+      "今日"
+    end
+  end
+
   def seats_status(event)
     return "終了" if event.ended?
 
