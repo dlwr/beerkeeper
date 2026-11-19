@@ -49,6 +49,8 @@
 - 横スクロールとタップ範囲は `spec/system/layout_spec.rb`（`spec/support/layout_checks.rb` の `resize_viewport`・`horizontal_overflow`・`small_tap_targets`）で確かめる。新しい画面や状態はここに足す。キーボードの Tab 順とフォーカスの輪郭は手元で確かめ済み（spec にはしていない）
 - `field_error_proc` は素通しにしてある。欄のエラーは `field_error_attributes` と `field_error`（`EventsHelper`）で `aria-invalid`・`aria-describedby` と欄の下の文言を付ける
 - CI の Chrome は手元と書体が違い、インラインの要素の高さが 3px ほど低く出る。44px の判定は手元でぎりぎりにしない（本文中のリンクは `.text-link` の上下の余白で取っている）
+- 開発サーバーの点検用ログイン差し替えは、`to_prepare` に登録するだけだと起動直後のリクエストに効かない。`on_load(:after_initialize)` の中で一度 prepend してから `to_prepare` にも登録する
+- 画面の点検は scratchpad に axe-core（`npm i axe-core`）を入れ、Playwright で各画面に注入して流すと早い。2026-11 時点で全画面の違反は 0
 - 利用者の入力をリンクにするのは `text_with_links` / `format_with_links`（`EventsHelper`）。`simple_format` に直接渡さない
 
 ## 残っている候補
@@ -59,6 +61,8 @@
 - 主催者は自分のイベントにも「参加する」で参加でき、定員に数えられる。主催者は参加するものとみなして変えていない。主催者を自動で参加者にするかは未決
 - URL のリンク化（#140）は詳細画面だけ。DM・マイページと、`www.` だけの URL・メールアドレスはリンクにならない
 - 一覧の自分の参加状態（#141）は開催予定だけ。過去のイベントに「参加した」は出さない
+- 過去のイベントの画面（#146、`/events/past`）は 20 件ずつのページ送りだけで、検索・年ごとの絞り込みは無い。ページ番号は 10000 で頭打ち
+- 「今日」「開催中」の印（#147）は一覧と詳細だけ。マイページの行と DM には出さない。中止の判定は詳細のビューで行い、一覧は `not_cancelled` で絞った前提（ヘルパーで `cancelled?` を見ると一覧で N+1 になる）
 
 - 型検査は `app/models` だけ。コントローラー・コンポーネントへ広げるのは次の候補
 - `users#destroy` は画面から呼べないうえ、参加が `dependent: :nullify`（`user_id` は NOT NULL）、主催イベントの参加が `restrict_with_error` で実際には消せない（参加者のいるイベントの主催者だと `RecordNotDestroyed` で 500 になるはず。未確認）。退会を作るなら仕様から
