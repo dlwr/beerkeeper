@@ -91,6 +91,32 @@ RSpec.describe 'Layout', type: :system, js: true do
     end
   end
 
+  context '過去のイベントが多いとき' do
+    before do
+      21.times do |i|
+        day = Time.zone.local(2020, 1, 1) + i.days
+        create(:event, organizer:, name: "過去の会#{i + 1}", start_at: day + 19.hours, end_at: day + 21.hours)
+      end
+    end
+
+    {
+      'イベント一覧' => [ -> { root_path }, '過去のイベントをすべて見る' ],
+      '過去のイベント' => [ -> { past_events_path }, '古いイベント' ],
+      '過去のイベントの 2 ページ目' => [ -> { past_events_path(page: 2) }, '新しいイベント' ]
+    }.each do |name, (path, link)|
+      [ 375, 1280 ].each do |width|
+        it "#{name}は #{width}px で横スクロールが出ず、#{link}のタップ範囲が 44px 以上ある" do
+          resize_viewport(width)
+          visit instance_exec(&path)
+
+          expect(page).to have_link(link)
+          expect(horizontal_overflow).to be <= 0
+          expect(small_tap_targets).to eq([])
+        end
+      end
+    end
+  end
+
   it '幅の広い要素があると横スクロールを検出する' do
     resize_viewport(375)
     visit root_path
