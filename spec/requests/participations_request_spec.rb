@@ -18,6 +18,26 @@ RSpec.describe "Participations", type: :request do
       expect(flash[:alert]).to be_present
     end
 
+    it '二重参加ではすでに参加登録していると伝え、詳細画面に戻す' do
+      log_in(user)
+      post event_participations_path(roomy_event)
+
+      post event_participations_path(roomy_event)
+
+      expect(flash[:alert]).to eq('すでに参加登録しています')
+      expect(response).to redirect_to(event_path(roomy_event))
+    end
+
+    it '補欠のユーザーの二重参加では補欠の順番も伝える' do
+      create(:participation, event:, user: other_user)
+      log_in(user)
+      post event_participations_path(event)
+
+      post event_participations_path(event)
+
+      expect(flash[:alert]).to eq('すでに補欠として登録しています（補欠の1番目）')
+    end
+
     it '二重参加では参加の通知を送らない' do
       log_in(user)
       post event_participations_path(roomy_event)
@@ -110,7 +130,8 @@ RSpec.describe "Participations", type: :request do
       expect do
         post event_participations_path(ended_event)
       end.not_to change(Participation, :count)
-      expect(flash[:alert]).to eq 'イベントに参加できませんでした'
+      expect(flash[:alert]).to eq '終了したイベントには参加できません'
+      expect(response).to redirect_to(event_path(ended_event))
     end
 
     it '参加をキャンセルできず、補欠も繰り上がらない' do
