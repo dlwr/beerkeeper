@@ -10,7 +10,8 @@ class ParticipationsController < ApplicationController
     elsif participation
       flash[:success] = "イベント参加登録しました"
     else
-      flash[:alert] = "イベントに参加できませんでした"
+      flash[:alert] = receive_failure_message(event)
+      return redirect_to event_path(event)
     end
     redirect_back fallback_location: event_path(event)
   end
@@ -25,5 +26,22 @@ class ParticipationsController < ApplicationController
       flash[:alert] = "イベント参加をキャンセルできませんでした"
     end
     redirect_to event_path(event)
+  end
+
+  private
+
+  def receive_failure_message(event)
+    existing = current_user.participations.find_by(event:)
+    if existing&.waitlisted?
+      "すでに補欠として登録しています（補欠の#{event.waitlist_position(current_user)}番目）"
+    elsif existing
+      "すでに参加登録しています"
+    elsif event.ended?
+      "終了したイベントには参加できません"
+    elsif event.cancelled?
+      "このイベントは中止されました"
+    else
+      "イベントに参加できませんでした"
+    end
   end
 end
