@@ -51,4 +51,47 @@ RSpec.describe "今日と開催中の印", type: :request do
       expect(event_fact('日時')).not_to include('開催中')
     end
   end
+
+  describe 'マイページ' do
+    let(:user) { create(:user) }
+    let!(:organizing_event) do
+      create(:event, name: '主催の会', organizer: user, start_at: Time.zone.local(2030, 5, 10, 19, 0), end_at: Time.zone.local(2030, 5, 10, 22, 0))
+    end
+
+    before do
+      create(:participation, event: today_event, user:)
+      create(:participation, event: tomorrow_event, user:)
+      log_in(user)
+    end
+
+    def row_marks(event)
+      Nokogiri::HTML(response.body).css(%(a.event-row[href="#{event_path(event)}"] .seat-status)).map { _1.text.squish }
+    end
+
+    it '始まる前の今日の参加予定に今日と出し、明日のイベントには出さない' do
+      travel_to Time.zone.local(2030, 5, 10, 12, 0) do
+        get user_path
+        expect(row_marks(today_event)).to include('今日')
+        expect(row_marks(tomorrow_event)).not_to include('今日')
+      end
+    end
+
+    it '開催中の参加予定と主催予定に開催中と出し、今日は出さない' do
+      travel_to Time.zone.local(2030, 5, 10, 20, 0) do
+        get user_path
+        expect(row_marks(today_event)).to include('開催中')
+        expect(row_marks(today_event)).not_to include('今日')
+        expect(row_marks(organizing_event)).to include('開催中')
+      end
+    end
+
+    it '中止したイベントには中止だけを出す' do
+      today_event.cancel('雨')
+      travel_to Time.zone.local(2030, 5, 10, 20, 0) do
+        get user_path
+        expect(row_marks(today_event)).to include('中止')
+        expect(row_marks(today_event)).not_to include('開催中')
+      end
+    end
+  end
 end

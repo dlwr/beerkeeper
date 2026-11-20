@@ -42,6 +42,29 @@ RSpec.describe 'Layout', type: :system, js: true do
     end
   end
 
+  context '開催中で補欠のイベントがあるマイページ' do
+    let!(:ongoing_event) do
+      create(:event, organizer:, name: '開催中の会', max_size: 1, start_at: 1.hour.ago, end_at: 2.hours.from_now)
+    end
+
+    before do
+      create(:participation, event: ongoing_event, user: organizer)
+      create(:participation, event: ongoing_event, user: participant, waitlisted: true)
+    end
+
+    [ 375, 1280 ].each do |width|
+      it "#{width}px で横スクロールが出ず、印が出る" do
+        log_in_as(participant)
+        resize_viewport(width)
+        visit user_path
+
+        expect(page).to have_css('.event-row .seat-status', text: '開催中')
+        expect(horizontal_overflow).to be <= 0
+        expect(small_tap_targets).to eq([])
+      end
+    end
+  end
+
   context '長い URL や英数字を入れたイベント' do
     let(:url) { "https://example.com/#{'a' * 120}" }
     let!(:long_event) do
