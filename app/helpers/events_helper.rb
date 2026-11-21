@@ -83,4 +83,13 @@ module EventsHelper
   def format_with_links(text, html_options = {})
     simple_format(text_with_links(text), html_options, sanitize: false)
   end
+
+  def event_share_description(event)
+    [
+      ("中止" if event.cancelled?),
+      event_date_label(event),
+      event_time_range(event),
+      event.location.presence
+    ].compact.join(" ")
+  end
 end
