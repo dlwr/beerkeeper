@@ -1,4 +1,10 @@
 <% page_title @event.name %>
+<% content_for :og do %>
+  <meta property="og:title" content="<%= @event.name %>">
+  <meta property="og:description" content="<%= event_share_description(@event) %>">
+  <meta property="og:url" content="<%= event_url(@event) %>">
+  <meta property="og:type" content="website">
+<% end %>
 <h1><%= @event.name %></h1>
 
 <% if @event.cancelled? %>
