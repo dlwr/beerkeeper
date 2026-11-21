@@ -30,7 +30,8 @@ RSpec.describe "イベントのフォーム", type: :request do
     label_text = ->(id) { form_html.at(%(label[for="#{id}"])).text.squish }
     expect(label_text.call("event_name")).to include "必須"
     expect(form_html.at("fieldset.event-start legend").text).to include "必須"
-    expect(form_html.at("fieldset.event-end legend").text).to include "必須"
+    expect(label_text.call("event_end_at_date")).to include "任意"
+    expect(label_text.call("event_end_at_time")).to include "必須"
     %w[event_location event_max_size event_budget event_description event_participant_notice].each do |id|
       expect(label_text.call(id)).to include "任意"
     end
@@ -70,6 +71,43 @@ RSpec.describe "イベントのフォーム", type: :request do
 
     fieldset = form_html.at("fieldset.event-end")
     expect(fieldset.at(".field-error").text).to include "終了日時は開始日時より後にしてください"
+  end
+
+  it "終了日は任意で、空なら開始と同じ日と補足する" do
+    get new_event_path
+
+    field = form_html.at("#event_end_at_date")
+    expect(field["required"]).to be_nil
+    hint = form_html.at("##{field['aria-describedby']}")
+    expect(hint.text.squish).to eq "空なら開始と同じ日"
+  end
+
+  it "終了日が空なら開始と同じ日の終了時刻で保存する" do
+    post events_path, params: { event: valid_params(end_at_date: "") }
+
+    event = Event.find_by!(name: "定例会")
+    expect(event.end_at).to eq Time.zone.local(2099, 3, 14, 21, 0)
+  end
+
+  it "終了日を入れればその日で保存する" do
+    post events_path, params: { event: valid_params(end_at_date: "2099-03-15", end_at_time: "01:00") }
+
+    expect(Event.find_by!(name: "定例会").end_at).to eq Time.zone.local(2099, 3, 15, 1, 0)
+  end
+
+  it "終了日が空で終了時刻が開始より前なら終了の欄にエラーを出す" do
+    post events_path, params: { event: valid_params(end_at_date: "", end_at_time: "17:00") }
+
+    expect(response).to have_http_status(:unprocessable_content)
+    fieldset = form_html.at("fieldset.event-end")
+    expect(fieldset.at(".field-error").text).to include "終了日時は開始日時より後にしてください"
+  end
+
+  it "終了時刻は今までどおり必須" do
+    post events_path, params: { event: valid_params(end_at_date: "", end_at_time: "") }
+
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(form_html.at("fieldset.event-end .field-error").text).to include "終了日時を入力してください"
   end
 
   it "エラーが無ければ aria-invalid を付けない" do

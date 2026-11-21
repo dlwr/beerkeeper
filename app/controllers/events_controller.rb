@@ -113,8 +113,9 @@ class EventsController < ApplicationController
         permitted[:start_at] = parse_datetime(permitted[:start_at_date], permitted[:start_at_time])
       end
 
-      if permitted[:end_at_date].present? && permitted[:end_at_time].present?
-        permitted[:end_at] = parse_datetime(permitted[:end_at_date], permitted[:end_at_time])
+      if permitted[:end_at_time].present?
+        end_date = permitted[:end_at_date].presence || permitted[:start_at_date]
+        permitted[:end_at] = parse_datetime(end_date, permitted[:end_at_time]) if end_date.present?
       end
       permitted
     end

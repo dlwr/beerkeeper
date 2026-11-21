@@ -1,29 +1,35 @@
 <%= form_with model: @event, class: "event-form" do |form| %>
   <% [[:start_at, "開始", "event-start"], [:end_at, "終了", "event-end"]].each do |attribute, label, klass| %>
+    <% date_optional = attribute == :end_at %>
+    <% date_hint_id = "event_#{attribute}_date_hint" if date_optional %>
+    <% error_attributes = field_error_attributes(@event, attribute) %>
     <fieldset class="form-group <%= klass %>">
-      <legend><%= label %>日時 <span class="field-tag">必須</span></legend>
+      <legend><%= label %>日時<% unless date_optional %> <span class="field-tag">必須</span><% end %></legend>
       <div class="datetime-fields">
         <div>
-          <%= form.label "#{attribute}_date", "日付", class: "form-label" %>
+          <%= form.label "#{attribute}_date", class: "form-label" do %>日付<% if date_optional %> <span class="field-tag field-tag--optional">任意</span><% end %><% end %>
           <%= form.date_field attribute,
               name: "event[#{attribute}_date]",
               id: "event_#{attribute}_date",
               value: @event.public_send("#{attribute}_date").presence || @event.public_send(attribute)&.to_date,
-              required: true,
+              required: !date_optional,
               class: "form-control",
-              **field_error_attributes(@event, attribute) %>
+              aria: { invalid: error_attributes.dig(:aria, :invalid), describedby: [ date_hint_id, error_attributes.dig(:aria, :describedby) ].compact.join(" ").presence } %>
         </div>
         <div>
-          <%= form.label "#{attribute}_time", "時刻", class: "form-label" %>
+          <%= form.label "#{attribute}_time", class: "form-label" do %>時刻<% if date_optional %> <span class="field-tag">必須</span><% end %><% end %>
           <%= form.time_field attribute,
               name: "event[#{attribute}_time]",
               id: "event_#{attribute}_time",
               value: @event.public_send("#{attribute}_time").presence || @event.public_send(attribute)&.strftime("%H:%M"),
               required: true,
               class: "form-control",
-              **field_error_attributes(@event, attribute) %>
+              **error_attributes %>
         </div>
       </div>
+      <% if date_optional %>
+        <p class="form-hint" id="<%= date_hint_id %>">空なら開始と同じ日</p>
+      <% end %>
       <%= field_error(@event, attribute) %>
     </fieldset>
   <% end %>
