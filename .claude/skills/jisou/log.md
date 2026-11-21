@@ -53,6 +53,9 @@
 - 画面の点検は scratchpad に axe-core（`npm i axe-core`）を入れ、Playwright で各画面に注入して流すと早い。2026-11 時点で全画面の違反は 0
 - 印や状態の有無を確かめる spec は部品（`.seat-status` など）に絞る。テストのイベント名（「今日の会」）に同じ語が入っていると、行の文字全体では否定も肯定も誤って通る
 - 利用者の入力をリンクにするのは `text_with_links` / `format_with_links`（`EventsHelper`）。`simple_format` に直接渡さない
+- 手元の test DB では `spec/requests/events_request_spec.rb` の一覧の3件（:14, :27, :67）が main でも落ちる（2026-11-21 時点。CI は緑）。シードの過去のイベントで最近の5件から押し出されるためとみられる
+- 別の issue を wip ブランチで並行するときは、同じブランチに意味単位でコミットして後で cherry-pick する。`git checkout <branch> -- .` で持ち出すのは auto mode に拒否される
+- `content_for` の値を `join` すると二重にエスケープされる。`safe_join` を使う
 
 ## 残っている候補
 
@@ -79,3 +82,6 @@
 - 開催前日のリマインドは、Solid Queue の recurring で作れるが、マシンが止まっていると時刻どおりに走らない
 - 歓迎の DM を積むところで例外が出るとログインは 500 になり、次のログインでは新規ではないので歓迎の DM は二度と送られない（async では起きにくい）
 - イベントをもとにした新規作成（#90）は内容を写すだけで、日時は空。翌月の同じ曜日などを入れる案や、繰り返しイベントは未着手
+- `<title>` は `page_title`（`ApplicationHelper`）で画面ごとに付ける。区切りはエラーページに合わせて全角の「｜」。新しい画面を足したら呼ぶ
+- OGP（#157）はイベント詳細だけで、`og:image` は無い。Discord での実際の見え方は未確認
+- 終了日を省けるのは日付だけ（#158）。開始日を JavaScript で終了日に写すことはしていない
