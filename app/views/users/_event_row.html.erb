@@ -13,5 +13,8 @@
     <% elsif local_assigns[:waitlisted] %>
       <span class="seat-status">補欠</span>
     <% end %>
+    <% if event.location.present? %>
+      <span class="event-row__where"><%= event.location %></span>
+    <% end %>
   <% end %>
 </li>

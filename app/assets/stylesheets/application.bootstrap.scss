@@ -619,6 +619,12 @@ $alert-border-radius: $border-radius;
   }
 }
 
+.event-row__where {
+  flex-basis: 100%;
+  color: $ink-muted;
+  font-size: $font-size-sm;
+}
+
 .login {
   max-width: 32rem;
 }
