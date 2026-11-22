@@ -81,6 +81,20 @@ RSpec.describe "Users", type: :request do
       expect(body).to include('補欠')
     end
 
+    it '行に場所を出し、場所が空なら出さない' do
+      placed = event_named('場所ありの会', location: '三鷹駅前', start_at: 2.days.from_now, end_at: 2.days.from_now + 1.hour)
+      unplaced = event_named('場所なしの会', location: '', start_at: 3.days.from_now, end_at: 3.days.from_now + 1.hour)
+      create(:participation, event: placed, user:)
+      create(:participation, event: unplaced, user:)
+
+      get user_path
+
+      rows = Nokogiri::HTML(response.body).css('.event-row')
+      row = ->(name) { rows.find { |r| r.at('.event-row__name').text == name } }
+      expect(row.call('場所ありの会').at('.event-row__where').text).to eq '三鷹駅前'
+      expect(row.call('場所なしの会').at('.event-row__where')).to be_nil
+    end
+
     it '名前の編集画面へのリンクを出す' do
       get user_path
 
