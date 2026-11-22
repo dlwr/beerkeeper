@@ -81,7 +81,8 @@ RSpec.describe 'Layout', type: :system, js: true do
       'イベント一覧' => [ nil, -> { root_path } ],
       'イベント詳細（参加者）' => [ :participant, -> { event_path(long_event) } ],
       'イベント詳細（主催者）' => [ :organizer, -> { event_path(long_event) } ],
-      '中止したイベントの詳細' => [ nil, -> { event_path(cancelled_event) } ]
+      '中止したイベントの詳細' => [ nil, -> { event_path(cancelled_event) } ],
+      'マイページ（長い場所）' => [ :participant, -> { user_path } ]
     }.each do |name, (user, path)|
       [ 375, 1280 ].each do |width|
         it "#{name}は #{width}px で横スクロールが出ない" do
