@@ -24,6 +24,19 @@ RSpec.describe "イベントのフォーム", type: :request do
     end
   end
 
+  it "欄をイベント名・日時・場所の順に並べる" do
+    event = create(:event, organizer: user)
+    expected = %w[event_name event_start_at_date event_start_at_time event_end_at_date event_end_at_time event_location
+                  event_max_size event_budget event_description event_participant_notice]
+
+    [ new_event_path, edit_event_path(event) ].each do |path|
+      get path
+
+      ids = form_html.css("input:not([type=hidden]):not([type=submit]), textarea").map { _1["id"] }
+      expect(ids).to eq(expected), path
+    end
+  end
+
   it "必須と任意を文字で示す" do
     get new_event_path
 

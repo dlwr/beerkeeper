@@ -1,4 +1,10 @@
 <%= form_with model: @event, class: "event-form" do |form| %>
+  <div class="form-group">
+    <%= form.label :name, class: "form-label" do %>イベント名 <span class="field-tag">必須</span><% end %>
+    <%= form.text_field :name, class: "form-control", required: true, **field_error_attributes(@event, :name) %>
+    <%= field_error(@event, :name) %>
+  </div>
+
   <% [[:start_at, "開始", "event-start"], [:end_at, "終了", "event-end"]].each do |attribute, label, klass| %>
     <% date_optional = attribute == :end_at %>
     <% date_hint_id = "event_#{attribute}_date_hint" if date_optional %>
@@ -33,12 +39,6 @@
       <%= field_error(@event, attribute) %>
     </fieldset>
   <% end %>
-
-  <div class="form-group">
-    <%= form.label :name, class: "form-label" do %>イベント名 <span class="field-tag">必須</span><% end %>
-    <%= form.text_field :name, class: "form-control", required: true, **field_error_attributes(@event, :name) %>
-    <%= field_error(@event, :name) %>
-  </div>
 
   <div class="form-group">
     <%= form.label :location, class: "form-label" do %>開催場所 <span class="field-tag field-tag--optional">任意</span><% end %>
