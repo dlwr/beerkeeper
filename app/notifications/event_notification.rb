@@ -49,6 +49,6 @@ class EventNotification
   end
 
   def format_value(value)
-    value.respond_to?(:strftime) ? I18n.l(value) : value.presence || "未定"
+    value.respond_to?(:strftime) ? I18n.l(value, format: "%Y年%-m月%-d日(%a) %H:%M") : value.presence || "未定"
   end
 end
