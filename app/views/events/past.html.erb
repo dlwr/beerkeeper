@@ -2,7 +2,7 @@
 <h1>過去のイベント</h1>
 
 <% if @past_events.any? %>
-  <%= render "list", events: @past_events, participation_states: {} %>
+  <%= render "list", events: @past_events, participation_states: {}, heading: :h2 %>
 <% else %>
   <p class="text-body-secondary">過去のイベントはありません。</p>
 <% end %>
