@@ -94,4 +94,26 @@ RSpec.describe "過去のイベント", type: :request do
       expect(response).to have_http_status(:ok)
     end
   end
+  describe '見出しの階層' do
+    def heading_levels
+      Nokogiri::HTML(response.body).css('main h1, main h2, main h3, main h4').map { |h| h.name[1].to_i }
+    end
+
+    it '過去のイベントの画面ではイベント名を h1 の直下の h2 にする' do
+      create_past_events(2)
+
+      get past_events_path
+
+      expect(heading_levels).to eq [ 1, 2, 2 ]
+    end
+
+    it '一覧ではイベント名を区切りの h2 の下の h3 のままにする' do
+      create_past_events(2)
+
+      get events_path
+
+      expect(heading_levels.each_cons(2).all? { |a, b| b <= a + 1 }).to be true
+      expect(past_section.css('.event-item__name').map(&:name)).to eq %w[h3 h3]
+    end
+  end
 end
