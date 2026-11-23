@@ -30,7 +30,17 @@ RSpec.describe EventNotification do
   it "日時・場所の変更の通知に変わった項目の前後を入れる" do
     text = content("schedule_change", { "location" => [ "三鷹", "吉祥寺" ], "start_at" => [ Time.zone.local(2099, 1, 15, 19, 0), Time.zone.local(2099, 1, 22, 19, 0) ] })
 
-    expect(text).to include("開催日時・場所が変更されました", "開催場所：三鷹 → 吉祥寺", "開始日時：2099年01月15日(木) 19時00分 → 2099年01月22日(木) 19時00分", url)
+    expect(text).to include("開催日時・場所が変更されました", "開催場所：三鷹 → 吉祥寺", "開始日時：2099年1月15日(木) 19:00 → 2099年1月22日(木) 19:00", url)
+  end
+
+  it "終了日時の変更の前後も詳細画面と同じ表記にする" do
+    text = content("schedule_change", { "end_at" => [ Time.zone.local(2099, 1, 5, 21, 0), Time.zone.local(2099, 1, 15, 21, 0) ] })
+
+    expect(text).to include("終了日時：2099年1月5日(月) 21:00 → 2099年1月15日(木) 21:00")
+  end
+
+  it "開催場所の変更で空だった側は未定と書く" do
+    expect(content("schedule_change", { "location" => [ "", "吉祥寺" ] })).to include("開催場所：未定 → 吉祥寺")
   end
 
   %w[participation waitlist promotion cancellation schedule_change].each do |kind|
