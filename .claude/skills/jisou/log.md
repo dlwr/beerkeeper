@@ -56,6 +56,8 @@
 - 手元の test DB では `spec/requests/events_request_spec.rb` の一覧の3件（:14, :27, :67）が main でも落ちる（2026-11-21 時点。CI は緑）。シードの過去のイベントで最近の5件から押し出されるためとみられる
 - 別の issue を wip ブランチで並行するときは、同じブランチに意味単位でコミットして後で cherry-pick する。`git checkout <branch> -- .` で持ち出すのは auto mode に拒否される
 - `content_for` の値を `join` すると二重にエスケープされる。`safe_join` を使う
+- `bin/rails runner '...'` に日本語を直接書くと、ロケールが POSIX のクラウドでは文字列が BINARY になり `Encoding::CompatibilityError` で落ちる。`LANG=C.UTF-8` を付ける
+- 一覧の部分テンプレート（`events/_list`）のイベント名は既定で h3。h1 の直下に並べる画面では `heading: :h2` を渡す（#169）
 
 ## 残っている候補
 
@@ -87,3 +89,4 @@
 - 終了日を省けるのは日付だけ（#158）。開始日を JavaScript で終了日に写すことはしていない
 - フォームの欄はイベント名が先頭（#163）。順は `spec/requests/events/form_request_spec.rb` で確かめている。欄を足したら期待の並びも直す
 - マイページの行の場所（#164）は文字だけでリンクにしない。残りの枠は出していない
+- DM の日時は変更前後の行も詳細画面と同じ表記（#168）。変更前後の終了日時は、日をまたがなくても日付を付けて出す
