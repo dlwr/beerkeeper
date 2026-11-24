@@ -36,20 +36,49 @@ RSpec.describe 'Event calendar', type: :request do
     expect(google_link.to_h).to include('target' => '_blank', 'rel' => 'noopener')
   end
 
-  it '終了したイベントにも Google カレンダーへのリンクを出す' do
+  def ics_link
+    Nokogiri::HTML(response.body).css('main a').find { |a| a.text.strip == 'その他のカレンダー (.ics)' }
+  end
+
+  it '終了したイベントにはカレンダーに追加するリンクを出さない' do
     event.update!(start_at: 2.days.ago, end_at: 1.day.ago)
 
     get event_path(event)
 
-    expect(google_link).to be_present
+    aggregate_failures do
+      expect(google_link).to be_nil
+      expect(ics_link).to be_nil
+    end
   end
 
-  it '中止されたイベントには Google カレンダーへのリンクを出さない' do
+  it '開催中のイベントにはカレンダーに追加するリンクを出す' do
+    event.update!(start_at: 1.hour.ago, end_at: 1.hour.from_now)
+
+    get event_path(event)
+
+    aggregate_failures do
+      expect(google_link).to be_present
+      expect(ics_link).to be_present
+    end
+  end
+
+  it '終了したイベントも .ics は直接開けば返す' do
+    event.update!(start_at: 2.days.ago, end_at: 1.day.ago)
+
+    get event_path(event, format: :ics)
+
+    expect(response).to have_http_status(:ok)
+  end
+
+  it '中止されたイベントには Google カレンダーへのリンクを出さず、.ics のリンクは出す' do
     event.cancel
 
     get event_path(event)
 
-    expect(google_link).to be_nil
+    aggregate_failures do
+      expect(google_link).to be_nil
+      expect(ics_link).to be_present
+    end
   end
 
   it '中止されたイベントも CANCELLED として返す' do
