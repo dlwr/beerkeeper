@@ -73,7 +73,8 @@ RSpec.describe "過去のイベント", type: :request do
     it '開催予定と中止したイベントは出さない' do
       create_past_events(1)
       create(:event, name: '次の会')
-      create_past_events(1).first.tap { |e| e.update!(name: '中止した会') }.cancel('雨')
+      cancelled = create_past_events(1).first.tap { |e| e.update!(name: '中止した会') }
+      travel_to(cancelled.start_at - 1.day) { cancelled.cancel('雨') }
 
       get past_events_path
 

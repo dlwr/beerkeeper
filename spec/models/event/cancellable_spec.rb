@@ -31,6 +31,25 @@ RSpec.describe Event::Cancellable, type: :model do
       it { expect(event.cancel).to be_nil }
     end
 
+    context '終了したイベント' do
+      let(:event) { FactoryBot.create(:event, start_at: 2.hours.ago, end_at: 1.hour.ago) }
+
+      before { FactoryBot.create(:participation, event:, user: FactoryBot.create(:user)) }
+
+      it '中止せず知らせない' do
+        aggregate_failures do
+          expect { expect(event.cancel).to be_nil }.not_to have_enqueued_notification(:cancellation)
+          expect(event.reload).not_to be_cancelled
+        end
+      end
+    end
+
+    context '開催中のイベント' do
+      let(:event) { FactoryBot.create(:event, start_at: 1.hour.ago, end_at: 1.hour.from_now) }
+
+      it { expect { event.cancel }.to change(event, :cancelled?).to(true) }
+    end
+
     context 'when the event has participants' do
       let(:participants) { FactoryBot.create_list(:user, 2) }
 

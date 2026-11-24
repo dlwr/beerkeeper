@@ -2,6 +2,7 @@ module Event::Cancellable : Event::Cancellable::_Owner
   interface _Owner
     def cancellation: () -> Event::Cancellation?
     def create_cancellation: (?untyped attributes) -> Event::Cancellation
+    def ended?: () -> bool
   end
 
   def cancelled?: () -> bool

@@ -157,7 +157,7 @@ RSpec.describe "Users", type: :request do
       older = event_named('前々回の主催', start_at: 30.days.ago, end_at: 30.days.ago + 1.hour, organizer: user)
       newer = event_named('前回の主催', start_at: 2.days.ago, end_at: 2.days.ago + 1.hour, organizer: user)
       cancelled = event_named('取りやめた主催', start_at: 10.days.ago, end_at: 10.days.ago + 1.hour, organizer: user)
-      cancelled.cancel
+      travel_to(cancelled.start_at - 1.day) { cancelled.cancel }
       event_named('開催予定の主催', organizer: user)
       event_named('他人の過去の主催', start_at: 5.days.ago, end_at: 5.days.ago + 1.hour, organizer: other)
 
@@ -193,7 +193,7 @@ RSpec.describe "Users", type: :request do
       create(:participation, event: waitlisted, user:, waitlisted: true)
       create(:participation, event: cancelled, user:)
       create(:participation, event: others, user: other)
-      cancelled.cancel
+      travel_to(cancelled.start_at - 1.day) { cancelled.cancel }
 
       get user_path
 

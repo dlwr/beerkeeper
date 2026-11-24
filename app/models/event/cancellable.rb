@@ -8,6 +8,6 @@ module Event::Cancellable
   end
 
   def cancel(reason = nil)
-    create_cancellation(reason:) unless cancelled?
+    create_cancellation(reason:) unless cancelled? || ended?
   end
 end
