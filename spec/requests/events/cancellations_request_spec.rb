@@ -39,6 +39,31 @@ RSpec.describe "Event::Cancellation", type: :request do
     end
   end
 
+  describe '終了したイベント' do
+    let!(:event) { create(:event, organizer: user, start_at: 2.hours.ago, end_at: 1.hour.ago) }
+
+    it '中止できず、詳細画面に理由を出す' do
+      expect do
+        post event_cancellations_path(event.id)
+      end.not_to change(Event::Cancellation, :count)
+
+      aggregate_failures do
+        expect(response).to redirect_to(event_path(event))
+        expect(flash[:alert]).to eq '終了したイベントは中止できません'
+      end
+    end
+
+    it '詳細画面に中止の欄を出さない' do
+      get event_path(event)
+
+      aggregate_failures do
+        expect(response.body).not_to include('name="cancellation[reason]"')
+        expect(response.body).not_to include('イベントを中止する')
+        expect(response.body).to include(edit_event_path(event))
+      end
+    end
+  end
+
   describe '中止後の表示' do
     let!(:participant) { create(:user) }
 

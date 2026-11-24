@@ -4,6 +4,7 @@ class Events::CancellationsController < ApplicationController
   def create
     @event = Event.not_cancelled.find(params[:event_id])
     return redirect_to(root_path, alert: "主催者ではないため中止できません") unless @event.organized_by?(current_user)
+    return redirect_to(event_path(@event), alert: "終了したイベントは中止できません") if @event.ended?
 
     @event.cancel(params.dig(:cancellation, :reason))
 

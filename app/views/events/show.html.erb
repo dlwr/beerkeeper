@@ -124,7 +124,7 @@
       <% end %>
       <%= link_to "このイベントをもとに作成", new_event_path(source_id: @event.id), class: "btn btn-outline-secondary" %>
     </div>
-    <% unless @event.cancelled? %>
+    <% unless @event.cancelled? || @event.ended? %>
       <%= form_with url: event_cancellations_path(@event), scope: :cancellation, class: "organizer-actions__danger", data: { turbo_confirm: "本当に中止にしてよろしいですか?" } do |f| %>
         <h3>イベントを中止する</h3>
         <p>中止すると参加者に知らせます。取り消せません。</p>
