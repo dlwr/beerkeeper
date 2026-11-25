@@ -1,13 +1,19 @@
 class UsersController < ApplicationController
+  PAST_EVENTS_ON_SHOW = 5
+
   before_action :require_login
   before_action :set_user, only: [ :show, :edit, :update, :destroy ]
 
   # GET /users
   def show
     @participations = @user.participations.joins(:event).merge(Event.upcoming).includes(event: :cancellation)
-    @attended_participations = @user.participations.confirmed.joins(:event).merge(Event.not_cancelled.past).includes(:event)
+    attended = @user.participations.confirmed.joins(:event).merge(Event.not_cancelled.past)
+    @attended_participations = attended.includes(:event).limit(PAST_EVENTS_ON_SHOW)
+    @more_attended_count = [ attended.count - PAST_EVENTS_ON_SHOW, 0 ].max
     @organizing_events = @user.organizing_events.upcoming.includes(:cancellation)
-    @organized_events = @user.organizing_events.past.includes(:cancellation)
+    organized = @user.organizing_events.past
+    @organized_events = organized.includes(:cancellation).limit(PAST_EVENTS_ON_SHOW)
+    @more_organized_count = [ organized.count - PAST_EVENTS_ON_SHOW, 0 ].max
   end
 
   # GET /users/edit

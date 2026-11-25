@@ -202,6 +202,44 @@ RSpec.describe "Users", type: :request do
       expect(past).not_to include('補欠だった会', '中止された過去の会', '他人だけの過去の会')
     end
 
+    it '主催したイベントは新しい順に5件までにし、6件以上あれば残りの件数と過去のイベントへのリンクを出す' do
+      7.times { |i| event_named("主催した#{i + 1}回目", start_at: (10 - i).days.ago, end_at: (10 - i).days.ago + 1.hour, organizer: user) }
+
+      get user_path
+
+      organized = section('主催したイベント')
+      expect(organized).to include('主催した7回目', '主催した3回目')
+      expect(organized).not_to include('主催した2回目', '主催した1回目')
+      expect(organized).to include('ほか2件')
+      expect(organized).to include(%(href="#{past_events_path}"))
+    end
+
+    it '参加したイベントは新しい順に5件までにし、6件以上あれば残りの件数と過去のイベントへのリンクを出す' do
+      6.times do |i|
+        event = event_named("参加した#{i + 1}回目", start_at: (10 - i).days.ago, end_at: (10 - i).days.ago + 1.hour)
+        create(:participation, event:, user:)
+      end
+
+      get user_path
+
+      attended = section('参加したイベント')
+      expect(attended).to include('参加した6回目', '参加した2回目')
+      expect(attended).not_to include('参加した1回目')
+      expect(attended).to include('ほか1件')
+      expect(attended).to include(%(href="#{past_events_path}"))
+    end
+
+    it '過去の一覧が5件以下なら残りの件数とリンクを出さない' do
+      5.times { |i| event_named("主催した#{i + 1}回目", start_at: (10 - i).days.ago, end_at: (10 - i).days.ago + 1.hour, organizer: user) }
+
+      get user_path
+
+      organized = section('主催したイベント')
+      expect(organized).to include('主催した1回目')
+      expect(organized).not_to include('ほか')
+      expect(organized).not_to include(%(href="#{past_events_path}"))
+    end
+
     it '該当が無ければありませんと出す' do
       get user_path
 

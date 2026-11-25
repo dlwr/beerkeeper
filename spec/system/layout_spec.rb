@@ -126,10 +126,12 @@ RSpec.describe 'Layout', type: :system, js: true do
     {
       'イベント一覧' => [ -> { root_path }, '過去のイベントをすべて見る' ],
       '過去のイベント' => [ -> { past_events_path }, '古いイベント' ],
-      '過去のイベントの 2 ページ目' => [ -> { past_events_path(page: 2) }, '新しいイベント' ]
+      '過去のイベントの 2 ページ目' => [ -> { past_events_path(page: 2) }, '新しいイベント' ],
+      'マイページ' => [ -> { user_path }, '過去のイベントを見る' ]
     }.each do |name, (path, link)|
       [ 375, 1280 ].each do |width|
         it "#{name}は #{width}px で横スクロールが出ず、#{link}のタップ範囲が 44px 以上ある" do
+          log_in_as(organizer)
           resize_viewport(width)
           visit instance_exec(&path)
 

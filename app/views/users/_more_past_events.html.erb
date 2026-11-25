@@ -1,0 +1,6 @@
+<% if count.positive? %>
+  <p class="mb-0">
+    <span class="text-body-secondary">ほか<%= count %>件</span>
+    <%= link_to "過去のイベントを見る", past_events_path, class: "more-link ms-2" %>
+  </p>
+<% end %>
