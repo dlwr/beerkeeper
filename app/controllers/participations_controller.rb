@@ -6,9 +6,9 @@ class ParticipationsController < ApplicationController
 
     participation = event.receive(current_user)
     if participation&.waitlisted?
-      flash[:success] = "定員に達しているため補欠として登録しました（補欠の#{event.waitlist_position(current_user)}番目）"
+      flash[:success] = "定員に達しているため補欠として登録しました（補欠の#{event.waitlist_position(current_user)}番目）。繰り上がったら Discord の DM でお知らせします"
     elsif participation
-      flash[:success] = "イベント参加登録しました"
+      flash[:success] = "参加登録しました。Discord の DM でもお知らせします"
     else
       flash[:alert] = receive_failure_message(event)
       return redirect_to event_path(event)
@@ -21,9 +21,9 @@ class ParticipationsController < ApplicationController
     participation = current_user&.participations&.find_by(id: params[:id], event:)
 
     if !event.ended? && participation&.destroy
-      flash[:success] = "イベント参加をキャンセルしました"
+      flash[:success] = "参加をキャンセルしました"
     else
-      flash[:alert] = "イベント参加をキャンセルできませんでした"
+      flash[:alert] = "参加をキャンセルできませんでした"
     end
     redirect_to event_path(event)
   end

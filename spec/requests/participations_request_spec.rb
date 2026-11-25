@@ -8,6 +8,32 @@ RSpec.describe "Participations", type: :request do
   describe 'POST /events/:event_id/participations' do
     let!(:roomy_event) { create(:event, max_size: 10) }
 
+    it '参加登録すると DM でも知らせると伝える' do
+      log_in(user)
+
+      post event_participations_path(roomy_event)
+
+      expect(flash[:success]).to eq('参加登録しました。Discord の DM でもお知らせします')
+    end
+
+    it '補欠で登録すると順番と、繰り上がったら DM で知らせると伝える' do
+      create(:participation, event:, user: other_user)
+      log_in(user)
+
+      post event_participations_path(event)
+
+      expect(flash[:success]).to eq('定員に達しているため補欠として登録しました（補欠の1番目）。繰り上がったら Discord の DM でお知らせします')
+    end
+
+    it '参加をキャンセルするとキャンセルしたと伝える' do
+      participation = create(:participation, event: roomy_event, user:)
+      log_in(user)
+
+      delete event_participation_path(roomy_event, participation)
+
+      expect(flash[:success]).to eq('参加をキャンセルしました')
+    end
+
     it '同じイベントに2回参加しても参加は1件のまま' do
       log_in(user)
       post event_participations_path(roomy_event)
@@ -145,7 +171,7 @@ RSpec.describe "Participations", type: :request do
       aggregate_failures do
         expect(Participation.exists?(participation.id)).to be true
         expect(ended_event.participants).to eq [ user ]
-        expect(flash[:alert]).to eq 'イベント参加をキャンセルできませんでした'
+        expect(flash[:alert]).to eq '参加をキャンセルできませんでした'
       end
     end
 
