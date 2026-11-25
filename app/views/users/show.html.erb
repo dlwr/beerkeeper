@@ -32,6 +32,7 @@
       <%= render "event_row", event: %>
     <% end %>
   </ul>
+  <%= render "more_past_events", count: @more_organized_count %>
 <% else %>
   <p class="text-body-secondary">主催したイベントはありません。</p>
 <% end %>
@@ -43,6 +44,7 @@
       <%= render "event_row", event: participation.event %>
     <% end %>
   </ul>
+  <%= render "more_past_events", count: @more_attended_count %>
 <% else %>
   <p class="text-body-secondary">参加したイベントはありません。</p>
 <% end %>
