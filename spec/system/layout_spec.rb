@@ -24,6 +24,7 @@ RSpec.describe 'Layout', type: :system, js: true do
     'イベント詳細（主催者）' => [ :organizer, -> { event_path(event) } ],
     'イベント作成' => [ :organizer, -> { new_event_path } ],
     'マイページ' => [ :participant, -> { user_path } ],
+    'マイページ（主催者）' => [ :organizer, -> { user_path } ],
     '名前の編集' => [ :participant, -> { edit_user_path } ],
     'ログイン' => [ nil, -> { login_path } ]
   }

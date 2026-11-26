@@ -619,6 +619,15 @@ $alert-border-radius: $border-radius;
   }
 }
 
+.event-row__seats {
+  display: flex;
+  flex-wrap: wrap;
+  flex-basis: 100%;
+  align-items: center;
+  column-gap: .75rem;
+  font-size: $font-size-sm;
+}
+
 .event-row__where {
   flex-basis: 100%;
   color: $ink-muted;

@@ -18,3 +18,19 @@ RSpec.configure do |config|
     driven_by(:selenium_chrome_headless)
   end
 end
+
+module ChromeStorageClearByOrigin
+  private
+
+  def execute_cdp(cmd, params = {})
+    return super unless cmd == 'Storage.clearDataForOrigin' && params[:origin] == '*'
+
+    super('Network.clearBrowserCookies')
+    server = Capybara.current_session.server
+    super(cmd, params.merge(origin: "http://#{server.host}:#{server.port}")) if server
+  end
+end
+
+require 'capybara/selenium/driver'
+require 'capybara/selenium/driver_specializations/chrome_driver'
+Capybara::Selenium::Driver::ChromeDriver.prepend(ChromeStorageClearByOrigin)

@@ -13,6 +13,14 @@
     <% elsif local_assigns[:waitlisted] %>
       <span class="seat-status">補欠</span>
     <% end %>
+    <% if local_assigns[:seats] && !event.cancelled? %>
+      <span class="event-row__seats">
+        <span><%= participant_count_label(event) %></span>
+        <% unless event.max_size.nil? %>
+          <span class="seat-status<%= " seat-status--full" if seats_full?(event) %>"><%= seats_status(event) %></span>
+        <% end %>
+      </span>
+    <% end %>
     <% if event.location.present? %>
       <span class="event-row__where"><%= event.location %></span>
     <% end %>

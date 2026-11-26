@@ -143,6 +143,54 @@ RSpec.describe "Users", type: :request do
       expect(section('主催するイベント')).not_to include('終わった会', '他人の会')
     end
 
+    def row_seats(event)
+      Nokogiri::HTML(response.body).at(%(main a.event-row[href="#{event_path(event)}"])).at('.event-row__seats')&.text&.squish
+    end
+
+    it '主催する開催予定のイベントの行に参加人数と残りの枠を出す' do
+      seats_left = event_named('枠のある会', organizer: user, max_size: 10)
+      2.times { create(:participation, event: seats_left, user: create(:user)) }
+      create(:participation, event: seats_left, user: create(:user), waitlisted: true)
+      full = event_named('満席の会', organizer: user, max_size: 1)
+      create(:participation, event: full, user: create(:user))
+      unlimited = event_named('定員なしの会', organizer: user, max_size: nil)
+      create(:participation, event: unlimited, user: create(:user))
+
+      get user_path
+
+      expect(row_seats(seats_left)).to eq '2人 / 10人 あと8人'
+      expect(row_seats(full)).to eq '1人 / 1人 満席・補欠受付中'
+      expect(row_seats(unlimited)).to eq '1人（定員なし）'
+    end
+
+    it '主催するイベントが増えても参加を数える問い合わせは増えない' do
+      count_queries = lambda do
+        queries = []
+        callback = ->(*, payload) { queries << payload[:sql] if payload[:sql].include?('"participations"') }
+        ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { get user_path }
+        queries.size
+      end
+      event_named('一つ目の会', organizer: user, max_size: 10)
+      once = count_queries.call
+      3.times { |i| create(:participation, event: event_named("増えた会#{i}", organizer: user, max_size: 10), user: create(:user)) }
+
+      expect(count_queries.call).to eq once
+    end
+
+    it '中止した主催イベントと、参加予定・主催した・参加したイベントの行には参加人数を出さない' do
+      cancelled = event_named('中止した会', organizer: user, max_size: 10)
+      cancelled.cancel
+      joining = event_named('参加する会', organizer: other, max_size: 10)
+      create(:participation, event: joining, user:)
+      past = event_named('終わった会', organizer: user, max_size: 10, start_at: 2.days.ago, end_at: 2.days.ago + 1.hour)
+      attended = event_named('参加した会', organizer: other, max_size: 10, start_at: 3.days.ago, end_at: 3.days.ago + 1.hour)
+      create(:participation, event: attended, user:)
+
+      get user_path
+
+      expect([ cancelled, joining, past, attended ].map { |e| row_seats(e) }).to all(be_nil)
+    end
+
     it '主催する開催予定のイベントが中止されたら、主催に中止と出す' do
       event_named('中止した主催の会', organizer: user).cancel
 
