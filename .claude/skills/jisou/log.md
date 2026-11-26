@@ -59,7 +59,7 @@
 - `bin/rails runner '...'` に日本語を直接書くと、ロケールが POSIX のクラウドでは文字列が BINARY になり `Encoding::CompatibilityError` で落ちる。`LANG=C.UTF-8` を付ける
 - 一覧の部分テンプレート（`events/_list`）のイベント名は既定で h3。h1 の直下に並べる画面では `heading: :h2` を渡す（#169）
 - 終了したイベントは `cancel` が何もしない（#173）。過去の中止イベントが要る spec は `travel_to(event.start_at - 1.day) { event.cancel }` で作る
-- 2026-11-25 のクラウドの Chrome 158 では system spec が全件 `invalid argument: * is not a valid URL` で落ちる（selenium との相性とみられる。CI は緑）
+- Chrome 158 では Capybara 3.40 の `reset!` が送る `Storage.clearDataForOrigin`（`origin: '*'`）が拒否され、system spec が全件 `invalid argument: * is not a valid URL` で落ちる。`spec/support/capybara.rb` でテストサーバーの origin に置き換えてある（#184）。Capybara を上げて直っていれば外す
 
 ## 残っている候補
 
@@ -95,3 +95,4 @@
 - 終了したイベントの詳細ではカレンダーに追加のボタンを2つとも出さない（#174）。中止かつ終了でも .ics のリンクは出ない（URL は直接開ける）
 - マイページの過去の一覧は最近の5件（#179）で、残りは `/events/past` へのリンクだけ。自分が関わったイベントだけの過去の画面は無い
 - 参加・補欠登録のフラッシュは DM でも知らせると伝える（#178）。DM が送れない人にも同じ文言が出る（歓迎の DM の失敗は別の警告で出す）
+- マイページの主催するイベントの行には参加人数と残りの枠を出す（#183）。参加予定の行には出さず、補欠の人数も出さない
