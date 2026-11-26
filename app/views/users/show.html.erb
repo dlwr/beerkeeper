@@ -18,7 +18,7 @@
 <% if @organizing_events.any? %>
   <ul class="event-rows">
     <% @organizing_events.each do |event| %>
-      <%= render "event_row", event: %>
+      <%= render "event_row", event:, seats: true %>
     <% end %>
   </ul>
 <% else %>

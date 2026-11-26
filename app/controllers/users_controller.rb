@@ -10,7 +10,7 @@ class UsersController < ApplicationController
     attended = @user.participations.confirmed.joins(:event).merge(Event.not_cancelled.past)
     @attended_participations = attended.includes(:event).limit(PAST_EVENTS_ON_SHOW)
     @more_attended_count = [ attended.count - PAST_EVENTS_ON_SHOW, 0 ].max
-    @organizing_events = @user.organizing_events.upcoming.includes(:cancellation)
+    @organizing_events = @user.organizing_events.upcoming.includes(:cancellation, :confirmed_participations)
     organized = @user.organizing_events.past
     @organized_events = organized.includes(:cancellation).limit(PAST_EVENTS_ON_SHOW)
     @more_organized_count = [ organized.count - PAST_EVENTS_ON_SHOW, 0 ].max
