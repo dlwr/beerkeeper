@@ -52,8 +52,9 @@ class EventNotification
   end
 
   def notice_lines
-    notice = @event.participant_notice if NOTICE_KINDS.include?(@kind)
-    return [] if notice.blank?
+    return [] unless NOTICE_KINDS.include?(@kind) && @event.participant_notice_visible_to?(@user)
+
+    notice = @event.participant_notice
 
     notice = "#{notice[0, NOTICE_LIMIT]}…\n（続きはイベントの詳細画面でご覧ください）" if notice.length > NOTICE_LIMIT
     [ "", "参加者へのお知らせ：", notice ]

@@ -66,6 +66,7 @@ RSpec.describe EventNotification do
   %w[participation promotion].each do |kind|
     it "#{kind} の通知に参加者へのお知らせを入れる" do
       event.update!(participant_notice: "北口に集合\n名札を持参")
+      create(:participation, event:, user:)
 
       expect(content(kind)).to include("参加者へのお知らせ：\n北口に集合\n名札を持参\n\n#{url}")
     end
@@ -80,6 +81,20 @@ RSpec.describe EventNotification do
     end
   end
 
+  it "送る時点で参加をやめていればお知らせを入れない" do
+    event.update!(participant_notice: "北口に集合")
+
+    expect(content("participation")).not_to include("北口に集合")
+  end
+
+  it "送る時点で中止されていればお知らせを入れない" do
+    event.update!(participant_notice: "北口に集合")
+    create(:participation, event:, user:)
+    event.cancel
+
+    expect(content("participation")).not_to include("北口に集合")
+  end
+
   it "お知らせが空なら参加者へのお知らせの行を出さない" do
     event.update!(participant_notice: "")
 
@@ -88,6 +103,7 @@ RSpec.describe EventNotification do
 
   it "長いお知らせは 1000 文字で切り、続きは詳細画面にあると添える" do
     event.update!(participant_notice: "あ" * 1000 + "Z" * 2000)
+    create(:participation, event:, user:)
 
     text = content("participation")
     expect(text).to include("あ" * 1000 + "…\n（続きはイベントの詳細画面でご覧ください）")
@@ -97,7 +113,10 @@ RSpec.describe EventNotification do
 
   it "1000 文字ちょうどのお知らせは切らない" do
     event.update!(participant_notice: "あ" * 1000)
+    create(:participation, event:, user:)
 
-    expect(content("participation")).not_to include("続きはイベントの詳細画面")
+    text = content("participation")
+    expect(text).to include("あ" * 1000)
+    expect(text).not_to include("続きはイベントの詳細画面")
   end
 end
