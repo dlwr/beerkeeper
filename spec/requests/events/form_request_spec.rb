@@ -152,4 +152,32 @@ RSpec.describe "イベントのフォーム", type: :request do
 
     expect(Nokogiri::HTML(response.body).at("main .alert-danger").text.squish).to eq "入力内容を確認してください（1件）"
   end
+
+  it "作成画面の見出しと送信ボタンをイベントを作成にする" do
+    get events_path
+    expect(Nokogiri::HTML(response.body).at("main .page-heading a").text.squish).to eq "イベントを作成"
+
+    get new_event_path
+
+    page = Nokogiri::HTML(response.body)
+    expect(page.at("main h1").text.squish).to eq "イベントを作成"
+    expect(form_html.at("input[type=submit]")["value"]).to eq "イベントを作成"
+  end
+
+  it "編集画面の見出しにイベント名を出し、送信ボタンを変更を保存にする" do
+    event = create(:event, organizer: user, name: "三鷹の会")
+
+    get edit_event_path(event)
+
+    expect(Nokogiri::HTML(response.body).at("main h1").text.squish).to eq "三鷹の会を編集"
+    expect(form_html.at("input[type=submit]")["value"]).to eq "変更を保存"
+  end
+
+  it "編集の検証エラーでも見出しは保存前の名前のまま" do
+    event = create(:event, organizer: user, name: "三鷹の会")
+
+    patch event_path(event), params: { event: { name: "" } }
+
+    expect(Nokogiri::HTML(response.body).at("main h1").text.squish).to eq "三鷹の会を編集"
+  end
 end

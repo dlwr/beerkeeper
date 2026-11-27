@@ -9,7 +9,7 @@ RSpec.describe "イベントをもとにした新規作成", type: :request do
   end
 
   def form_section
-    response.body.split('<h1>新規作成</h1>').last
+    response.body.split('<h1>イベントを作成</h1>').last
   end
 
   describe 'GET /events/new?source_id=' do
