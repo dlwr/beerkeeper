@@ -7,6 +7,8 @@ class EventNotification
     "cancellation" => "ご参加登録いただいていたイベントは中止になりました。",
     "schedule_change" => "開催日時・場所が変更されました。"
   }.freeze
+  NOTICE_KINDS = %w[participation promotion].freeze
+  NOTICE_LIMIT = 1000
 
   def initialize(kind, user:, event:, changes: {})
     @kind = kind.to_s
@@ -24,6 +26,7 @@ class EventNotification
       "日時：#{schedule_label}",
       "場所：#{format_value(@event.location)}",
       *reason_lines,
+      *notice_lines,
       "",
       Rails.application.routes.url_helpers.event_url(@event, **Rails.application.config.action_mailer.default_url_options)
     ].join("\n")
@@ -46,6 +49,15 @@ class EventNotification
   def reason_lines
     reason = @event.cancellation&.reason if @kind == "cancellation"
     reason.present? ? [ "中止理由：#{reason}" ] : []
+  end
+
+  def notice_lines
+    return [] unless NOTICE_KINDS.include?(@kind) && @event.participant_notice_visible_to?(@user)
+
+    notice = @event.participant_notice
+
+    notice = "#{notice[0, NOTICE_LIMIT]}…\n（続きはイベントの詳細画面でご覧ください）" if notice.length > NOTICE_LIMIT
+    [ "", "参加者へのお知らせ：", notice ]
   end
 
   def format_value(value)
