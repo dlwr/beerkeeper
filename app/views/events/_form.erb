@@ -1,4 +1,7 @@
 <%= form_with model: @event, class: "event-form" do |form| %>
+  <% if @event.persisted? && (notified = @event.participations.count).positive? %>
+    <p class="alert alert-info schedule-change-notice">日時・開催場所を変えると、参加者と補欠の<%= notified %>人に DM で知らせます</p>
+  <% end %>
   <div class="form-group">
     <%= form.label :name, class: "form-label" do %>イベント名 <span class="field-tag">必須</span><% end %>
     <%= form.text_field :name, class: "form-control", required: true, **field_error_attributes(@event, :name) %>

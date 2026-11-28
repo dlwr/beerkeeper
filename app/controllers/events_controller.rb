@@ -62,7 +62,7 @@ class EventsController < ApplicationController
   # PATCH/PUT /events/1
   def update
     if @event.update(event_params)
-      redirect_to @event, notice: "イベントを更新しました"
+      redirect_to @event, notice: update_notice
     else
       flash.now[:alert] = "入力内容を確認してください（#{@event.errors.count}件）"
       render :edit, status: :unprocessable_content
@@ -118,6 +118,13 @@ class EventsController < ApplicationController
         permitted[:end_at] = parse_datetime(end_date, permitted[:end_at_time]) if end_date.present?
       end
       permitted
+    end
+
+    def update_notice
+      notified = @event.participations.count
+      return "イベントを更新しました" unless notified.positive? && @event.saved_changes.keys.intersect?(Event::SCHEDULE_ATTRIBUTES)
+
+      "イベントを更新しました。変更を参加者と補欠の#{notified}人に DM で知らせます"
     end
 
     def parse_datetime(date, time)
